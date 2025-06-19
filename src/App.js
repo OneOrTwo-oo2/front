@@ -17,7 +17,7 @@ function MainContent() {
   const navigate = useNavigate();
 
   const handleMouseMove = (e, index) => {
-    console.log('hello')
+    console.log('hello12')
     const card = imgRefs[index].current;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
