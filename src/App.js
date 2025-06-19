@@ -12,7 +12,6 @@ import MyInfo from './myinfo';
 import Home from './Home';
 
 function MainContent() {
-  console.log('heelo')
   const imgRefs = [useRef(null), useRef(null), useRef(null)];
   const [clickedIndex, setClickedIndex] = useState(null);
   const navigate = useNavigate();
