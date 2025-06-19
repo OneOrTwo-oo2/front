@@ -10,7 +10,6 @@ import PhotoSearchPage from './PhotoSearchPage';
 import IngredientSearchPage from './IngredientSearchPage';
 import MyInfo from './myinfo';
 import Home from './Home';
-# 무야호
 
 function MainContent() {
   const imgRefs = [useRef(null), useRef(null), useRef(null)];
