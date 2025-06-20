@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './PhotoSearchPage.css'; // CSS 파일 따로 분리 추천
-import Header from '../components/Header'
 
 
 function PhotoSearchPage() {
@@ -41,7 +40,6 @@ function PhotoSearchPage() {
 
   return (
     <div className="photo-upload-page">
-      <Header/>
       <div
         className="drop-area"
         onDrop={handleDrop}

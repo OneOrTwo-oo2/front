@@ -2,7 +2,6 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-import Header from '../components/Header'
 
 import { getProjectImages } from '../utils/get-project-images'
 const img1 = getProjectImages(1);
@@ -63,8 +62,6 @@ function MainPage() {
 
   return (
     <div className="app">
-      <Header/>
-
       <div className="main">
         {[img1, img2, img3].map((imgSrc, i) => (
           <div className="partition" key={i}>

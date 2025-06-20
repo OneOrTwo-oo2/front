@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './IngredientSearchPage.css';
 
-import Header from '../components/Header';
 import DropdownSelector from '../components/DropdownSelector';
 import PreferenceToggleSection from '../components/PreferenceToggleSection';
 import PreferenceDetailPanel from '../components/PreferenceDetailPanel';
@@ -36,7 +35,6 @@ function IngredientSearchPage() {
 
   return (
     <div className="ingredient-page-container">
-      <Header />
       <div className="filter-bar">
         <div className="filter-row">
           <PreferenceToggleSection

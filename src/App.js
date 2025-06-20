@@ -1,27 +1,25 @@
-import React, { useRef, useState } from 'react';
-import './App.css';
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './Layout'; // ✅ 추가
 
 // page import
-import PhotoSearchPage from './pages/PhotoSearchPage';
+import MainPage from './pages/MainPage';
 import IngredientSearchPage from './pages/IngredientSearchPage';
-import MyInfo from './pages/MyinfoPage';
+import PhotoSearchPage from './pages/PhotoSearchPage';
 import Home from './pages/Home';
-import MainPage from './pages/MainPage'
-
+import MyInfo from './pages/MyinfoPage';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/ingredient-search" element={<IngredientSearchPage />} />
-        <Route path="/photo-search" element={<PhotoSearchPage />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/myinfo" element={<MyInfo />} />
-        {/* 로그인/회원가입 라우트 추가 예정 시 */}
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/signup" element={<Signup />} /> */}
+        {/* ✅ Layout을 모든 페이지에 공통으로 적용 */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/ingredient-search" element={<IngredientSearchPage />} />
+          <Route path="/photo-search" element={<PhotoSearchPage />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/myinfo" element={<MyInfo />} />
+        </Route>
       </Routes>
     </Router>
   );

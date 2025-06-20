@@ -121,3 +121,7 @@ body {
   display: block;
   margin: 0 auto;
 }
+
+.page-content {
+  padding-top: 80px; /* Header 높이만큼 여백 확보 */
+}
