@@ -1,8 +1,5 @@
 import React, { useRef, useState } from 'react';
 import './App.css';
-import logo from './assets/RecipeGo_logo2.svg';
-
-
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 
 // page import
