@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import './IngredientSearchPage.css';
-import Header from '../components/Header'
+
+import Header from '../components/Header';
+import DropdownSelector from '../components/DropdownSelector';
+import PreferenceToggleSection from '../components/PreferenceToggleSection';
+import PreferenceDetailPanel from '../components/PreferenceDetailPanel';
 
 const dropdownOptions = {
   식사유형: ['아침', '점심', '저녁', '간식'],
@@ -16,62 +20,44 @@ function IngredientSearchPage() {
   const [showPreferenceSettings, setShowPreferenceSettings] = useState(false);
 
   const toggleDropdown = (key) => {
-    setOpenDropdown(openDropdown === key ? null : key);
+    setOpenDropdown((prev) => (prev === key ? null : key));
   };
 
   const handleSelect = (key, value) => {
-    setSelectedOptions({ ...selectedOptions, [key]: value });
+    setSelectedOptions((prev) => ({ ...prev, [key]: value }));
     setOpenDropdown(null);
   };
 
-  const handleEditClick = () => {
-    setShowPreferenceSettings(!showPreferenceSettings);
+  const togglePreferenceSettings = () => {
+    setShowPreferenceSettings((prev) => !prev);
   };
 
   return (
     <div className="ingredient-page-container">
-      <Header/>
+      <Header />
       <div className="filter-bar">
-        <div className="preference-header">
-          <span className="toggle-label">선호도 적용?</span>
-          <span className="edit-button" onClick={handleEditClick}>편집</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={preferenceOn}
-              onChange={() => setPreferenceOn(!preferenceOn)}
-            />
-            <span className="slider round"></span>
-          </label>
+        <div className="filter-row">
+          <PreferenceToggleSection
+            preferenceOn={preferenceOn}
+            setPreferenceOn={setPreferenceOn}
+            onEditClick={togglePreferenceSettings}
+          />
+          <div className="dropdown-container">
+            {Object.entries(dropdownOptions).map(([key, options]) => (
+              <DropdownSelector
+                key={key}
+                label={key}
+                options={options}
+                selected={selectedOptions[key]}
+                isOpen={openDropdown === key}
+                onToggle={() => toggleDropdown(key)}
+                onSelect={(value) => handleSelect(key, value)}
+              />
+            ))}
+          </div>
         </div>
 
-        {showPreferenceSettings && (
-          <div className="preference-dropdown">
-            <div>식단: 지정해</div>
-            <div>피하는 식재료: 우유</div>
-            <div>영양</div>
-            <div>가구: 1성인</div>
-            <div>요리 경험</div>
-            <div>좋아하는 요리</div>
-          </div>
-        )}
-
-        {Object.keys(dropdownOptions).map((key) => (
-          <div key={key} className="dropdown">
-            <button className="dropdown-btn" onClick={() => toggleDropdown(key)}>
-              {selectedOptions[key] || key} <span className="arrow">▼</span>
-            </button>
-            {openDropdown === key && (
-              <ul className="dropdown-menu">
-                {dropdownOptions[key].map((option) => (
-                  <li key={option} onClick={() => handleSelect(key, option)}>
-                    {option}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
+        {showPreferenceSettings && <PreferenceDetailPanel />}
       </div>
     </div>
   );
