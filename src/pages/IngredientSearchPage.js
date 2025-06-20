@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './IngredientSearchPage.css';
+import Header from '../components/Header'
 
 const dropdownOptions = {
   식사유형: ['아침', '점심', '저녁', '간식'],
@@ -29,6 +30,7 @@ function IngredientSearchPage() {
 
   return (
     <div className="ingredient-page-container">
+      <Header/>
       <div className="filter-bar">
         <div className="preference-header">
           <span className="toggle-label">선호도 적용?</span>

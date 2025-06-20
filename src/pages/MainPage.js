@@ -2,8 +2,9 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { getProjectImages } from '../utils/get-project-images'
+import Header from '../components/Header'
 
+import { getProjectImages } from '../utils/get-project-images'
 const img1 = getProjectImages(1);
 const img2 = getProjectImages(2);
 const img3 = getProjectImages(3);
@@ -62,21 +63,7 @@ function MainPage() {
 
   return (
     <div className="app">
-      <header className="header daangn-style">
-        <div className="header-left" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-          <img src={logo} alt="RecipeGo" className="logo-img" />
-        </div>
-        <nav className="header-center">
-          <Link to="/ingredient-search">재료로 검색</Link>
-          <Link to="/photo-search">사진으로 검색</Link>
-          <Link to="/help">도움말</Link>
-        </nav>
-        <div className="header-right">
-          <button onClick={() => navigate('/login')} className="auth-btn">로그인</button>
-          <span className="divider">|</span>
-          <button onClick={() => navigate('/signup')} className="auth-btn">회원가입</button>
-        </div>
-      </header>
+      <Header/>
 
       <div className="main">
         {[img1, img2, img3].map((imgSrc, i) => (

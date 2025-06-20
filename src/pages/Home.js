@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import '../App.css';  // App의 스타일을 사용할 경우
 import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header'
 
 import { getProjectImages } from '../utils/get-project-images'
-
 const img1 = getProjectImages(1);
 const img2 = getProjectImages(2);
 const img3 = getProjectImages(3);
@@ -68,6 +68,7 @@ function Home() {
 
   return (
     <div className="app">
+      <Header/>
       <div className="main">
         {[img1, img2, img3].map((imgSrc, i) => (
           <div className="partition" key={i}>
