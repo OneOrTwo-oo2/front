@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import DropdownSelector from '../components/DropdownSelector';
 import PreferenceToggleSection from '../components/PreferenceToggleSection';
 import PreferenceDetailPanel from '../components/PreferenceDetailPanel';
+import ChatBox from '../components/ChatWatsonx_tmp';
+
 
 const dropdownOptions = {
   식사유형: ['아침', '점심', '저녁', '간식'],
@@ -59,6 +61,7 @@ function IngredientSearchPage() {
 
         {showPreferenceSettings && <PreferenceDetailPanel />}
       </div>
+      <ChatBox/>
     </div>
   );
 }

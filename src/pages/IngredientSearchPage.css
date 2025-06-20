@@ -5,6 +5,7 @@
   height: 100vh;
   background-color: #f9f9f9;
   font-family: 'Noto Sans KR', sans-serif;
+  flex-direction: column;
 }
 
 .filter-bar {
