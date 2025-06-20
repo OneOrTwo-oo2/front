@@ -1,0 +1,77 @@
+/* 고정된 헤더 영역 */
+.header {
+  position: fixed;  /* ✅ 화면 상단 고정 */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+  height: 50px; /* 헤더 높이 명시 */
+}
+
+/* 로고 위치 */
+.header-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.header-left img.logo-img {
+  height: 40px;
+  cursor: pointer;
+}
+
+/* 네비게이션 영역 */
+.header-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.header-center a {
+  text-decoration: none;
+  color: #333;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 4px 8px;
+}
+
+.header-center a:hover {
+  color: #ff6f0f;
+}
+
+/* 로그인/회원가입 버튼 영역 */
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #333;
+}
+
+.auth-btn:hover {
+  color: #ff6f0f;
+}
+
+.divider {
+  color: #ccc;
+}
+
+/* 로고*/
