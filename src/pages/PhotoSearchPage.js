@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './PhotoSearchPage.css'; // CSS 파일 따로 분리 추천
 
+
 function PhotoSearchPage() {
   const [image, setImage] = useState(null);
   const [searchResults, setSearchResults] = useState([]);

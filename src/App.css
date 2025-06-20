@@ -16,98 +16,6 @@ body {
   text-align: center;
 }
 
-/* 이 부분은 헤더와 관련된 CSS */
-.header {
-  display: flex;
-  justify-content: space-between; /* 좌우 정렬 */
-  align-items: center;
-  padding: 20px 40px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ddd;
-  font-size: 18px;
-  position: relative;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.header-left {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.header-left img.logo-img {
-  height: 40px;
-  cursor: pointer;
-}
-
-.header-center {
-  flex: 2;
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-}
-
-.header-center a {
-  text-decoration: none;
-  color: #333;
-  font-size: 18px;
-  font-weight: 500;
-  padding: 4px 8px;
-}
-
-.header-center a:hover {
-  color: #ff6f0f;
-}
-
-.header-right {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
-}
-
-.auth-btn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  color: #333;
-}
-
-.auth-btn:hover {
-  color: #ff6f0f;
-}
-
-.divider {
-  color: #ccc;
-}
-
-
-.header-section {
-  flex: 0.2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 120px;
-}
-
-.header-section.menu {
-  border-right: 1px solid #ddd;
-}
-
-.header-section.logo {
-  flex: 0.6;
-}
-
-.header-section.info {
-  border-left: 1px solid #ddd;
-}
-/* ✅ 로고 이미지 크기 */
-.logo-img {
-  height: 60px; /* 로고 크기 조정 */
-}
 
 /* ✅ 메뉴/내정보 폰트 설정 */
 .menu-label,
@@ -204,4 +112,12 @@ body {
   font-weight: bold;
   text-align: center;
   margin-top: 12px;
+}
+
+.main-img img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }

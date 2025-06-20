@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import './App.css';  // App의 스타일을 사용할 경우
-
-import img1 from './assets/img12.png';
-import img2 from './assets/img12.png';
-import img3 from './assets/img12.png';
-
+import '../App.css';  // App의 스타일을 사용할 경우
 import { useNavigate } from 'react-router-dom';
+
+import { getProjectImages } from '../utils/get-project-images'
+const img1 = getProjectImages(1);
+const img2 = getProjectImages(2);
+const img3 = getProjectImages(3);
 
 function Home() {
   const imgRefs = [useRef(null), useRef(null), useRef(null)];

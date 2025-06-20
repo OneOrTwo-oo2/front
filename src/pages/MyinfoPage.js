@@ -1,6 +1,6 @@
 import React from 'react';
 
-function MyInfo() {
+function MyInfoPage() {
   return (
     <div>
       <h1>내 정보 페이지입니다</h1>
@@ -10,4 +10,4 @@ function MyInfo() {
   );
 }
 
-export default MyInfo;
+export default MyInfoPage;
