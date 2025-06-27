@@ -7,6 +7,7 @@ import IngredientSearchPage from './pages/IngredientSearchPage';
 import PhotoSearchPage from './pages/PhotoSearchPage';
 import Home from './pages/Home';
 import MyInfo from './pages/MyinfoPage';
+import RecipeListPage from './pages/RecipeListPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/photo-search" element={<PhotoSearchPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/myinfo" element={<MyInfo />} />
+          <Route path="/recipes" element={<RecipeListPage />} />
         </Route>
       </Routes>
     </Router>
