@@ -1,20 +1,19 @@
 import React, { useRef, useState } from 'react';
-import './App.css';
-import logo from './assets/RecipeGo_logo2.svg';
-import img1 from './assets/img12.png';
-import img2 from './assets/img12.png';
-import img3 from './assets/img12.png';
+import '../App.css';  // App의 스타일을 사용할 경우
+import { useNavigate } from 'react-router-dom';
 
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
-import PhotoSearchPage from './PhotoSearchPage';
-import IngredientSearchPage from './IngredientSearchPage';
-import MyInfo from './myinfo';
-import Home from './Home';
+import { getProjectImages } from '../utils/get-project-images'
+const img1 = getProjectImages(1);
+const img2 = getProjectImages(2);
+const img3 = getProjectImages(3);
 
-function MainContent() {
+function Home() {
   const imgRefs = [useRef(null), useRef(null), useRef(null)];
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPinned, setMenuPinned] = useState(false);
   const [clickedIndex, setClickedIndex] = useState(null);
-  const navigate = useNavigate();
+
+  const navigate = useNavigate();  // useNavigate 훅 사용
 
   const handleMouseMove = (e, index) => {
     const card = imgRefs[index].current;
@@ -23,13 +22,17 @@ function MainContent() {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
+
     const rotateX = -(y - centerY) / 6;
     const rotateY = (x - centerX) / 6;
+
     const scale = clickedIndex === index ? 1.6 : 1.1;
     const opacity = clickedIndex === index ? 0.7 : 1;
+
     const lightX = (x / rect.width) * 100;
     const lightY = (y / rect.height) * 100;
     const highlight = `radial-gradient(circle at ${lightX}% ${lightY}%, rgba(255,255,255,0.35), transparent 60%)`;
+
     card.style.transform = `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     card.style.opacity = opacity;
     card.style.backgroundImage = highlight;
@@ -48,6 +51,7 @@ function MainContent() {
     const card = imgRefs[index].current;
     const isAlreadyClicked = clickedIndex === index;
     setClickedIndex(isAlreadyClicked ? null : index);
+
     if (isAlreadyClicked) {
       card.style.transform = 'rotateX(0deg) rotateY(0deg)';
       card.style.opacity = 1;
@@ -56,33 +60,13 @@ function MainContent() {
       card.style.transform = 'scale(1.6) rotateX(0deg) rotateY(0deg)';
       card.style.opacity = 0.7;
     }
-    if (index === 0) {
-      navigate('/ingredient-search');
-    } else if (index === 1) {
-      navigate('/photo-search');
-    }
+
+    // 이미지 클릭 시 "/photo-search" 페이지로 이동
+    navigate('/photo-search');
   };
 
   return (
     <div className="app">
-      <header className="header daangn-style">
-        <div className="header-left" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-          <img src={logo} alt="RecipeGo" className="logo-img" />
-        </div>
-
-        <nav className="header-center">
-          <Link to="/ingredient-search">재료로 검색</Link>
-          <Link to="/photo-search">사진으로 검색</Link>
-          <Link to="/help">도움말</Link>
-        </nav>
-
-        <div className="header-right">
-          <button onClick={() => navigate('/login')} className="auth-btn">로그인</button>
-          <span className="divider">|</span>
-          <button onClick={() => navigate('/signup')} className="auth-btn">회원가입</button>
-        </div>
-      </header>
-
       <div className="main">
         {[img1, img2, img3].map((imgSrc, i) => (
           <div className="partition" key={i}>
@@ -91,7 +75,7 @@ function MainContent() {
               className="main-img"
               onMouseMove={(e) => handleMouseMove(e, i)}
               onMouseLeave={() => resetTransform(i)}
-              onClick={() => handleClick(i)}
+              onClick={() => handleClick(i)}  // 이미지 클릭 시 페이지 이동
               style={{ backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}
             >
               <img
@@ -112,21 +96,4 @@ function MainContent() {
   );
 }
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainContent />} />
-        <Route path="/ingredient-search" element={<IngredientSearchPage />} />
-        <Route path="/photo-search" element={<PhotoSearchPage />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/myinfo" element={<MyInfo />} />
-        {/* 로그인/회원가입 라우트 추가 예정 시 */}
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/signup" element={<Signup />} /> */}
-      </Routes>
-    </Router>
-  );
-}
-
-export default App;
+export default Home;

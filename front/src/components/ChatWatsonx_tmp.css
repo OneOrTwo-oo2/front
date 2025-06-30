@@ -1,0 +1,76 @@
+.chatbox {
+  max-width: 880px;
+  margin: 40px auto;
+  padding: 40px;
+  background: #fffefc;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  font-family: 'Segoe UI', 'Pretendard', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* 제목 */
+.chatbox h1 {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  color: #e67e22;
+  text-align: center;
+}
+
+/* 레시피 영역 */
+.recipe {
+  margin-top: 32px;
+  padding: 24px;
+  background-color: #fdfaf6;
+  border-radius: 12px;
+  border: 1px solid #f0e6dc;
+}
+
+/* 레시피 제목 */
+.recipe h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 16px;
+}
+
+/* 설명, 내용 텍스트 */
+.recipe p {
+  font-size: 16px;               /* ✅ 균일한 본문 크기 */
+  margin: 12px 0;
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
+/* 강조 텍스트 */
+.recipe strong {
+  font-size: 17px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+/* 유튜브 섹션 제목 */
+.recipe h3 {
+  margin-top: 32px;
+  font-size: 1.5rem;
+  color: #c0392b;
+}
+
+/* 유튜브 iframe */
+.recipe iframe {
+  width: 100%;
+  height: 315px;
+  margin-top: 8px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+/* 에러 메시지 */
+.error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+}

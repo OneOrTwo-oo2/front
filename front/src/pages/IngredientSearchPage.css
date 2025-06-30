@@ -1,0 +1,35 @@
+.ingredient-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+  font-family: 'Noto Sans KR', sans-serif;
+  flex-direction: column;
+}
+
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  align-items: flex-start;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.dropdown-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
