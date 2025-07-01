@@ -58,6 +58,7 @@ function MainPage() {
 
     if (index === 0) navigate('/ingredient-search');
     else if (index === 1) navigate('/photo-search');
+    else if (index === 2) navigate('/Random-recipe');
   };
 
   return (

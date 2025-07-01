@@ -7,8 +7,10 @@ import IngredientSearchPage from './pages/IngredientSearchPage';
 import PhotoSearchPage from './pages/PhotoSearchPage';
 import Home from './pages/Home';
 import MyInfo from './pages/MyinfoPage';
-import PreferenceToggleSection from './components/PreferenceToggleSection';  // PreferenceToggleSection 컴포넌트 추가
+import RecipeListPage from './pages/RecipeListPage';
+import RandomRecipePage from './pages/RandomRecipePage';
 
+import PreferenceToggleSection from './components/PreferenceToggleSection';  // PreferenceToggleSection 컴포넌트 추가
 // 컴포넌트 경로 수정: src/components/ConditionPage.js
 import ConditionPage from './components/ConditionPage';  // 경로 수정
 
@@ -25,6 +27,8 @@ function App() {
           <Route path="/photo-search" element={<PhotoSearchPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/myinfo" element={<MyInfo />} />
+          <Route path="/recipes" element={<RecipeListPage />} />
+          <Route path="/Random-recipe" element={<RandomRecipePage />} />
         </Route>
 
         {/* ConditionPage 라우트 수정 */}
