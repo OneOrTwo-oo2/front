@@ -5,7 +5,7 @@ import Layout from './Layout';
 import MainPage from './pages/MainPage';
 import IngredientSearchPage from './pages/IngredientSearchPage';
 import PhotoSearchPage from './pages/PhotoSearchPage';
-import Home from './pages/Home';
+
 import MyInfo from './pages/MyinfoPage';
 import RecipeListPage from './pages/RecipeListPage';
 import RandomRecipePage from './pages/RandomRecipePage';
@@ -25,7 +25,7 @@ function App() {
           <Route path="/main" element={<MainPage />} />
           <Route path="/ingredient-search" element={<IngredientSearchPage />} />
           <Route path="/photo-search" element={<PhotoSearchPage />} />
-          <Route path="/home" element={<Home />} />
+
           <Route path="/myinfo" element={<MyInfo />} />
           <Route path="/recipes" element={<RecipeListPage />} />
           <Route path="/Random-recipe" element={<RandomRecipePage />} />

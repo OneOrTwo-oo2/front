@@ -1,6 +1,7 @@
 // MainContent.js
 import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import '../App.css';  // App의 스타일을 사용할 경우
 
 
 import { getProjectImages } from '../utils/get-project-images'

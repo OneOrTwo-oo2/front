@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import qs from 'qs';
 import './RecipeListPage.css';
+import DropdownSelector from '../components/DropdownSelector.js';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -11,6 +12,78 @@ function RecipeListPage() {
   const [theme, setTheme] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [openDropdown, setOpenDropdown] = useState(null); // 하나의 드롭다운만 열리도록 수정
+
+  const kindOptions = [
+    { value: '', label: '종류별' },
+    { value: '63', label: '밑반찬' },
+    { value: '56', label: '메인반찬' },
+    { value: '54', label: '국/탕' },
+    { value: '55', label: '찌개' },
+    { value: '60', label: '디저트' },
+    { value: '53', label: '면/만두' },
+    { value: '52', label: '밥/죽/떡' },
+    { value: '61', label: '퓨전' },
+    { value: '57', label: '김치/젓갈/장류' },
+    { value: '58', label: '양념/소스/잼' },
+    { value: '65', label: '양식' },
+    { value: '64', label: '샐러드' },
+    { value: '68', label: '스프' },
+    { value: '66', label: '빵' },
+    { value: '69', label: '과자' },
+    { value: '59', label: '차/음료/술' },
+    { value: '62', label: '기타' }
+  ];
+
+  const situationOptions = [
+    { value: '', label: '상황별' },
+    { value: '12', label: '일상' },
+    { value: '18', label: '초스피드' },
+    { value: '13', label: '손님접대' },
+    { value: '19', label: '술안주' },
+    { value: '21', label: '다이어트' },
+    { value: '15', label: '도시락' },
+    { value: '43', label: '영양식' },
+    { value: '17', label: '간식' },
+    { value: '45', label: '야식' },
+    { value: '20', label: '푸드스타일링' },
+    { value: '46', label: '해장' },
+    { value: '44', label: '명절' },
+    { value: '14', label: '이유식' },
+    { value: '22', label: '기타' }
+  ];
+
+  const methodOptions = [
+    { value: '', label: '방법별' },
+    { value: '6', label: '볶음' },
+    { value: '1', label: '끓이기' },
+    { value: '7', label: '부침' },
+    { value: '36', label: '조림' },
+    { value: '41', label: '무침' },
+    { value: '42', label: '비빔' },
+    { value: '8', label: '찜' },
+    { value: '10', label: '절임' },
+    { value: '9', label: '튀김' },
+    { value: '38', label: '삶기' },
+    { value: '67', label: '굽기' },
+    { value: '39', label: '데치기' },
+    { value: '37', label: '회' },
+    { value: '11', label: '기타' }
+  ];
+
+  const handleToggle = (key) => {
+    // 드롭다운을 하나만 열 수 있도록 설정
+        setOpenDropdown(openDropdown === key ? null : key); // 같은 것을 두 번 클릭하면 닫기
+  };
+
+  const handleSelect = (key, opt) => {
+    if (key === 'kind') setKind(opt.value);
+    if (key === 'situation') setSituation(opt.value);
+    if (key === 'method') setMethod(opt.value);
+    setOpenDropdown(null); // 선택 후 드롭다운 닫기
+  };
+
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -128,62 +201,32 @@ function RecipeListPage() {
           placeholder="예: 김치, 감자"
         />
 
-        <select value={kind} onChange={(e) => setKind(e.target.value)}>
-          <option value="">종류별</option>
-            <option value="63">밑반찬</option>
-            <option value="56">메인반찬</option>
-            <option value="54">국/탕</option>
-            <option value="55">찌개</option>
-            <option value="60">디저트</option>
-            <option value="53">면/만두</option>
-            <option value="52">밥/죽/떡</option>
-            <option value="61">퓨전</option>
-            <option value="57">김치/젓갈/장류</option>
-            <option value="58">양념/소스/잼</option>
-            <option value="65">양식</option>
-            <option value="64">샐러드</option>
-            <option value="68">스프</option>
-            <option value="66">빵</option>
-            <option value="69">과자</option>
-            <option value="59">차/음료/술</option>
-            <option value="62">기타</option>
-        </select>
+        <DropdownSelector
+          label="종류별"
+          options={kindOptions}
+          selected={kind ? kindOptions.find(opt => opt.value === kind)?.label : ''}
+          isOpen={openDropdown === 'kind'}
+          onToggle={() => handleToggle('kind')}
+          onSelect={(value) => handleSelect('kind', value)}
+        />
 
-        <select value={situation} onChange={(e) => setSituation(e.target.value)}>
-            <option value="">상황별</option>
-            <option value="12">일상</option>
-            <option value="18">초스피드</option>
-            <option value="13">손님접대</option>
-            <option value="19">술안주</option>
-            <option value="21">다이어트</option>
-            <option value="15">도시락</option>
-            <option value="43">영양식</option>
-            <option value="17">간식</option>
-            <option value="45">야식</option>
-            <option value="20">푸드스타일링</option>
-            <option value="46">해장</option>
-            <option value="44">명절</option>
-            <option value="14">이유식</option>
-            <option value="22">기타</option>
-        </select>
+        <DropdownSelector
+          label="상황별"
+          options={situationOptions}
+          selected={situation ? situationOptions.find(opt => opt.value === situation)?.label : ''}
+          isOpen={openDropdown === 'situation'}
+          onToggle={() => handleToggle('situation')}
+          onSelect={(value) => handleSelect('situation', value)}
+        />
 
-        <select value={method} onChange={(e) => setMethod(e.target.value)}>
-            <option value="">방법별</option>
-            <option value="6">볶음</option>
-            <option value="1">끓이기</option>
-            <option value="7">부침</option>
-            <option value="36">조림</option>
-            <option value="41">무침</option>
-            <option value="42">비빔</option>
-            <option value="8">찜</option>
-            <option value="10">절임</option>
-            <option value="9">튀김</option>
-            <option value="38">삶기</option>
-            <option value="67">굽기</option>
-            <option value="39">데치기</option>
-            <option value="37">회</option>
-            <option value="11">기타</option>
-        </select>
+        <DropdownSelector
+          label="방법별"
+          options={methodOptions}
+          selected={method ? methodOptions.find(opt => opt.value === method)?.label : ''}
+          isOpen={openDropdown === 'method'}
+          onToggle={() => handleToggle('method')}
+          onSelect={(value) => handleSelect('method', value)}
+        />
 
         <button onClick={handleSearch}>검색</button>
       </div>

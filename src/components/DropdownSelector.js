@@ -10,8 +10,8 @@ function DropdownSelector({ label, options, selected, isOpen, onToggle, onSelect
       {isOpen && (
         <ul className="dropdown-menu">
           {options.map((opt) => (
-            <li key={opt} onClick={() => onSelect(opt)}>
-              {opt}
+            <li key={opt.value} onClick={() => onSelect(opt)}>
+              {opt.label} {/* 객체의 label을 렌더링 */}
             </li>
           ))}
         </ul>
