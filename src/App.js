@@ -2,21 +2,23 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './Layout';
 
 // page import
-import LoginPage from './pages/LoginPage'; // ✅ 새로 추가한 로그인 페이지
 import MainPage from './pages/MainPage';
 import IngredientSearchPage from './pages/IngredientSearchPage';
 import PhotoSearchPage from './pages/PhotoSearchPage';
 import Home from './pages/Home';
 import MyInfo from './pages/MyinfoPage';
+import PreferenceToggleSection from './components/PreferenceToggleSection';  // PreferenceToggleSection 컴포넌트 추가
+
+// 컴포넌트 경로 수정: src/components/ConditionPage.js
+import ConditionPage from './components/ConditionPage';  // 경로 수정
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* ✅ 로그인 페이지는 Layout 없이 보여줌 */}
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<PreferenceToggleSection />} /> {/* PreferenceToggleSection 페이지로 연결 */}
 
-        {/* ✅ 나머지는 Layout이 공통으로 적용됨 */}
+        {/* 나머지는 Layout이 공통으로 적용됨 */}
         <Route element={<Layout />}>
           <Route path="/main" element={<MainPage />} />
           <Route path="/ingredient-search" element={<IngredientSearchPage />} />
@@ -24,6 +26,9 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/myinfo" element={<MyInfo />} />
         </Route>
+
+        {/* ConditionPage 라우트 수정 */}
+        <Route path="/condition" element={<ConditionPage />} /> {/* 경로와 컴포넌트 연결 */}
       </Routes>
     </Router>
   );
