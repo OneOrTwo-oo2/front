@@ -135,64 +135,9 @@ function RecipeListPage() {
     fetchRecipes(ingredients, kind, situation, method, '');
   };
 
-  const handleThemeClick = (themeCode) => {
-    setTheme(themeCode);
-    setIngredients('');
-    setKind('');
-    setSituation('');
-    setMethod('');
-    const query = qs.stringify({ theme: themeCode });
-    window.history.pushState(null, '', `/recipes?${query}`);
-    fetchRecipes(null, '', '', '', themeCode);
-  };
-
   return (
     <div className="recipe-list-page">
-
-
-      <div className="theme-buttons">
-        <h3>테마별 추천</h3>
-        <button onClick={() => handleThemeClick('101012001')}>저칼로리</button>
-        <button onClick={() => handleThemeClick('101012003')}>디톡스</button>
-        <button onClick={() => handleThemeClick('101012004')}>변비</button>
-        <button onClick={() => handleThemeClick('101012005')}>피부미용</button>
-        <button onClick={() => handleThemeClick('101012006')}>두피-모발</button>
-        <button onClick={() => handleThemeClick('101012007')}>빈혈예방</button>
-        <button onClick={() => handleThemeClick('101012008')}>골다공증</button>
-        <button onClick={() => handleThemeClick('101012009')}>갱년기건강</button>
-        <button onClick={() => handleThemeClick('101012010')}>생리불순</button>
-        <button onClick={() => handleThemeClick('101013001')}>임신준비</button>
-        <button onClick={() => handleThemeClick('101013002')}>입덧</button>
-        <button onClick={() => handleThemeClick('101013003')}>태교음식</button>
-        <button onClick={() => handleThemeClick('101013004')}>수유</button>
-        <button onClick={() => handleThemeClick('101013002')}>산후조리</button>
-        <button onClick={() => handleThemeClick('101013006')}>아이성장발달</button>
-        <button onClick={() => handleThemeClick('101013007')}>아이두뇌발달</button>
-        <button onClick={() => handleThemeClick('101013008')}>아이장튼튼</button>
-        <button onClick={() => handleThemeClick('101013009')}>아이간식</button>
-        <button onClick={() => handleThemeClick('101013010')}>이유식 초기</button>
-        <button onClick={() => handleThemeClick('101013011')}>이유식 중기</button>
-        <button onClick={() => handleThemeClick('101013012')}>이유식 후기</button>
-        <button onClick={() => handleThemeClick('101013013')}>이유식 완료기</button>
-        <button onClick={() => handleThemeClick('101014001')}>위 건강</button>
-        <button onClick={() => handleThemeClick('101014002')}>장 건강</button>
-        <button onClick={() => handleThemeClick('101014003')}>스트레스 해소</button>
-        <button onClick={() => handleThemeClick('101014004')}>피로회복</button>
-        <button onClick={() => handleThemeClick('101014005')}>혈액순환</button>
-        <button onClick={() => handleThemeClick('101014006')}>호흡기 건강</button>
-        <button onClick={() => handleThemeClick('101014007')}>혈당조절</button>
-        <button onClick={() => handleThemeClick('101014008')}>노화방지</button>
-        <button onClick={() => handleThemeClick('101014009')}>암 예방</button>
-        <button onClick={() => handleThemeClick('101014010')}>간 건강</button>
-        <button onClick={() => handleThemeClick('101014011')}>치매 예방</button>
-        <button onClick={() => handleThemeClick('101010001')}>봄</button>
-        <button onClick={() => handleThemeClick('101010002')}>여름</button>
-        <button onClick={() => handleThemeClick('101010003')}>가을</button>
-        <button onClick={() => handleThemeClick('101010004')}>겨울</button>
-
-        {/* 원하는 만큼 버튼 추가 가능 */}
-      </div>
-        <h2>레시피 검색</h2>
+        <h2>🔍레시피 검색</h2>
       <div className="search-bar">
         <input
           type="text"
