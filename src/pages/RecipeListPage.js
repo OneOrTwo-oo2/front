@@ -3,6 +3,7 @@ import axios from 'axios';
 import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector.js';
+import { useNavigate } from 'react-router-dom';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -12,6 +13,11 @@ function RecipeListPage() {
   const [theme, setTheme] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const handleCardClick = (recipe) => {
+  navigate("/recipes/detail", { state: { link: recipe.link } });
+};
 
   const [openDropdown, setOpenDropdown] = useState(null); // 하나의 드롭다운만 열리도록 수정
 
@@ -181,15 +187,16 @@ function RecipeListPage() {
         <p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>
       )}
 
-      <div className="recipe-grid">
-        {results.map((r, i) => (
-          <div key={i} className="recipe-card">
-            <img src={r.image} alt={r.title} />
-            <h3>{r.title}</h3>
-            <a href={r.link} target="_blank" rel="noopener noreferrer">레시피 보기</a>
-          </div>
-        ))}
-      </div>
+    <div className="recipe-grid">
+      {results.map((r, i) => (
+        <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
+          <img src={r.image} alt={r.title} />
+          <h3>{r.title}</h3>
+          <p>{r.summary}</p>
+          {/* 원래 있던 "레시피 보기" 버튼 제거해도 됨 */}
+        </div>
+      ))}
+    </div>
     </div>
   );
 }
