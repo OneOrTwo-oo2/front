@@ -7,11 +7,11 @@ import { useEffect } from 'react';
 import MainPage from './pages/MainPage';
 import IngredientSearchPage from './pages/IngredientSearchPage';
 import PhotoSearchPage from './pages/PhotoSearchPage';
-import Home from './pages/Home';
 import MyInfo from './pages/MyinfoPage';
 import RecipeListPage from './pages/RecipeListPage';
 import RandomRecipePage from './pages/RandomRecipePage';
 import LoginPage from './pages/LoginPage';
+import RecipeDetailPage from './pages/RecipeDetailPage';
 
 import PreferenceToggleSection from './components/PreferenceToggleSection';
 import ConditionPage from './components/ConditionPage';
@@ -48,10 +48,10 @@ function App() {
           <Route path="/main" element={<ProtectedRoute element={<MainPage />} />} />
           <Route path="/ingredient-search" element={<ProtectedRoute element={<IngredientSearchPage />} />} />
           <Route path="/photo-search" element={<ProtectedRoute element={<PhotoSearchPage />} />} />
-          <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
           <Route path="/myinfo" element={<ProtectedRoute element={<MyInfo />} />} />
           <Route path="/recipes" element={<ProtectedRoute element={<RecipeListPage />} />} />
           <Route path="/Random-recipe" element={<ProtectedRoute element={<RandomRecipePage />} />} />
+          <Route path="/recipes/detail" element={<RecipeDetailPage />} />
         </Route>
 
         {/* 별도 온보딩 페이지 */}

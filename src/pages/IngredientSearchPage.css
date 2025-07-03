@@ -41,8 +41,9 @@ button.active {
 
 .dropdown {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row; /* 👉 수평 정렬 */
+  align-items: center;  /* 👉 수직 정렬 정돈 (선택사항) */
+  gap: 10px;            /* 👉 요소 간 간격 */
 }
 
 .dropdown label {

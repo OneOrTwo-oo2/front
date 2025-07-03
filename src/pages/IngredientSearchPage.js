@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 
+import DropdownSelector from '../components/DropdownSelector';
+import PreferenceToggleSection from '../components/PreferenceToggleSection';
+import { kindOptions, situationOptions, methodOptions } from '../components/options.js';
+
+
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
   const [kind, setKind] = useState('');
@@ -12,17 +17,19 @@ function IngredientSearchPage() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("/api/yolo-classes")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setIngredientOptions(data);
-        else if (data.ingredients && Array.isArray(data.ingredients))
-          setIngredientOptions(data.ingredients);
-        else console.error("🚨 재료 형식 이상:", data);
-      })
-      .catch((err) => console.error("🚨 재료 fetch 실패:", err));
-  }, []);
+  const [openDropdown, setOpenDropdown] = useState(null); // 하나의 드롭다운만 열리도록 수정
+
+  const handleToggle = (key) => {
+    // 드롭다운을 하나만 열 수 있도록 설정
+        setOpenDropdown(openDropdown === key ? null : key); // 같은 것을 두 번 클릭하면 닫기
+  };
+
+  const handleSelect = (key, opt) => {
+    if (key === 'kind') setKind(opt.value);
+    if (key === 'situation') setSituation(opt.value);
+    if (key === 'method') setMethod(opt.value);
+    setOpenDropdown(null); // 선택 후 드롭다운 닫기
+  };
 
   const toggleIngredient = (item) => {
     setIngredients(prev =>
@@ -39,6 +46,18 @@ function IngredientSearchPage() {
     });
     navigate(`/recipes?${query}`);
   };
+
+  useEffect(() => {
+    fetch("/api/yolo-classes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setIngredientOptions(data);
+        else if (data.ingredients && Array.isArray(data.ingredients))
+          setIngredientOptions(data.ingredients);
+        else console.error("🚨 재료 형식 이상:", data);
+      })
+      .catch((err) => console.error("🚨 재료 fetch 실패:", err));
+  }, []);
 
   return (
     <div className="search-buttons-page">
@@ -61,41 +80,35 @@ function IngredientSearchPage() {
 
       <div className="section dropdowns">
         <div className="dropdown">
-          <label>종류별</label>
-          <select value={kind} onChange={(e) => setKind(e.target.value)}>
-            <option value="">선택 없음</option>
-            <option value="63">밑반찬</option>
-            <option value="56">메인반찬</option>
-            <option value="54">국/탕</option>
-            <option value="55">찌개</option>
-            <option value="60">디저트</option>
-          </select>
-        </div>
+           <DropdownSelector
+            label="종류별"
+            options={kindOptions}
+            selected={kind ? kindOptions.find(opt => opt.value === kind)?.label : ''}
+            isOpen={openDropdown === 'kind'}
+            onToggle={() => handleToggle('kind')}
+            onSelect={(value) => handleSelect('kind', value)}
+          />
 
-        <div className="dropdown">
-          <label>상황별</label>
-          <select value={situation} onChange={(e) => setSituation(e.target.value)}>
-            <option value="">선택 없음</option>
-            <option value="12">일상</option>
-            <option value="18">초스피드</option>
-            <option value="13">손님접대</option>
-            <option value="21">다이어트</option>
-          </select>
-        </div>
+          <DropdownSelector
+            label="상황별"
+            options={situationOptions}
+            selected={situation ? situationOptions.find(opt => opt.value === situation)?.label : ''}
+            isOpen={openDropdown === 'situation'}
+            onToggle={() => handleToggle('situation')}
+            onSelect={(value) => handleSelect('situation', value)}
+          />
 
-        <div className="dropdown">
-          <label>방법별</label>
-          <select value={method} onChange={(e) => setMethod(e.target.value)}>
-            <option value="">선택 없음</option>
-            <option value="6">볶음</option>
-            <option value="1">끓이기</option>
-            <option value="7">부침</option>
-            <option value="36">조림</option>
-          </select>
+          <DropdownSelector
+            label="방법별"
+            options={methodOptions}
+            selected={method ? methodOptions.find(opt => opt.value === method)?.label : ''}
+            isOpen={openDropdown === 'method'}
+            onToggle={() => handleToggle('method')}
+            onSelect={(value) => handleSelect('method', value)}
+          />
+          <button className="search-btn" onClick={handleSearch}>검색</button>
         </div>
       </div>
-
-      <button className="search-btn" onClick={handleSearch}>검색</button>
     </div>
   );
 }

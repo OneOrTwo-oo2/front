@@ -35,7 +35,7 @@ function LoginPage() {
     if (data.isNewUser) {
       navigate("/preference");
     } else {
-      navigate("/home");
+      navigate("/main");
     }
   };
 
