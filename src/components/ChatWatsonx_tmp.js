@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import './ChatWatsonx_tmp.css';
 
+const INGREDIENT_LIST = [
+  "김치", "삼겹살", "양파", "달걀", "두부", "마늘", "된장", "고추장"
+];
+
 function ChatBox() {
-  const [ingredients, setIngredients] = useState('');
+  const [ingredients, setIngredients] = useState([]);
   const [parsed, setParsed] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const toggleIngredient = (item) => {
+    setIngredients(prev =>
+      prev.includes(item)
+        ? prev.filter(i => i !== item)
+        : [...prev, item]
+    );
+  };
 
   const handleSubmit = async () => {
     try {
@@ -12,21 +24,16 @@ function ChatBox() {
       const res = await fetch("/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredients })
+        body: JSON.stringify({ ingredients: ingredients.join(', ') })
       });
 
       if (!res.ok) throw new Error("서버 응답 오류");
 
       const data = await res.json();
-
-      // JSON 파싱
       const resultData = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
       const text = resultData?.results?.[0]?.generated_text ?? '';
-      console.log(resultData);
-      // 파싱 함수 적용
       const parsedResult = parseRecipeResult(text);
       setParsed(parsedResult);
-
     } catch (err) {
       console.error("에러 발생:", err);
       setParsed({ error: "요청 실패. 서버 상태를 확인해주세요." });
@@ -63,11 +70,21 @@ function ChatBox() {
   return (
     <div className="chatbox">
       <h1>🥕 식재료 기반 요리 추천</h1>
-      <textarea
-        value={ingredients}
-        onChange={(e) => setIngredients(e.target.value)}
-        placeholder="예: 김치, 삼겹살, 양파"
-      />
+
+      <div className="ingredient-buttons">
+        {INGREDIENT_LIST.map((item, i) => (
+          <button
+            key={i}
+            className={`ingredient-btn ${ingredients.includes(item) ? 'selected' : ''}`}
+            onClick={() => toggleIngredient(item)}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      <p className="selected-list">선택한 재료: {ingredients.join(', ') || '없음'}</p>
+
       <button onClick={handleSubmit} disabled={loading}>
         {loading ? "로딩 중..." : "레시피 추천받기"}
       </button>
