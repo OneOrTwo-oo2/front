@@ -1,31 +1,41 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode";
+import "./LoginPage.css";
 
 function LoginPage() {
   const navigate = useNavigate();
 
-  const handleGoogleLogin = async () => {
-    try {
-      const googleToken = '예시_구글_토큰'; // 👈 실제로는 Google 로그인 완료 후 받은 credential/token 넣어야 함
+  useEffect(() => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+    });
 
-      const res = await fetch('/api/auth/google-login', {
-        method: 'POST',
-        body: JSON.stringify({ credential: googleToken }),
-        headers: { 'Content-Type': 'application/json' },
-      });
+    google.accounts.id.renderButton(
+      document.getElementById("google-login-btn"),
+      { theme: "outline", size: "large" }
+    );
+  }, []);
 
-      const data = await res.json();
+  const handleCredentialResponse = async (response) => {
+    const credential = response.credential;
 
-      localStorage.setItem('token', data.token);
+    const res = await fetch("http://localhost:8000/api/auth/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential }),
+    });
 
-      if (data.isNewUser) {
-        navigate('/preference'); // 회원가입 후
-      } else {
-        navigate('/home'); // 기존 유저는 홈으로
-      }
-    } catch (err) {
-      console.error('Google 로그인 오류:', err);
+    const data = await res.json();
+
+    localStorage.setItem("token", data.token); // 필요 시 저장
+
+    if (data.isNewUser) {
+      navigate("/preference");
+    } else {
+      navigate("/main");
     }
   };
 
@@ -33,14 +43,7 @@ function LoginPage() {
     <div className="login-container">
       <img src="/logo.png" alt="로고" className="logo" />
       <h2>Google 간편 로그인</h2>
-      <button className="google-login-btn" onClick={handleGoogleLogin}>
-        <img
-          src="https://developers.google.com/identity/images/g-logo.png"
-          alt="Google"
-          className="google-icon"
-        />
-        Google 계정으로 로그인
-      </button>
+      <div id="google-login-btn"></div>
     </div>
   );
 }

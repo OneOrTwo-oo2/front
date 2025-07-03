@@ -7,7 +7,7 @@ function Header() {
 
   return (
     <header className="header">
-      <div className="header-left" onClick={() => navigate('/')}>
+      <div className="header-left" onClick={() => navigate('/main')}>
         <img src={logo} alt="RecipeGo" className="logo-img" />
       </div>
       <nav className="header-center">
@@ -16,9 +16,7 @@ function Header() {
         <Link to="/help">도움말</Link>
       </nav>
       <div className="header-right">
-        <button onClick={() => navigate('/login')} className="auth-btn">로그인</button>
-        <span className="divider">|</span>
-        <button onClick={() => navigate('/signup')} className="auth-btn">회원가입</button>
+        <button onClick={() => navigate('/myinfo')} className="auth-btn">내 정보</button>
       </div>
     </header>
   );
