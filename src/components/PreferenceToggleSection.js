@@ -40,6 +40,8 @@ function PreferenceToggleSection() {
 
   const handleSkip = () => {
     console.log('Skipped');
+    navigate('/condition', { state: { selectedIngredients: [] } }); // ← 빈 상태로 이동
+
     // 건너뛰기 시 처리
   };
 
