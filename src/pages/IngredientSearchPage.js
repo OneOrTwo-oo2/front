@@ -58,6 +58,9 @@ function IngredientSearchPage() {
       })
       .catch((err) => console.error("🚨 재료 fetch 실패:", err));
   }, []);
+  // 모든 필드가 선택되어야만 검색 버튼 활성화
+  const isSearchDisabled =
+    ingredients.length === 0 || !kind || !situation || !method;
 
   return (
     <div className="search-buttons-page">
@@ -106,7 +109,7 @@ function IngredientSearchPage() {
             onToggle={() => handleToggle('method')}
             onSelect={(value) => handleSelect('method', value)}
           />
-          <button className="search-btn" onClick={handleSearch}>검색</button>
+          <button className="search-btn" onClick={handleSearch} disabled={isSearchDisabled}>검색</button>
         </div>
       </div>
     </div>
