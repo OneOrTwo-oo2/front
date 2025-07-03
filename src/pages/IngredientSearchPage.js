@@ -1,84 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import qs from 'qs';
 import './IngredientSearchPage.css';
 
-import DropdownSelector from '../components/DropdownSelector';
-import PreferenceToggleSection from '../components/PreferenceToggleSection';
-import PreferenceDetailPanel from '../components/PreferenceDetailPanel';
-import ChatBox from '../components/ChatWatsonx_tmp';
-
-
-
-const dropdownOptions = {
-  식사유형: ['아침', '점심', '저녁', '간식'],
-  요리시간: ['10분 이하', '30분 이하', '1시간 이하', '1시간 이상'],
-  나라별요리: ['한식', '일식', '중식', '양식', '동남아'],
-  인기재료: ['계란', '감자', '치즈', '김치', '닭고기']
-};
-
 function IngredientSearchPage() {
+  const [ingredients, setIngredients] = useState([]);
+  const [kind, setKind] = useState('');
+  const [situation, setSituation] = useState('');
+  const [method, setMethod] = useState('');
+  const [ingredientOptions, setIngredientOptions] = useState([]);
+
   const navigate = useNavigate();
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [preferenceOn, setPreferenceOn] = useState(false);
-  const [showPreferenceSettings, setShowPreferenceSettings] = useState(false);
 
-  const goToRecipePage = () => {
-     const ingredients = selectedOptions['인기재료'];
-      if (ingredients) {
-        const ingredientList = ingredients.split(',').map(item => item.trim());
-        const query = ingredientList.join(','); // 쉼표로 연결된 문자열
-        navigate(`/recipes?ingredients=${encodeURIComponent(query)}`);
-      } else {
-        alert('인기재료를 선택해주세요!');
-      }
+  useEffect(() => {
+    fetch("/api/yolo-classes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setIngredientOptions(data);
+        else if (data.ingredients && Array.isArray(data.ingredients))
+          setIngredientOptions(data.ingredients);
+        else console.error("🚨 재료 형식 이상:", data);
+      })
+      .catch((err) => console.error("🚨 재료 fetch 실패:", err));
+  }, []);
+
+  const toggleIngredient = (item) => {
+    setIngredients(prev =>
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
+    );
   };
 
-  const toggleDropdown = (key) => {
-    setOpenDropdown((prev) => (prev === key ? null : key));
-  };
-
-  const handleSelect = (key, value) => {
-    setSelectedOptions((prev) => ({ ...prev, [key]: value }));
-    setOpenDropdown(null);
-  };
-
-  const togglePreferenceSettings = () => {
-    setShowPreferenceSettings((prev) => !prev);
+  const handleSearch = () => {
+    const query = qs.stringify({
+      ingredients: ingredients.join(','),
+      ...(kind && { kind }),
+      ...(situation && { situation }),
+      ...(method && { method })
+    });
+    navigate(`/recipes?${query}`);
   };
 
   return (
-    <div className="ingredient-page-container">
-      <div className="filter-bar">
-        <div className="filter-row">
-          <PreferenceToggleSection
-            preferenceOn={preferenceOn}
-            setPreferenceOn={setPreferenceOn}
-            onEditClick={togglePreferenceSettings}
-          />
-          <div className="dropdown-container">
-            {Object.entries(dropdownOptions).map(([key, options]) => (
-              <DropdownSelector
-                key={key}
-                label={key}
-                options={options}
-                selected={selectedOptions[key]}
-                isOpen={openDropdown === key}
-                onToggle={() => toggleDropdown(key)}
-                onSelect={(value) => handleSelect(key, value)}
-              />
-            ))}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '30px' }}>
-            <button onClick={goToRecipePage} style={{ padding: '10px 20px', fontSize: '16px' }}>
-                재료 선택하고 레시피 보기
-                </button>
-           </div>
+    <div className="search-buttons-page">
+      <h2>레시피 검색</h2>
+
+      <div className="section">
+        <h4>재료 선택</h4>
+        <div className="buttons">
+          {ingredientOptions.slice(0, 20).map((item) => (
+            <button
+              key={item}
+              className={ingredients.includes(item) ? "active" : ""}
+              onClick={() => toggleIngredient(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="section dropdowns">
+        <div className="dropdown">
+          <label>종류별</label>
+          <select value={kind} onChange={(e) => setKind(e.target.value)}>
+            <option value="">선택 없음</option>
+            <option value="63">밑반찬</option>
+            <option value="56">메인반찬</option>
+            <option value="54">국/탕</option>
+            <option value="55">찌개</option>
+            <option value="60">디저트</option>
+          </select>
         </div>
 
-        {showPreferenceSettings && <PreferenceDetailPanel />}
+        <div className="dropdown">
+          <label>상황별</label>
+          <select value={situation} onChange={(e) => setSituation(e.target.value)}>
+            <option value="">선택 없음</option>
+            <option value="12">일상</option>
+            <option value="18">초스피드</option>
+            <option value="13">손님접대</option>
+            <option value="21">다이어트</option>
+          </select>
+        </div>
+
+        <div className="dropdown">
+          <label>방법별</label>
+          <select value={method} onChange={(e) => setMethod(e.target.value)}>
+            <option value="">선택 없음</option>
+            <option value="6">볶음</option>
+            <option value="1">끓이기</option>
+            <option value="7">부침</option>
+            <option value="36">조림</option>
+          </select>
+        </div>
       </div>
-      <ChatBox/>
+
+      <button className="search-btn" onClick={handleSearch}>검색</button>
     </div>
   );
 }
