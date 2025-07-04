@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import qs from 'qs';
 import './RecipeListPage.css';
-import DropdownSelector from '../components/DropdownSelector.js';
+import DropdownSelector from '../components/DropdownSelector';
 import { useNavigate } from 'react-router-dom';
-import { kindOptions, situationOptions, methodOptions } from '../components/options.js';
+import { kindOptions, situationOptions, methodOptions } from '../components/options';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -14,28 +14,25 @@ function RecipeListPage() {
   const [theme, setTheme] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [bookmarkedState, setBookmarkedState] = useState(new Map()); // 각 레시피 카드의 북마크 상태 관리
 
   const navigate = useNavigate();
+  const [openDropdown, setOpenDropdown] = useState(null);
+
   const handleCardClick = (recipe) => {
-  navigate("/recipes/detail", { state: { link: recipe.link } });
-};
-
-  const [openDropdown, setOpenDropdown] = useState(null); // 하나의 드롭다운만 열리도록 수정
-
-
+    navigate("/recipes/detail", { state: { link: recipe.link } });
+  };
 
   const handleToggle = (key) => {
-    // 드롭다운을 하나만 열 수 있도록 설정
-        setOpenDropdown(openDropdown === key ? null : key); // 같은 것을 두 번 클릭하면 닫기
+    setOpenDropdown(openDropdown === key ? null : key);
   };
 
   const handleSelect = (key, opt) => {
     if (key === 'kind') setKind(opt.value);
     if (key === 'situation') setSituation(opt.value);
     if (key === 'method') setMethod(opt.value);
-    setOpenDropdown(null); // 선택 후 드롭다운 닫기
+    setOpenDropdown(null);
   };
-
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -87,9 +84,44 @@ function RecipeListPage() {
     fetchRecipes(ingredients, kind, situation, method, '');
   };
 
+  const getUserIdFromSession = () => {
+    return 1; // 실제로 로그인한 사용자 ID를 사용
+  };
+
+  const handleAddToBookmark = async (recipe) => {
+    const userId = getUserIdFromSession();
+    try {
+      // 이미 북마크된 레시피인지 확인
+      if (bookmarkedState.has(recipe.id)) {
+        alert("이미 추가된 레시피입니다!");
+        return;  // 이미 추가된 레시피일 경우 추가하지 않음
+      }
+
+      // 북마크를 추가하는 API 요청
+      await axios.post("http://localhost:8000/api/bookmark-with-recipe", {
+        user_id: userId,
+        title: recipe.title,
+        image: recipe.image,
+        summary: recipe.summary || "",
+        link: recipe.link,
+      });
+
+      // 북마크 상태 업데이트 (각 레시피의 상태만 업데이트)
+      setBookmarkedState((prevState) => {
+        const updatedState = new Map(prevState);  // Map을 복사하여 상태 업데이트
+        updatedState.set(recipe.id, true);  // 새로 북마크 추가
+        return updatedState;
+      });
+
+      alert("✅ 북마크에 저장되었습니다!");
+    } catch (err) {
+      console.error("❌ 북마크 실패:", err);
+    }
+  };
+
   return (
     <div className="recipe-list-page">
-        <h2>🔍레시피 검색</h2>
+      <h2>🔍레시피 검색</h2>
       <div className="search-bar">
         <input
           type="text"
@@ -133,16 +165,23 @@ function RecipeListPage() {
         <p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>
       )}
 
-    <div className="recipe-grid">
-      {results.map((r, i) => (
-        <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
-          <img src={r.image} alt={r.title} />
-          <h3>{r.title}</h3>
-          <p>{r.summary}</p>
-          {/* 원래 있던 "레시피 보기" 버튼 제거해도 됨 */}
-        </div>
-      ))}
-    </div>
+      <div className="recipe-grid">
+        {results.map((r, i) => (
+          <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
+            <img src={r.image} alt={r.title} />
+            <h3>{r.title}</h3>
+            <p>{r.summary}</p>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToBookmark(r);
+              }}
+            >
+              {bookmarkedState.has(r.id) ? "✅ 저장됨" : "북마크"}
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

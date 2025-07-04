@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
@@ -7,21 +7,20 @@ import DropdownSelector from '../components/DropdownSelector';
 import PreferenceToggleSection from '../components/PreferenceToggleSection';
 import { kindOptions, situationOptions, methodOptions } from '../components/options.js';
 
-
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
   const [kind, setKind] = useState('');
   const [situation, setSituation] = useState('');
   const [method, setMethod] = useState('');
-  const [ingredientOptions, setIngredientOptions] = useState([]);
+  const [ingredientOptions, setIngredientOptions] = useState([]); // 전체 재료 목록
+  const [ingredientsToDisplay, setIngredientsToDisplay] = useState(20); // 한 번에 보여줄 재료 개수
 
   const navigate = useNavigate();
 
   const [openDropdown, setOpenDropdown] = useState(null); // 하나의 드롭다운만 열리도록 수정
 
   const handleToggle = (key) => {
-    // 드롭다운을 하나만 열 수 있도록 설정
-        setOpenDropdown(openDropdown === key ? null : key); // 같은 것을 두 번 클릭하면 닫기
+    setOpenDropdown(openDropdown === key ? null : key); // 같은 것을 두 번 클릭하면 닫기
   };
 
   const handleSelect = (key, opt) => {
@@ -59,6 +58,15 @@ function IngredientSearchPage() {
       .catch((err) => console.error("🚨 재료 fetch 실패:", err));
   }, []);
 
+  // 모든 필드가 선택되어야만 검색 버튼 활성화
+  const isSearchDisabled =
+    ingredients.length === 0 || !kind || !situation || !method;
+
+  // "+ 버튼 클릭 시 추가로 20개씩 재료 불러오기"
+  const loadMoreIngredients = () => {
+    setIngredientsToDisplay(prev => prev + 20); // 20개씩 추가로 보여주기
+  };
+
   return (
     <div className="search-buttons-page">
       <h2>레시피 검색</h2>
@@ -66,7 +74,7 @@ function IngredientSearchPage() {
       <div className="section">
         <h4>재료 선택</h4>
         <div className="buttons">
-          {ingredientOptions.slice(0, 20).map((item) => (
+          {ingredientOptions.slice(0, ingredientsToDisplay).map((item) => (
             <button
               key={item}
               className={ingredients.includes(item) ? "active" : ""}
@@ -75,12 +83,18 @@ function IngredientSearchPage() {
               {item}
             </button>
           ))}
+          {/* "+" 버튼을 추가하여 추가 재료 로드 */}
+          {ingredientsToDisplay < ingredientOptions.length && (
+            <button className="load-more-btn" onClick={loadMoreIngredients}>
+              + 더 보기
+            </button>
+          )}
         </div>
       </div>
 
       <div className="section dropdowns">
         <div className="dropdown">
-           <DropdownSelector
+          <DropdownSelector
             label="종류별"
             options={kindOptions}
             selected={kind ? kindOptions.find(opt => opt.value === kind)?.label : ''}
@@ -106,7 +120,7 @@ function IngredientSearchPage() {
             onToggle={() => handleToggle('method')}
             onSelect={(value) => handleSelect('method', value)}
           />
-          <button className="search-btn" onClick={handleSearch}>검색</button>
+          <button className="search-btn" onClick={handleSearch} disabled={isSearchDisabled}>검색</button>
         </div>
       </div>
     </div>
