@@ -14,24 +14,13 @@ function RecipeListPage() {
   const [theme, setTheme] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [bookmarkedState, setBookmarkedState] = useState(new Map()); // 각 레시피 카드의 북마크 상태 관리
+  const [bookmarkedState, setBookmarkedState] = useState(new Map());
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  const handleCardClick = (recipe) => {
-    navigate("/recipes/detail", { state: { link: recipe.link } });
-  };
-
-  const handleToggle = (key) => {
-    setOpenDropdown(openDropdown === key ? null : key);
-  };
-
-  const handleSelect = (key, opt) => {
-    if (key === 'kind') setKind(opt.value);
-    if (key === 'situation') setSituation(opt.value);
-    if (key === 'method') setMethod(opt.value);
-    setOpenDropdown(null);
+  const getUserIdFromSession = () => {
+    return 1;
   };
 
   useEffect(() => {
@@ -50,7 +39,26 @@ function RecipeListPage() {
       setTheme(t || '');
       fetchRecipes(ing, k, s, m, t);
     }
+
+    fetchBookmarks(); // ✅ 북마크 상태 불러오기
   }, []);
+
+  const fetchBookmarks = async () => {
+    const userId = getUserIdFromSession();
+    try {
+      const res = await axios.get("http://localhost:8000/api/bookmarks", {
+        params: { userId },
+      });
+
+      const bookmarkedIds = new Map();
+      res.data.forEach((recipe) => {
+        bookmarkedIds.set(Number(recipe.id), true); // ✅ 숫자 키로 저장
+      });
+      setBookmarkedState(bookmarkedIds);
+    } catch (err) {
+      console.error("❌ 북마크 상태 불러오기 실패:", err);
+    }
+  };
 
   const fetchRecipes = async (ing, k, s, m, t) => {
     setLoading(true);
@@ -65,7 +73,14 @@ function RecipeListPage() {
         },
         paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
       });
-      setResults(res.data.results);
+
+      // 응답 처리 시 id가 문자열일 수도 있으니 정수화
+      const processed = res.data.results.map((r, idx) => ({
+        ...r,
+        id: Number(r.id) || idx  // fallback
+      }));
+
+      setResults(processed);
     } catch (err) {
       console.error("❌ 에러:", err);
     } finally {
@@ -84,21 +99,32 @@ function RecipeListPage() {
     fetchRecipes(ingredients, kind, situation, method, '');
   };
 
-  const getUserIdFromSession = () => {
-    return 1; // 실제로 로그인한 사용자 ID를 사용
+  const handleCardClick = (recipe) => {
+    navigate("/recipes/detail", { state: { link: recipe.link } });
+  };
+
+  const handleToggle = (key) => {
+    setOpenDropdown(openDropdown === key ? null : key);
+  };
+
+  const handleSelect = (key, opt) => {
+    if (key === 'kind') setKind(opt.value);
+    if (key === 'situation') setSituation(opt.value);
+    if (key === 'method') setMethod(opt.value);
+    setOpenDropdown(null);
   };
 
   const handleAddToBookmark = async (recipe) => {
     const userId = getUserIdFromSession();
     try {
-      // 이미 북마크된 레시피인지 확인
-      if (bookmarkedState.has(recipe.id)) {
+      const recipeId = Number(recipe.id);
+
+      if (bookmarkedState.has(recipeId)) {
         alert("이미 추가된 레시피입니다!");
-        return;  // 이미 추가된 레시피일 경우 추가하지 않음
+        return;
       }
 
-      // 북마크를 추가하는 API 요청
-      await axios.post("http://localhost:8000/api/bookmark-with-recipe", {
+      const res = await axios.post("http://localhost:8000/api/bookmark-with-recipe", {
         user_id: userId,
         title: recipe.title,
         image: recipe.image,
@@ -106,11 +132,12 @@ function RecipeListPage() {
         link: recipe.link,
       });
 
-      // 북마크 상태 업데이트 (각 레시피의 상태만 업데이트)
-      setBookmarkedState((prevState) => {
-        const updatedState = new Map(prevState);  // Map을 복사하여 상태 업데이트
-        updatedState.set(recipe.id, true);  // 새로 북마크 추가
-        return updatedState;
+      const newRecipeId = Number(res.data.recipe_id);
+
+      setBookmarkedState(prev => {
+        const updated = new Map(prev);
+        updated.set(newRecipeId, true);
+        return updated;
       });
 
       alert("✅ 북마크에 저장되었습니다!");
@@ -177,7 +204,7 @@ function RecipeListPage() {
                 handleAddToBookmark(r);
               }}
             >
-              {bookmarkedState.has(r.id) ? "✅ 저장됨" : "북마크"}
+              {bookmarkedState.has(Number(r.id)) ? "✅ 저장됨" : "북마크"}
             </button>
           </div>
         ))}

@@ -70,6 +70,11 @@ function MyinfoPage() {
   };
 
   const handleAddToFolder = (recipeId) => {
+     // 🔐 북마크에 존재하는 레시피인지 확인
+    if (!bookmarks.some(b => b.id === recipeId)) {
+    alert("해당 레시피는 북마크되지 않았습니다!");
+    return;
+    }
     if (selectedFolder) {
       setFolderRecipes(prev => {
         const updated = { ...prev };
