@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import Modal from 'react-modal';
 import confetti from 'canvas-confetti';
 import './MyinfoPage.css';
+import { useNavigate } from 'react-router-dom'; //카드이벤트 추가
 
 Modal.setAppElement('#root');
 
@@ -100,6 +101,14 @@ function MyinfoPage() {
     }
   };
 
+  //카드이벤트 추가
+  const navigate = useNavigate();
+
+  const handleCardClick = (recipe) => {
+    navigate("/recipes/detail", { state: { link: recipe.link } });
+  };
+
+
   const handleRemoveBookmark = async (recipeId) => {
     const userId = getUserIdFromSession();
     try {
@@ -127,12 +136,11 @@ function MyinfoPage() {
       )}
 
       <div className="myinfo-content">
-        <h2 className="section-title">저장된 레시피</h2>
+        <h2 className="section-title">저장된 모든 레시피</h2>
         <input className="search-input" type="text" placeholder="레시피 검색"
           value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
 
         <div className="folder-management">
-          <h3>모든 레시피</h3>
           <button onClick={handleCreateFolder}>새 폴더 만들기</button>
           {folders.length > 0 && (
             <select onChange={(e) => handleFolderChange(e.target.value)} value={selectedFolder}>
@@ -143,17 +151,18 @@ function MyinfoPage() {
         </div>
 
         <div className="bookmark-section">
-          <h3>북마크된 레시피</h3>
+          <h3></h3>
           <div className="recipe-grid">
             {bookmarks.length > 0 ? (
               filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="recipe-card">
+                //이벤트버튼 추가 165,166줄도
+                <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
                   <img src={recipe.image} alt={recipe.title} className="recipe-img" />
                   <div className="recipe-info">
                     <h4>{recipe.title}</h4>
                     <p>{recipe.summary}</p>
-                    <button onClick={() => handleAddToFolder(recipe.id)}>폴더에 추가</button>
-                    <button onClick={() => handleRemoveBookmark(recipe.id)}>삭제</button>
+                    <button onClick={(e) => {e.stopPropagation();handleAddToFolder(recipe.id);}}>폴더에 추가</button>
+                    <button onClick={(e) => {e.stopPropagation();handleRemoveBookmark(recipe.id);}}>삭제</button>
                   </div>
                 </div>
               ))
@@ -168,12 +177,13 @@ function MyinfoPage() {
             <h3>{selectedFolder} 폴더에 저장된 레시피</h3>
             <div className="recipe-grid">
               {getRecipesInFolder(selectedFolder).map(recipe => (
-                <div key={recipe.id} className="recipe-card">
+                //이벤트버튼 추가
+                <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
                   <img src={recipe.image} alt={recipe.title} className="recipe-img" />
                   <div className="recipe-info">
                     <h4>{recipe.title}</h4>
                     <p>{recipe.summary}</p>
-                    <button onClick={() => handleRemoveRecipeFromFolder(recipe.id)}>폴더에서 제거</button>
+                    <button onClick={(e) => {e.stopPropagation();handleRemoveRecipeFromFolder(recipe.id);}}>폴더에서 제거</button>
                   </div>
                 </div>
               ))}
