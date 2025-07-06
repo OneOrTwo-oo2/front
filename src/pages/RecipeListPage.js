@@ -19,10 +19,6 @@ function RecipeListPage() {
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  const getUserIdFromSession = () => {
-    return 1;
-  };
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ing = params.get('ingredients');
@@ -44,15 +40,19 @@ function RecipeListPage() {
   }, []);
 
   const fetchBookmarks = async () => {
-    const userId = getUserIdFromSession();
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     try {
       const res = await axios.get("http://localhost:8000/api/bookmarks", {
-        params: { userId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const bookmarkedIds = new Map();
       res.data.forEach((recipe) => {
-        bookmarkedIds.set(Number(recipe.id), true); // ✅ 숫자 키로 저장
+        bookmarkedIds.set(Number(recipe.id), true);
       });
       setBookmarkedState(bookmarkedIds);
     } catch (err) {
@@ -74,10 +74,9 @@ function RecipeListPage() {
         paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
       });
 
-      // 응답 처리 시 id가 문자열일 수도 있으니 정수화
       const processed = res.data.results.map((r, idx) => ({
         ...r,
-        id: Number(r.id) || idx  // fallback
+        id: Number(r.id) || idx
       }));
 
       setResults(processed);
@@ -115,26 +114,39 @@ function RecipeListPage() {
   };
 
   const handleAddToBookmark = async (recipe) => {
-    const userId = getUserIdFromSession();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("로그인이 필요합니다!");
+      return;
+    }
+
+    const recipeId = Number(recipe.id);
+
+    if (bookmarkedState.has(recipeId)) {
+      alert("이미 추가된 레시피입니다!");
+      return;
+    }
+
     try {
-      const recipeId = Number(recipe.id);
-
-      if (bookmarkedState.has(recipeId)) {
-        alert("이미 추가된 레시피입니다!");
-        return;
-      }
-
-      const res = await axios.post("http://localhost:8000/api/bookmark-with-recipe", {
-        user_id: userId,
-        title: recipe.title,
-        image: recipe.image,
-        summary: recipe.summary || "",
-        link: recipe.link,
-      });
+      const res = await axios.post(
+        "http://localhost:8000/api/bookmark-with-recipe",
+        {
+          title: recipe.title,
+          image: recipe.image,
+          summary: recipe.summary || "",
+          link: recipe.link,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const newRecipeId = Number(res.data.recipe_id);
 
-      setBookmarkedState(prev => {
+      setBookmarkedState((prev) => {
         const updated = new Map(prev);
         updated.set(newRecipeId, true);
         return updated;
@@ -143,6 +155,7 @@ function RecipeListPage() {
       alert("✅ 북마크에 저장되었습니다!");
     } catch (err) {
       console.error("❌ 북마크 실패:", err);
+      alert("북마크 중 오류 발생");
     }
   };
 

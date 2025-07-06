@@ -5,6 +5,12 @@ import logo from '../assets/RecipeGo_logo2.svg';
 function Header() {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    alert("로그아웃 되었습니다.");
+    navigate("/login");
+  };
+
   return (
     <header className="header">
       <div className="header-left" onClick={() => navigate('/main')}>
@@ -17,6 +23,7 @@ function Header() {
       </nav>
       <div className="header-right">
         <button onClick={() => navigate('/myinfo')} className="auth-btn">내 정보</button>
+        <button onClick={handleLogout} className="auth-btn logout-btn">로그아웃</button>
       </div>
     </header>
   );

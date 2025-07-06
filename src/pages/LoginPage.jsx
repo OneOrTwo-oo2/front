@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // ✅ default import ❌ → 중괄호 import로 수정
 import "./LoginPage.css";
 
 function LoginPage() {
@@ -22,20 +22,35 @@ function LoginPage() {
   const handleCredentialResponse = async (response) => {
     const credential = response.credential;
 
-    const res = await fetch("http://localhost:8000/api/auth/google-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credential }),
-    });
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/google-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    localStorage.setItem("token", data.token); // 필요 시 저장
+      if (!res.ok) {
+        throw new Error(data.detail || "로그인 실패");
+      }
 
-    if (data.isNewUser) {
-      navigate("/preference");
-    } else {
-      navigate("/main");
+      // ✅ 토큰 저장
+      localStorage.setItem("token", data.token);
+
+      // ✅ 디코드 및 확인용 로그
+      const decoded = jwtDecode(data.token);
+      console.log("🔓 로그인된 user_id:", decoded.user_id);
+
+      // ✅ 라우팅
+      if (data.isNewUser) {
+        navigate("/preference");
+      } else {
+        navigate("/main");
+      }
+    } catch (err) {
+      console.error("❌ 로그인 실패:", err.message);
+      alert("로그인에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
