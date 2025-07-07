@@ -1,5 +1,5 @@
 export const kindOptions = [
-    { value: '', label: '종류별' },
+//    { value: '', label: '종류별' },
     { value: '63', label: '밑반찬' },
     { value: '56', label: '메인반찬' },
     { value: '54', label: '국/탕' },
@@ -20,7 +20,7 @@ export const kindOptions = [
   ];
 
 export const situationOptions = [
-    { value: '', label: '상황별' },
+//    { value: '', label: '상황별' },
     { value: '12', label: '일상' },
     { value: '18', label: '초스피드' },
     { value: '13', label: '손님접대' },
@@ -38,7 +38,7 @@ export const situationOptions = [
   ];
 
 export const methodOptions = [
-    { value: '', label: '방법별' },
+//    { value: '', label: '방법별' },
     { value: '6', label: '볶음' },
     { value: '1', label: '끓이기' },
     { value: '7', label: '부침' },
