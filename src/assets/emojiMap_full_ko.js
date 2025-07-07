@@ -1,31 +1,31 @@
 const emojiMap = {
   "kelp": {
-    "emoji": "/emojis/img_1.png",
+    "emoji": "/emojis/kelp.png",
     "name_ko": "다시마",
     "name_en": "Kelp"
   },
   "mung_bean_sprouts": {
-    "emoji": "/emojis/img_2.png",
+    "emoji": "/emojis/mung_bean_sprouts.png",
     "name_ko": "숙주나물",
     "name_en": "Mung bean sprouts"
   },
   "salmon": {
-    "emoji": "/emojis/img_3.png",
+    "emoji": "/emojis/salmon.png",
     "name_ko": "연어",
     "name_en": "Salmon"
   },
   "lamb": {
-    "emoji": "🐑",
+    "emoji": "/emojis/lamb.png",
     "name_ko": "양고기",
     "name_en": "Lamb"
   },
   "teriyaki_sauce": {
-    "emoji": "🍶",
+    "emoji": "/emojis/teriyaki_sauce.png",
     "name_ko": "데리야끼 소스",
     "name_en": "Teriyaki sauce"
   },
   "white_rice": {
-    "emoji": "🍚",
+    "emoji": "/emojis/white_rice.png",
     "name_ko": "백미",
     "name_en": "White rice"
   },
@@ -35,23 +35,23 @@ const emojiMap = {
     "name_en": "Paprika"
   },
   "abalone": {
-    "emoji": "🐚",
+    "emoji": "/emojis/abalone.png",
     "name_ko": "전복",
     "name_en": "Abalone"
   },
   "salad": {
-    "emoji": "🥗",
+    "emoji": "/emojis/salad.png",
     "name_ko": "샐러드",
     "name_en": "Salad"
   },
   "Makgeolli": {
-    "emoji": "🍶",
+    "emoji": "/emojis/makgeolli.png",
     "name_ko": "막걸리",
     "name_en": "Makgeolli"
   },
   "dried_pollack_strips": {
     "emoji": "🧂",
-    "name_ko": "dried pollack strips",
+    "name_ko": "황태채",
     "name_en": "Dried pollack strips"
   },
   "mixed_grain_rice": {
