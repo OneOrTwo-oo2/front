@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
-
+import emojiMap from "../assets/emojiMap_full_ko.js";
 import DropdownSelector from '../components/DropdownSelector';
 import PreferenceToggleSection from '../components/PreferenceToggleSection';
 import { kindOptions, situationOptions, methodOptions } from '../components/options.js';
@@ -69,28 +69,46 @@ function IngredientSearchPage() {
 
   return (
     <div className="search-buttons-page">
-      <h2>레시피 검색</h2>
+      <h2>선호도 선택</h2>
 
-      <div className="section">
-        <h4>재료 선택</h4>
-        <div className="buttons">
-          {ingredientOptions.slice(0, ingredientsToDisplay).map((item) => (
-            <button
-              key={item}
-              className={ingredients.includes(item) ? "active" : ""}
-              onClick={() => toggleIngredient(item)}
-            >
-              {item}
-            </button>
-          ))}
-          {/* "+" 버튼을 추가하여 추가 재료 로드 */}
-          {ingredientsToDisplay < ingredientOptions.length && (
-            <button className="load-more-btn" onClick={loadMoreIngredients}>
-              + 더 보기
-            </button>
+    <div className="section">
+  <h4>재료 선택</h4>
+  <div className="buttons">
+    {ingredientOptions.slice(0, ingredientsToDisplay).map((item) => {
+      const info = emojiMap[item] || {
+        emoji: null,
+        name_ko: item.replace(/_/g, " "),
+      };
+
+      return (
+        <button
+          key={item}
+          className={ingredients.includes(item) ? "active" : ""}
+          onClick={() => toggleIngredient(item)}
+        >
+          {/* ✅ 이 부분이 핵심: 이미지 or 기본 이모지 출력 */}
+          {info.emoji ? (
+            <img
+              src={info.emoji}
+              alt={info.name_ko}
+              style={{ width: 25, height: 25, marginRight: 8 }}
+            />
+          ) : (
+            <span style={{ marginRight: 8 }}>🧂</span>
           )}
-        </div>
-      </div>
+
+          {info.name_ko}
+        </button>
+      );
+    })}
+
+    {ingredientsToDisplay < ingredientOptions.length && (
+      <button className="load-more-btn" onClick={loadMoreIngredients}>
+        + 더 보기
+      </button>
+    )}
+  </div>
+</div>
 
       <div className="section dropdowns">
         <div className="dropdown">
