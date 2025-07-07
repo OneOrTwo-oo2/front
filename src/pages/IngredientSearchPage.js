@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from "../assets/emojiMap_full_ko.js";
@@ -12,6 +12,9 @@ function IngredientSearchPage() {
   const [method, setMethod] = useState('');
   const [ingredientOptions, setIngredientOptions] = useState([]);
   const [ingredientsToDisplay, setIngredientsToDisplay] = useState(20);
+
+  const location = useLocation();
+  const { labels } = location.state || { labels: [] };
 
   const navigate = useNavigate();
 
@@ -48,6 +51,13 @@ function IngredientSearchPage() {
       })
       .catch((err) => console.error("🚨 재료 fetch 실패:", err));
   }, []);
+
+
+  useEffect(() => {
+    if (labels.length > 0) {
+      setIngredients(labels);
+    }
+  }, [labels]);
 
   const isSearchDisabled =
     ingredients.length === 0 || !kind || !situation || !method;
