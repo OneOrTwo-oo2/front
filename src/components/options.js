@@ -1,3 +1,12 @@
+export const preferOptions = [
+    { label: '채식주의' },
+    { label: '저탄수화물' },
+    { label: '글루텐프리' },
+    { label: '다이어트' },
+    { label: '저염식' }
+  ];
+
+
 export const kindOptions = [
 //    { value: '', label: '종류별' },
     { value: '63', label: '밑반찬' },

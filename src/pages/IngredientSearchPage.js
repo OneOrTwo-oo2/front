@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from "../assets/emojiMap_full_ko.js";
-import { kindOptions, situationOptions, methodOptions } from '../components/options.js';
+import { preferOptions, kindOptions, situationOptions, methodOptions } from '../components/options.js'; //선호도추가
 
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
@@ -58,7 +58,18 @@ function IngredientSearchPage() {
 
   return (
     <div className="search-buttons-page">
-      <h2>선호도 선택</h2>
+      <h4>선호도 선택</h4>
+      <div className="buttons">
+        {preferOptions.map((opt) => (
+          <button
+            key={opt.value}
+            className={kind === opt.value ? "active" : ""}
+            onClick={() => handleCategorySelect('kind', opt.value)}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
     <div className="section">
   <h4>재료 선택</h4>

@@ -170,6 +170,9 @@ function MyinfoPage() {
   };
 
   const handleRemoveBookmark = async (recipeId) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
     try {
       const decoded = jwtDecode(token);
       const userId = decoded.user_id;
@@ -231,7 +234,6 @@ function MyinfoPage() {
           value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
 
         <div className="folder-management">
-          <h3>모든 레시피</h3>
           <button onClick={handleCreateFolder}>새 폴더 만들기</button>
           {folders.length > 0 && (
             <select onChange={(e) => handleFolderChange(e.target.value)} value={selectedFolder}>
