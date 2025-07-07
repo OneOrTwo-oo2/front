@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from "../assets/emojiMap_full_ko.js";
-import DropdownSelector from '../components/DropdownSelector';
-import PreferenceToggleSection from '../components/PreferenceToggleSection';
 import { kindOptions, situationOptions, methodOptions } from '../components/options.js';
 
 function IngredientSearchPage() {
@@ -12,28 +10,21 @@ function IngredientSearchPage() {
   const [kind, setKind] = useState('');
   const [situation, setSituation] = useState('');
   const [method, setMethod] = useState('');
-  const [ingredientOptions, setIngredientOptions] = useState([]); // 전체 재료 목록
-  const [ingredientsToDisplay, setIngredientsToDisplay] = useState(20); // 한 번에 보여줄 재료 개수
+  const [ingredientOptions, setIngredientOptions] = useState([]);
+  const [ingredientsToDisplay, setIngredientsToDisplay] = useState(20);
 
   const navigate = useNavigate();
-
-  const [openDropdown, setOpenDropdown] = useState(null); // 하나의 드롭다운만 열리도록 수정
-
-  const handleToggle = (key) => {
-    setOpenDropdown(openDropdown === key ? null : key); // 같은 것을 두 번 클릭하면 닫기
-  };
-
-  const handleSelect = (key, opt) => {
-    if (key === 'kind') setKind(opt.value);
-    if (key === 'situation') setSituation(opt.value);
-    if (key === 'method') setMethod(opt.value);
-    setOpenDropdown(null); // 선택 후 드롭다운 닫기
-  };
 
   const toggleIngredient = (item) => {
     setIngredients(prev =>
       prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
+  };
+
+  const handleCategorySelect = (type, value) => {
+    if (type === 'kind') setKind(value);
+    if (type === 'situation') setSituation(value);
+    if (type === 'method') setMethod(value);
   };
 
   const handleSearch = () => {
@@ -58,13 +49,11 @@ function IngredientSearchPage() {
       .catch((err) => console.error("🚨 재료 fetch 실패:", err));
   }, []);
 
-  // 모든 필드가 선택되어야만 검색 버튼 활성화
   const isSearchDisabled =
     ingredients.length === 0 || !kind || !situation || !method;
 
-  // "+ 버튼 클릭 시 추가로 20개씩 재료 불러오기"
   const loadMoreIngredients = () => {
-    setIngredientsToDisplay(prev => prev + 20); // 20개씩 추가로 보여주기
+    setIngredientsToDisplay(prev => prev + 20);
   };
 
   return (
@@ -110,36 +99,58 @@ function IngredientSearchPage() {
   </div>
 </div>
 
-      <div className="section dropdowns">
-        <div className="dropdown">
-          <DropdownSelector
-            label="종류별"
-            options={kindOptions}
-            selected={kind ? kindOptions.find(opt => opt.value === kind)?.label : ''}
-            isOpen={openDropdown === 'kind'}
-            onToggle={() => handleToggle('kind')}
-            onSelect={(value) => handleSelect('kind', value)}
-          />
 
-          <DropdownSelector
-            label="상황별"
-            options={situationOptions}
-            selected={situation ? situationOptions.find(opt => opt.value === situation)?.label : ''}
-            isOpen={openDropdown === 'situation'}
-            onToggle={() => handleToggle('situation')}
-            onSelect={(value) => handleSelect('situation', value)}
-          />
-
-          <DropdownSelector
-            label="방법별"
-            options={methodOptions}
-            selected={method ? methodOptions.find(opt => opt.value === method)?.label : ''}
-            isOpen={openDropdown === 'method'}
-            onToggle={() => handleToggle('method')}
-            onSelect={(value) => handleSelect('method', value)}
-          />
-          <button className="search-btn" onClick={handleSearch} disabled={isSearchDisabled}>검색</button>
+      {/* 종류별, 상황별, 방법별 */}
+      <div className="section">
+        <h4>종류별</h4>
+        <div className="buttons">
+          {kindOptions.map((opt) => (
+            <button
+              key={opt.value}
+              className={kind === opt.value ? "active" : ""}
+              onClick={() => handleCategorySelect('kind', opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
+
+        <h4>상황별</h4>
+        <div className="buttons">
+          {situationOptions.map((opt) => (
+            <button
+              key={opt.value}
+              className={situation === opt.value ? "active" : ""}
+              onClick={() => handleCategorySelect('situation', opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <h4>방법별</h4>
+        <div className="buttons">
+          {methodOptions.map((opt) => (
+            <button
+              key={opt.value}
+              className={method === opt.value ? "active" : ""}
+              onClick={() => handleCategorySelect('method', opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 검색 버튼 */}
+      <div className="section">
+        <button
+          className="search-btn"
+          onClick={handleSearch}
+          disabled={isSearchDisabled}
+        >
+          검색
+        </button>
       </div>
     </div>
   );
