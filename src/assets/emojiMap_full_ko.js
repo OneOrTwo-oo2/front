@@ -815,13 +815,13 @@ const emojiMap = {
     "name_en": "Lasagna sheet"
   },
   "hoisin_sauce": {
-    "emoji": "🧂",
+    "emoji": "/emojis/.png",
     "name_ko": "hoisin sauce",
     "name_en": "Hoisin sauce"
   },
   "cod_roe": {
-    "emoji": "🧂",
-    "name_ko": "cod roe",
+    "emoji": "/emojis/.png",
+    "name_ko": "명란",
     "name_en": "Cod roe"
   },
   "egg": {
@@ -830,238 +830,238 @@ const emojiMap = {
     "name_en": "Egg"
   },
   "lobster": {
-    "emoji": "🧂",
-    "name_ko": "lobster",
+    "emoji": "/emojis/.png",
+    "name_ko": "랍스터",
     "name_en": "Lobster"
   },
   "Canned_whelk": {
-    "emoji": "🧂",
-    "name_ko": "Canned whelk",
+    "emoji": "/emojis/.png",
+    "name_ko": "골뱅이 통조림",
     "name_en": "Canned whelk"
   },
   "cauliflower": {
-    "emoji": "🧂",
-    "name_ko": "cauliflower",
+    "emoji": "/emojis/.png",
+    "name_ko": "콜리플라워",
     "name_en": "Cauliflower"
   },
   "Instant_curry": {
-    "emoji": "🧂",
-    "name_ko": "Instant curry",
+    "emoji": "/emojis/.png",
+    "name_ko": "즉석카레",
     "name_en": "Instant curry"
   },
   "instant_soup": {
-    "emoji": "🧂",
-    "name_ko": "instant soup",
+    "emoji": "/emojis/.png",
+    "name_ko": "즉석국",
     "name_en": "Instant soup"
   },
   "penne": {
-    "emoji": "🧂",
-    "name_ko": "penne",
+    "emoji": "/emojis/.png",
+    "name_ko": "펜네",
     "name_en": "Penne"
   },
   "rosemary": {
-    "emoji": "🧂",
-    "name_ko": "rosemary",
+    "emoji": "/emojis/.png",
+    "name_ko": "로즈마리",
     "name_en": "Rosemary"
   },
   "Canned_pizza_sauce": {
-    "emoji": "🧂",
-    "name_ko": "Canned pizza sauce",
+    "emoji": "/emojis/.png",
+    "name_ko": "피자 소스 통조림",
     "name_en": "Canned pizza sauce"
   },
   "Canned_fruits": {
-    "emoji": "🧂",
-    "name_ko": "Canned fruits",
+    "emoji": "/emojis/.png",
+    "name_ko": "요리당",
     "name_en": "Canned fruits"
   },
   "cooking_syrup": {
-    "emoji": "🧂",
+    "emoji": "/emojis/.png",
     "name_ko": "cooking syrup",
     "name_en": "Cooking syrup"
   },
   "ginseng": {
-    "emoji": "🧂",
-    "name_ko": "ginseng",
+    "emoji": "/emojis/.png",
+    "name_ko": "인삼",
     "name_en": "Ginseng"
   },
   "chicken_breast": {
-    "emoji": "🧂",
-    "name_ko": "chicken breast",
+    "emoji": "/emojis/.png",
+    "name_ko": "닭 가슴살",
     "name_en": "Chicken breast"
   },
   "fresh_cream": {
-    "emoji": "🧂",
-    "name_ko": "fresh cream",
+    "emoji": "/emojis/.png",
+    "name_ko": "생크림",
     "name_en": "Fresh cream"
   },
   "tuna": {
-    "emoji": "🧂",
-    "name_ko": "tuna",
+    "emoji": "/emojis/.png",
+    "name_ko": "참치",
     "name_en": "Tuna"
   },
   "king_oyster_mushroom": {
-    "emoji": "🧂",
-    "name_ko": "king oyster mushroom",
+    "emoji": "/emojis/.png",
+    "name_ko": "새송이버섯",
     "name_en": "King oyster mushroom"
   },
   "Canned_seafood": {
-    "emoji": "🧂",
-    "name_ko": "Canned seafood",
+    "emoji": "/emojis/.png",
+    "name_ko": "해물 통조림",
     "name_en": "Canned seafood"
   },
   "Ramen_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Ramen noodles",
+    "emoji": "/emojis/.png",
+    "name_ko": "라멘면",
     "name_en": "Ramen noodles"
   },
   "Udon_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Udon noodles",
+    "emoji": "/emojis/.png",
+    "name_ko": "우동면",
     "name_en": "Udon noodles"
   },
   "chicken_wing": {
-    "emoji": "🧂",
-    "name_ko": "chicken wing",
+    "emoji": "/emojis/.png",
+    "name_ko": "닭날개",
     "name_en": "Chicken wing"
   },
   "Canned_mackerel": {
-    "emoji": "🧂",
-    "name_ko": "Canned mackerel",
+    "emoji": "/emojis/.png",
+    "name_ko": "고등어 통조림",
     "name_en": "Canned mackerel"
   },
   "alfredo_sauce": {
-    "emoji": "🧂",
-    "name_ko": "alfredo sauce",
+    "emoji": "/emojis/alfredo_sauce.png",
+    "name_ko": "알프레도 소스",
     "name_en": "Alfredo sauce"
   },
   "spaghetti": {
-    "emoji": "🧂",
-    "name_ko": "spaghetti",
+    "emoji": "/emojis/spaghetti.png",
+//    "name_ko": "스파게티면",
     "name_en": "Spaghetti"
   },
   "chicken_thigh": {
-    "emoji": "🧂",
-    "name_ko": "chicken thigh",
+    "emoji": "/emojis/chicken_thigh.png",
+    "name_ko": "닭 허벅지살",
     "name_en": "Chicken thigh"
   },
   "enoki_mushroom": {
-    "emoji": "🧂",
-    "name_ko": "enoki mushroom",
+    "emoji": "/emojis/.png",
+    "name_ko": "팽이버섯",
     "name_en": "Enoki mushroom"
   },
   "flounder": {
-    "emoji": "🧂",
-    "name_ko": "flounder",
+    "emoji": "/emojis/flounder.png",
+    "name_ko": "광어",
     "name_en": "Flounder"
   },
   "Ciabatta": {
-    "emoji": "🧂",
-    "name_ko": "Ciabatta",
+    "emoji": "/emojis/Ciabatta.png",
+    "name_ko": "치아바타",
     "name_en": "Ciabatta"
   },
   "Naengmyeon_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Naengmyeon noodles",
+    "emoji": "/emojis/Kalguksu_noodles.png",
+    "name_ko": "냉면면",
     "name_en": "Naengmyeon noodles"
   },
   "pork_front_leg": {
-    "emoji": "🧂",
-    "name_ko": "pork front leg",
+    "emoji": "/emojis/shank.png",
+    "name_ko": "돼지 앞다리살",
     "name_en": "Pork front leg"
   },
   "for_bulgogi": {
-    "emoji": "🧂",
-    "name_ko": "for bulgogi",
+    "emoji": "/emojis/for_bulgogi.png",
+    "name_ko": "불고기용",
     "name_en": "For bulgogi"
   },
   "Jjolmyeon": {
-    "emoji": "🧂",
-    "name_ko": "Jjolmyeon",
+    "emoji": "/emojis/Kalguksu_noodles.png",
+    "name_ko": "쫄면",
     "name_en": "Jjolmyeon"
   },
   "Canned_clams": {
-    "emoji": "🧂",
-    "name_ko": "Canned clams",
+    "emoji": "/emojis/Canned_potatoes.png",
+    "name_ko": "조개 통조림",
     "name_en": "Canned clams"
   },
   "Canned_vegetables": {
-    "emoji": "🧂",
-    "name_ko": "Canned vegetables",
+    "emoji": "/emojis/Canned_potatoes.png",
+    "name_ko": "채소 통조림",
     "name_en": "Canned vegetables"
   },
   "eggplant": {
-    "emoji": "🧂",
-    "name_ko": "eggplant",
+    "emoji": "/emojis/eggplant.png",
+    "name_ko": "가지",
     "name_en": "Eggplant"
   },
   "shank": {
-    "emoji": "🧂",
-    "name_ko": "shank",
+    "emoji": "/emojis/shank.png",
+    "name_ko": "우둔살",
     "name_en": "Shank"
   },
   "plain_bread": {
-    "emoji": "🧂",
-    "name_ko": "plain bread",
+    "emoji": "/emojis/plain_bread.png",
+    "name_ko": "식빵",
     "name_en": "Plain bread"
   },
   "Ramyeon_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Ramyeon noodles",
+    "emoji": "/emojis/Kalguksu_noodles.png",
+    "name_ko": "라면사리",
     "name_en": "Ramyeon noodles"
   },
   "Chinese-style_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Chinese-style noodles",
+    "emoji": "/emojis/Kalguksu_noodles.png",
+    "name_ko": "중화면",
     "name_en": "Chinese-style noodles"
   },
   "fusilli": {
-    "emoji": "🧂",
-    "name_ko": "fusilli",
+    "emoji": "/emojis/fusilli.png",
+    "name_ko": "푸실리",
     "name_en": "Fusilli"
   },
   "cilantro": {
-    "emoji": "🧂",
-    "name_ko": "cilantro",
+    "emoji": "/emojis/cilantro.png",
+    "name_ko": "고수",
     "name_en": "Cilantro"
   },
   "thyme": {
-    "emoji": "🧂",
-    "name_ko": "thyme",
+    "emoji": "/emojis/thyme.png",
+    "name_ko": "타임",
     "name_en": "Thyme"
   },
   "BBQ_sauce": {
-    "emoji": "🧂",
-    "name_ko": "BBQ sauce",
+    "emoji": "/emojis/BBQ_sauce.png",
+    "name_ko": "BBQ 소스",
     "name_en": "Bbq sauce"
   },
   "Kalguksu_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Kalguksu noodles",
+    "emoji": "/emojis/Kalguksu_noodles.png",
+    "name_ko": "칼국수면",
     "name_en": "Kalguksu noodles"
   },
   "cooking_oil": {
-    "emoji": "🧂",
-    "name_ko": "cooking oil",
+    "emoji": "/emojis/cooking_oil.png",
+    "name_ko": "식용유",
     "name_en": "Cooking oil"
   },
   "Glass_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Glass noodles",
+    "emoji": "/emojis/Glass_noodles.png",
+    "name_ko": "당면",
     "name_en": "Glass noodles"
   },
   "brisket": {
-    "emoji": "🧂",
-    "name_ko": "brisket",
+    "emoji": "/emojis/brisket.png",
+    "name_ko": "차돌박이",
     "name_en": "Brisket"
   },
   "Baguette": {
-    "emoji": "🧂",
-    "name_ko": "Baguette",
+    "emoji": "/emojis/Baguette.png",
+    "name_ko": "바게트",
     "name_en": "Baguette"
   },
   "Canned_soup": {
-    "emoji": "🧂",
-    "name_ko": "Canned soup",
+    "emoji": "/emojis/Canned_potatoes.png",
+    "name_ko": "스프 통조림",
     "name_en": "Canned soup"
   },
   "Canned_curry": {
@@ -1070,18 +1070,18 @@ const emojiMap = {
     "name_en": "Canned curry"
   },
   "Croissant": {
-    "emoji": "🧂",
-    "name_ko": "Croissant",
+    "emoji": "/emojis/Croissant.png",
+    "name_ko": "크로와상",
     "name_en": "Croissant"
   },
   "Canned_potatoes": {
-    "emoji": "🧂",
-    "name_ko": "Canned potatoes",
+    "emoji": "/emojis/Canned_potatoes.png",
+    "name_ko": "감자 통조림",
     "name_en": "Canned potatoes"
   },
   "Cheddar_cheese": {
-    "emoji": "🧂",
-    "name_ko": "Cheddar cheese",
+    "emoji": "/emojis/Cheddar_cheese.png",
+    "name_ko": "체다 치즈",
     "name_en": "Cheddar cheese"
   }
 };
