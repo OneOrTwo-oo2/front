@@ -1,25 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
 import Modal from 'react-modal';
 import confetti from 'canvas-confetti';
 import './MyinfoPage.css';
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
 Modal.setAppElement('#root');
 
 function MyinfoPage() {
-  const location = useLocation();
-  const isNewUser = location.state?.isNewUser || false;
-
-  const [isOpen, setIsOpen] = useState(isNewUser);
+  const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState('');
   const [folderRecipes, setFolderRecipes] = useState({});
   const [bookmarks, setBookmarks] = useState([]);
 
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (isNewUser) {
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+    }
+
+    if (token) {
+      const decoded = jwtDecode(token);
+      console.log("📌 로그인된 유저 ID:", decoded.user_id);
+    }
+
+    if (window.location.state?.isNewUser) {
+      setIsOpen(true);
       confetti({
         particleCount: 150,
         spread: 100,
@@ -28,21 +40,25 @@ function MyinfoPage() {
         startVelocity: 45,
       });
     }
-    fetchBookmarks();
-  }, [isNewUser]);
 
-  const getUserIdFromSession = () => {
-    return 1;
-  };
+    fetchBookmarks();
+  }, []);
 
   const fetchBookmarks = async () => {
-    const userId = getUserIdFromSession();
     try {
-      const res = await axios.get('http://localhost:8000/api/bookmarks', { params: { userId } });
+      const res = await axios.get("http://localhost:8000/api/bookmarks", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setBookmarks(res.data);
     } catch (err) {
-      console.error('북마크 조회 실패:', err);
+      console.error("북마크 불러오기 실패:", err);
     }
+  };
+
+  const handleCardClick = (recipe) => {
+    navigate("/recipes/detail", { state: { link: recipe.link } });
   };
 
   const handleCreateFolder = () => {
@@ -70,10 +86,9 @@ function MyinfoPage() {
   };
 
   const handleAddToFolder = (recipeId) => {
-     // 🔐 북마크에 존재하는 레시피인지 확인
     if (!bookmarks.some(b => b.id === recipeId)) {
-    alert("해당 레시피는 북마크되지 않았습니다!");
-    return;
+      alert("해당 레시피는 북마크되지 않았습니다!");
+      return;
     }
     if (selectedFolder) {
       setFolderRecipes(prev => {
@@ -84,10 +99,6 @@ function MyinfoPage() {
     } else {
       alert("폴더를 먼저 선택해주세요.");
     }
-  };
-
-  const getRecipesInFolder = (folderName) => {
-    return bookmarks.filter(recipe => folderRecipes[folderName]?.includes(recipe.id));
   };
 
   const handleRemoveRecipeFromFolder = (recipeId) => {
@@ -101,14 +112,23 @@ function MyinfoPage() {
   };
 
   const handleRemoveBookmark = async (recipeId) => {
-    const userId = getUserIdFromSession();
     try {
-      await axios.delete("http://localhost:8000/api/bookmark", { params: { userId, recipeId } });
+      const decoded = jwtDecode(token);
+      const userId = decoded.user_id;
+
+      await axios.delete("http://localhost:8000/api/bookmark", {
+        params: { userId, recipeId }
+      });
+
       setBookmarks(bookmarks.filter((recipe) => recipe.id !== recipeId));
       alert("북마크가 삭제되었습니다.");
     } catch (err) {
       console.error("북마크 삭제 실패:", err);
     }
+  };
+
+  const getRecipesInFolder = (folderName) => {
+    return bookmarks.filter(recipe => folderRecipes[folderName]?.includes(recipe.id));
   };
 
   const filteredRecipes = bookmarks.filter(recipe =>
@@ -117,7 +137,7 @@ function MyinfoPage() {
 
   return (
     <div className="myinfo-page">
-      {isNewUser && (
+      {isOpen && (
         <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)}
           style={{ content: { width: '400px', height: '200px', margin: 'auto', textAlign: 'center', borderRadius: '12px', paddingTop: '40px' } }}>
           <h2 style={{ fontSize: '28px' }}>🎉 프로필 설정 완료!</h2>
@@ -147,13 +167,13 @@ function MyinfoPage() {
           <div className="recipe-grid">
             {bookmarks.length > 0 ? (
               filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="recipe-card">
+                <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
                   <img src={recipe.image} alt={recipe.title} className="recipe-img" />
                   <div className="recipe-info">
                     <h4>{recipe.title}</h4>
                     <p>{recipe.summary}</p>
-                    <button onClick={() => handleAddToFolder(recipe.id)}>폴더에 추가</button>
-                    <button onClick={() => handleRemoveBookmark(recipe.id)}>삭제</button>
+                    <button onClick={(e) => {e.stopPropagation(); handleAddToFolder(recipe.id);}}>폴더에 추가</button>
+                    <button onClick={(e) => {e.stopPropagation(); handleRemoveBookmark(recipe.id);}}>삭제</button>
                   </div>
                 </div>
               ))
@@ -168,12 +188,12 @@ function MyinfoPage() {
             <h3>{selectedFolder} 폴더에 저장된 레시피</h3>
             <div className="recipe-grid">
               {getRecipesInFolder(selectedFolder).map(recipe => (
-                <div key={recipe.id} className="recipe-card">
+                <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
                   <img src={recipe.image} alt={recipe.title} className="recipe-img" />
                   <div className="recipe-info">
                     <h4>{recipe.title}</h4>
                     <p>{recipe.summary}</p>
-                    <button onClick={() => handleRemoveRecipeFromFolder(recipe.id)}>폴더에서 제거</button>
+                    <button onClick={(e) => {e.stopPropagation(); handleRemoveRecipeFromFolder(recipe.id);}}>폴더에서 제거</button>
                   </div>
                 </div>
               ))}
