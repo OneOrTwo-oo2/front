@@ -50,383 +50,383 @@ const emojiMap = {
     "name_en": "Makgeolli"
   },
   "dried_pollack_strips": {
-    "emoji": "🧂",
+    "emoji": "/emojis/pollack_strips.png",
     "name_ko": "황태채",
     "name_en": "Dried pollack strips"
   },
   "mixed_grain_rice": {
-    "emoji": "🧂",
-    "name_ko": "mixed grain rice",
+    "emoji": "/emojis/mixed_grain_rice.png",
+    "name_ko": "잡곡",
     "name_en": "Mixed grain rice"
   },
   "green_onion": {
-    "emoji": "🧂",
-    "name_ko": "green onion",
+    "emoji": "/emojis/green_onion.png",
+    "name_ko": "대파",
     "name_en": "Green onion"
   },
   "dried_anchovy": {
-    "emoji": "🧂",
-    "name_ko": "dried anchovy",
+    "emoji": "/emojis/dried_anchovy.png",
+    "name_ko": "마른 멸치",
     "name_en": "Dried anchovy"
   },
   "red_pepper_powder": {
-    "emoji": "🧂",
-    "name_ko": "red pepper powder",
+    "emoji": "/emojis/red_pepper_powder.png",
+    "name_ko": "고춧가루",
     "name_en": "Red pepper powder"
   },
   "pork_back_ribs": {
-    "emoji": "🧂",
-    "name_ko": "pork back ribs",
+    "emoji": "/emojis/pork_back_ribs.png",
+    "name_ko": "돼지 등갈비",
     "name_en": "Pork back ribs"
   },
   "Strawberry_milk": {
-    "emoji": "🧂",
-    "name_ko": "Strawberry milk",
+    "emoji": "/emojis/strawberry_milk.png",
+    "name_ko": "딸기우유",
     "name_en": "Strawberry milk"
   },
   "Rice_noodles": {
-    "emoji": "🧂",
-    "name_ko": "Rice noodles",
+    "emoji": "/emojis/rice_noodles.png",
+    "name_ko": "쌀국수",
     "name_en": "Rice noodles"
   },
   "butter": {
-    "emoji": "🧈",
+    "emoji": "/emojis/butter.png    ",
     "name_ko": "버터",
     "name_en": "Butter"
   },
   "Ice_cream": {
-    "emoji": "🍨",
+    "emoji": "/emojis/icecream.png",
     "name_ko": "아이스크림",
     "name_en": "Ice cream"
   },
   "kimbap": {
-    "emoji": "🍙",
+    "emoji": "/emojis/kimbap.png",
     "name_ko": "김밥",
     "name_en": "Kimbap"
   },
   "sausage": {
-    "emoji": "🌭",
+    "emoji": "/emojis/sausage.png",
     "name_ko": "소시지",
     "name_en": "Sausage"
   },
   "chipotle_sauce": {
-    "emoji": "🌶️",
+    "emoji": "/emojis/chipotle_sauce.png",
     "name_ko": "치폴레 소스",
     "name_en": "Chipotle sauce"
   },
   "red_chili_paste": {
-    "emoji": "🌶️",
+    "emoji": "/emojis/red_chili_paste.png",
     "name_ko": "고추장",
     "name_en": "Red chili paste"
   },
   "shrimp": {
-    "emoji": "🦐",
+    "emoji": "/emojis/shrimp.png",
     "name_ko": "새우",
     "name_en": "Shrimp"
   },
   "Perilla_leaves": {
-    "emoji": "🍃",
+    "emoji": "/emojis/perilla_leaves.png",
     "name_ko": "깻잎",
     "name_en": "Perilla leaves"
   },
   "minced_garlic": {
-    "emoji": "🧄",
+    "emoji": "/emojis/minced_garlic.png",
     "name_ko": "다진 마늘",
     "name_en": "Minced garlic"
   },
   "Soju": {
-    "emoji": "🥃",
+    "emoji": "/emojis/soju.png",
     "name_ko": "소주",
     "name_en": "Soju"
   },
   "sugar": {
-    "emoji": "🍬",
+    "emoji": "/emojis/sugar.png",
     "name_ko": "설탕",
     "name_en": "Sugar"
   },
   "sea_squirt": {
-    "emoji": "🌊",
+    "emoji": "/emojis/sea_squirt.png",
     "name_ko": "멍게",
     "name_en": "Sea squirt"
   },
   "Oyster_mushrooms": {
-    "emoji": "🍄",
+    "emoji": "/emojis/Oyster_mushrooms.png",
     "name_ko": "느타리버섯",
     "name_en": "Oyster mushrooms"
   },
   "sesame_oil": {
-    "emoji": "🥄",
+    "emoji": "/emojis/sesame_oil.png",
     "name_ko": "참기름",
     "name_en": "Sesame oil"
   },
   "zucchini": {
-    "emoji": "🥒",
+    "emoji": "/emojis/zucchini.png",
     "name_ko": "애호박",
     "name_en": "Zucchini"
   },
   "beef": {
-    "emoji": "🐄",
+    "emoji": "/emojis/beef.png",
     "name_ko": "소고기",
     "name_en": "Beef"
   },
   "cucumber": {
-    "emoji": "🥒",
+    "emoji": "/emojis/cucumber.png",
     "name_ko": "오이",
     "name_en": "Cucumber"
   },
   "shiitake_mushroom": {
-    "emoji": "🍄",
+    "emoji": "/emojis/shiitake_mushroom.png",
     "name_ko": "표고버섯",
     "name_en": "Shiitake mushroom"
   },
   "Juice": {
-    "emoji": "🧃",
+    "emoji": "/emojis/juice.png",
     "name_ko": "주스",
     "name_en": "Juice"
   },
   "balsamic_vinegar": {
-    "emoji": "🍇",
+    "emoji": "/emojis/balsamic_vinegar.png",
     "name_ko": "발사믹 식초",
     "name_en": "Balsamic vinegar"
   },
   "mussel": {
-    "emoji": "🦪",
+    "emoji": "/emojis/mussel.png",
     "name_ko": "홍합",
     "name_en": "Mussel"
   },
   "pork_belly": {
-    "emoji": "🥓",
+    "emoji": "/emojis/pork_belly.png",
     "name_ko": "삼겹살",
     "name_en": "Pork belly"
   },
   "pork_neck": {
-    "emoji": "🍖",
+    "emoji": "/emojis/pork_neck.png",
     "name_ko": "목살",
     "name_en": "Pork neck"
   },
   "broccoli": {
-    "emoji": "🥦",
+    "emoji": "/emojis/broccoli.png",
     "name_ko": "브로콜리",
     "name_en": "Broccoli"
   },
   "dumpling": {
-    "emoji": "🥟",
+    "emoji": "/emojis/dumpling.png",
     "name_ko": "만두",
     "name_en": "Dumpling"
   },
   "brown_rice": {
-    "emoji": "🌾",
+    "emoji": "/emojis/brown_rice.png",
     "name_ko": "현미",
     "name_en": "Brown rice"
   },
   "grape": {
-    "emoji": "🍇",
+    "emoji": "/emojis/grape.png",
     "name_ko": "포도",
     "name_en": "Grape"
   },
   "Mozzarella_cheese": {
-    "emoji": "🧀",
+    "emoji": "/emojis/mozzarella_cheese.png",
     "name_ko": "모짜렐라 치즈",
     "name_en": "Mozzarella cheese"
   },
   "honey": {
-    "emoji": "🍯",
+    "emoji": "/emojis/honey.png",
     "name_ko": "꿀",
     "name_en": "Honey"
   },
   "mayonnaise": {
-    "emoji": "🥄",
+    "emoji": "/emojis/mayonnaise.png",
     "name_ko": "마요네즈",
     "name_en": "Mayonnaise"
   },
   "scallop": {
-    "emoji": "🦪",
+    "emoji": "/emojis/scallop.png",
     "name_ko": "가리비",
     "name_en": "Scallop"
   },
   "pepper": {
-    "emoji": "🧂",
+    "emoji": "/emojis/pepper.png",
     "name_ko": "후추",
     "name_en": "Pepper"
   },
   "Chocolate_milk": {
-    "emoji": "🥤",
+    "emoji": "/emojis/chocolate_milk.png",
     "name_ko": "초코우유",
     "name_en": "Chocolate milk"
   },
   "fish": {
-    "emoji": "🧂",
-    "name_ko": "fish",
+    "emoji": "/emojis/fish.png",
+    "name_ko": "어육",
     "name_en": "Fish"
   },
   "lettuce": {
-    "emoji": "🥬",
+    "emoji": "/emojis/lettuce.png",
     "name_ko": "상추",
     "name_en": "Lettuce"
   },
   "basil": {
-    "emoji": "🌿",
+    "emoji": "/emojis/basil.png",
     "name_ko": "바질",
     "name_en": "Basil"
   },
   "meatball": {
-    "emoji": "🧂",
-    "name_ko": "meatball",
+    "emoji": "/emojis/meatball.png",
+    "name_ko": "미트볼",
     "name_en": "Meatball"
   },
   "dried_shrimp": {
-    "emoji": "🧂",
-    "name_ko": "dried shrimp",
+    "emoji": "/emojis/dried_shrimp.png",
+    "name_ko": "건새우",
     "name_en": "Dried shrimp"
   },
   "whole_grain_mustard": {
-    "emoji": "🧂",
-    "name_ko": "whole grain mustard",
+    "emoji": "/emojis/whole_grain_mustard.png",
+    "name_ko": "홀그레인 머스타드",
     "name_en": "Whole grain mustard"
   },
   "curry_powder": {
-    "emoji": "🧂",
-    "name_ko": "curry powder",
+    "emoji": "/emojis/curry_powder.png",
+    "name_ko": "카레 가루",
     "name_en": "Curry powder"
   },
   "tomato_sauce": {
-    "emoji": "🧂",
-    "name_ko": "tomato sauce",
+    "emoji": "/emojis/tomato_sauce.png",
+    "name_ko": "토마토 소스",
     "name_en": "Tomato sauce"
   },
   "Beer": {
-    "emoji": "🧂",
-    "name_ko": "Beer",
+    "emoji": "/emojis/beer.png",
+    "name_ko": "맥주",
     "name_en": "Beer"
   },
   "saffron": {
-    "emoji": "🧂",
-    "name_ko": "saffron",
+    "emoji": "/emojis/saffron.png",
+    "name_ko": "사프란",
     "name_en": "Saffron"
   },
   "tomato": {
-    "emoji": "🍅",
+    "emoji": "/emojis/tomato.png",
     "name_ko": "토마토",
     "name_en": "Tomato"
   },
   "chili_sauce": {
-    "emoji": "🧂",
-    "name_ko": "chili sauce",
+    "emoji": "/emojis/chili_sauce.png",
+    "name_ko": "칠리소스",
     "name_en": "Chili sauce"
   },
   "duck": {
-    "emoji": "🧂",
-    "name_ko": "duck",
+    "emoji": "/emojis/duck.png",
+    "name_ko": "오리",
     "name_en": "Duck"
   },
   "avocado": {
-    "emoji": "🧂",
-    "name_ko": "avocado",
+    "emoji": "/emojis/avocado.png",
+    "name_ko": "아보카도",
     "name_en": "Avocado"
   },
   "sweet_potato": {
-    "emoji": "🧂",
-    "name_ko": "sweet potato",
+    "emoji": "/emojis/sweet_potato.png",
+    "name_ko": "고구마",
     "name_en": "Sweet potato"
   },
   "Tea": {
-    "emoji": "🧂",
-    "name_ko": "Tea",
+    "emoji": "/emojis/tea.png",
+    "name_ko": "차",
     "name_en": "Tea"
   },
   "pineapple": {
-    "emoji": "🍍",
+    "emoji": "/emojis/pineapple.png",
     "name_ko": "파인애플",
     "name_en": "Pineapple"
   },
   "macaroni": {
-    "emoji": "🍝",
+    "emoji": "/emojis/macaroni.png",
     "name_ko": "마카로니",
     "name_en": "Macaroni"
   },
   "fish_sauce": {
-    "emoji": "🧂",
-    "name_ko": "fish sauce",
+    "emoji": "/emojis/fish_sauce.png",
+    "name_ko": "피시소스",
     "name_en": "Fish sauce"
   },
   "flying_fish_roe": {
-    "emoji": "🧂",
-    "name_ko": "flying fish roe",
+    "emoji": "/emojis/Flying_fish_roe.png",
+    "name_ko": "날치알",
     "name_en": "Flying fish roe"
   },
   "yogurt": {
-    "emoji": "🧂",
-    "name_ko": "yogurt",
+    "emoji": "/emojis/yogurt.png",
+    "name_ko": "요거트 ",
     "name_en": "Yogurt"
   },
   "minced_ginger": {
-    "emoji": "🧂",
-    "name_ko": "minced ginger",
+    "emoji": "/emojis/minced_ginger.png",
+    "name_ko": "다진 생강",
     "name_en": "Minced ginger"
   },
   "salt": {
-    "emoji": "🧂",
-    "name_ko": "salt",
+    "emoji": "/emojis/salt.png",
+    "name_ko": "소금",
     "name_en": "Salt"
   },
   "sea_urchin_roe": {
-    "emoji": "🧂",
-    "name_ko": "sea urchin roe",
+    "emoji": "/emojis/sea_urchin_roe.png",
+    "name_ko": "성게알",
     "name_en": "Sea urchin roe"
   },
   "whipping_cream": {
-    "emoji": "🧂",
-    "name_ko": "whipping cream",
+    "emoji": "/emojis/whipping_cream.png",
+    "name_ko": "휘핑크림",
     "name_en": "Whipping cream"
   },
   "Canned_corn": {
-    "emoji": "🧂",
-    "name_ko": "Canned corn",
+    "emoji": "/emojis/canned_corn.png",
+    "name_ko": "옥수수 통조림",
     "name_en": "Canned corn"
   },
   "milk": {
-    "emoji": "🥛",
+    "emoji": "/emojis/milk.png",
     "name_ko": "우유",
     "name_en": "Milk"
   },
   "Canned_beans": {
-    "emoji": "🧂",
-    "name_ko": "Canned beans",
+    "emoji": "/emojis/canned_beans.png",
+    "name_ko": "콩 통조림",
     "name_en": "Canned beans"
   },
   "Sliced_cheese": {
-    "emoji": "🧂",
-    "name_ko": "Sliced cheese",
+    "emoji": "/emojis/sliced_cheese.png",
+    "name_ko": "슬라이스 치즈",
     "name_en": "Sliced cheese"
   },
   "ginger": {
-    "emoji": "🧂",
-    "name_ko": "ginger",
+    "emoji": "/emojis/ginger.png",
+    "name_ko": "생강",
     "name_en": "Ginger"
   },
   "fermented_soybean_paste": {
-    "emoji": "🧂",
-    "name_ko": "fermented soybean paste",
+    "emoji": "/emojis/fermented_soybean_paste.png",
+    "name_ko": "청국장",
     "name_en": "Fermented soybean paste"
   },
   "watermelon": {
-    "emoji": "🍉",
+    "emoji": "/emojis/watermelon.png",
     "name_ko": "수박",
     "name_en": "Watermelon"
   },
   "cherry": {
-    "emoji": "🧂",
-    "name_ko": "cherry",
+    "emoji": "/emojis/cherry.png",
+    "name_ko": "체리",
     "name_en": "Cherry"
   },
   "salmon_roe": {
-    "emoji": "🧂",
-    "name_ko": "salmon roe",
+    "emoji": "/emojis/salmon_roe.png",
+    "name_ko": "연어알",
     "name_en": "Salmon roe"
   },
   "seasoned_dried_squid": {
-    "emoji": "🧂",
-    "name_ko": "seasoned dried squid",
+    "emoji": "/emojis/seasoned_dried_squid.png",
+    "name_ko": "진미채",
     "name_en": "Seasoned dried squid"
   },
   "banana": {

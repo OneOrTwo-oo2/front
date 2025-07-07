@@ -1,84 +1,104 @@
-import React, { useState } from 'react';
-import './PhotoSearchPage.css'; // CSS 파일 따로 분리 추천
+import React, { useRef, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './PhotoSearchPage.css';
+
 
 
 function PhotoSearchPage() {
-  const [image, setImage] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const fileInputRef = useRef(null);
 
-  const handleImageUpload = (e) => {
+  const navigate = useNavigate();
+
+  const handleSearchSuccess = (labels) => {
+    setSearchResults(labels);       // 현재 페이지 상태에도 저장
+    navigate('/ingredient-search', { state: { labels } }); // 다음 페이지로 전달
+  };
+
+  const processFile = useCallback((file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+
+    setPreviewUrl(URL.createObjectURL(file));
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setIsLoading(true);
+
+    fetch('/ingredients', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.detail || '서버 오류');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data.labels);
+        handleSearchSuccess(data.labels);
+      })
+      .catch((error) => {
+        console.error('검색 실패:', error);
+        setSearchResults([]);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-        handleSearch(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    processFile(file);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-        handleSearch(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSearch = (image) => {
-    setSearchResults([
-      { title: "레시피 1", description: "설명 1", imageUrl: image },
-      { title: "레시피 2", description: "설명 2", imageUrl: image },
-    ]);
+    processFile(file);
   };
 
   return (
     <div className="photo-upload-page">
-      <div
-        className="drop-area"
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        <div className="upload-icon">📷</div>
-        <h2 className="upload-title">사진을 끌어다 놓으세요</h2>
-        <h2 className="upload-title">또는</h2>
-        <button
-          className="upload-btn"
-          onClick={() => document.getElementById('file-upload').click()}
-        >
-          PC에서 불러오기
-        </button>
-        <input
-          type="file"
-          id="file-upload"
-          accept="image/*"
-          onChange={handleImageUpload}
-          style={{ display: 'none' }}
-        />
-        {image && <img src={image} alt="업로드된 이미지" className="uploaded-image-preview" />}
-      </div>
+      <div className="styled-drop">
+        {!isLoading && (
+          <>
+            <div className="upload-icon">📷</div>
+            <h2 className="upload-title">사진을 끌어다 놓으세요</h2>
+            <h2 className="upload-title">또는</h2>
+            <button
+              className="upload-btn"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              PC에서 불러오기
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+            />
+          </>
+        )}
 
-      {searchResults.length > 0 && (
-        <div className="results">
-          {searchResults.map((result, index) => (
-            <div key={index} className="result-item">
-              <img src={result.imageUrl} alt={`레시피 ${index + 1}`} />
-              <div className="recipe-info">
-                <p>{result.title}</p>
-                <p>{result.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+        {previewUrl && (
+          <img src={previewUrl} alt="미리보기" className="uploaded-image-preview" />
+        )}
+
+        {isLoading && (
+          <div className="loading-container">
+            <div className="spinner" />
+            <p className="loading-message">검색 중입니다...</p>
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 export default PhotoSearchPage;
