@@ -1,0 +1,89 @@
+.preference-page {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Noto Sans KR', sans-serif;
+  text-align: center;
+}
+
+.preference-page h2 {
+  font-size: 24px;
+  margin-bottom: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.ingredient-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.ingredient-btn {
+  padding: 12px 20px;
+  background-color: #f0f0f0;
+  border: 2px solid transparent;
+  border-radius: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.ingredient-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.ingredient-btn.selected {
+  background-color: #007aff;
+  color: white;
+  border-color: #007aff;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.skip-btn,
+.next-btn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.skip-btn {
+  background-color: #cccccc;
+  color: #333;
+}
+
+.skip-btn:hover {
+  background-color: #bbbbbb;
+}
+
+.next-btn {
+  background-color: #007aff;
+  color: white;
+}
+
+.next-btn:hover {
+  background-color: #0065d1;
+}
+
+/* 민감정보수집 동의 */
+.consent-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  font-size: 14px;
+  color: #333;
+}
+.consent-section input[type="checkbox"] {
+  transform: scale(1.2);
+}

@@ -1,0 +1,86 @@
+/* 전체 페이지 중앙 정렬 */
+.photo-upload-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #ffffff;
+  text-align: center;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* ✅ 너가 제공한 스타일 적용 */
+.styled-drop {
+  border: 2px dashed #ccc;
+  padding: 60px 20px;
+  margin: 40px auto;
+  width: 480px;
+  text-align: center;
+  border-radius: 12px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.styled-drop:hover {
+  border-color: #007aff;
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.upload-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.upload-sub {
+  margin: 12px 0;
+  color: #888;
+}
+
+/* ✅ 버튼 스타일도 그대로 적용 */
+.upload-btn {
+  background-color: #007aff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.upload-btn:hover {
+  background-color: orange;
+}
+
+.uploaded-image-preview {
+  margin-top: 20px;
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 검색 결과 영역 정렬 */
+.results {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.result-item {
+  margin-bottom: 24px;
+}
+
+.result-item img {
+  width: 240px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.recipe-info p {
+  margin: 4px 0;
+}

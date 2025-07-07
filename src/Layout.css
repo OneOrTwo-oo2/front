@@ -1,0 +1,8 @@
+/* Layout.css */
+.header-spacer {
+  height: 80px; /* Header 높이와 동일하게 */
+}
+
+.page-content {
+  padding: 0 24px;
+}

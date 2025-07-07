@@ -1,0 +1,123 @@
+/* ✅ 폰트 임포트 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('./assets/fonts/NotoSansKR-Medium.ttf') format('truetype');
+}
+
+/* ✅ 기본 body 설정 */
+body {
+  margin: 0;
+  font-family: 'MyFont', sans-serif;
+  font-size: 50px;
+}
+
+/* ✅ 전체 앱 wrapper */
+.app {
+  text-align: center;
+}
+
+
+/* ✅ 메뉴/내정보 폰트 설정 */
+.menu-label,
+.info-label {
+  cursor: pointer;
+  font-size: 40px;
+}
+
+/* ✅ 메뉴 드롭다운 스타일 */
+.menu-dropdown {
+  position: absolute;
+  top: 100px;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  width: 320px;
+  padding: 10px 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  height: auto; /* 아래까지 전체 늘리기100vh > auto로 변경 */
+}
+
+/* ✅ 메뉴 show 상태 (hover 또는 클릭 시) */
+.menu-dropdown.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ✅ 메뉴 리스트 설정 */
+.menu-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ✅ 각 메뉴 항목 */
+.menu-dropdown li {
+  padding: 14px 24px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.menu-dropdown li:hover {
+  background-color: #f2f2f2;
+}
+
+/* ✅ 메인 파트 전체 */
+.main {
+  display: flex;
+  justify-content: space-around;
+  padding: 200px 20px 60px 20px; /* 아래로 내림 */
+  border-top: 2px solid #eee;
+  background-color: #ffffff;
+
+  /* ✅ 3D 회전을 위한 perspective */
+  perspective: 1200px;
+}
+
+/* ✅ 각 파티션 */
+.partition {
+  flex: 1;
+  padding: 0 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ✅ 중앙 이미지 스타일 + 마우스 위치 따라 3D 회전 */
+.main-img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+  will-change: transform;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ 클릭 시: 더 크게 확대 + 반투명 */
+.main-img:active {
+  transform: scale(1.6);
+  opacity: 0.7;
+}
+
+/* ✅ 이미지 아래 텍스트 */
+.partition p {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.main-img img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}

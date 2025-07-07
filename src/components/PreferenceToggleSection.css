@@ -1,0 +1,79 @@
+.preference-page {
+  max-width: 600px;
+  margin: 60px auto;
+  padding: 24px;
+  text-align: center;
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.preference-page h2 {
+  font-size: 22px;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.ingredient-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.ingredient-btn {
+  padding: 10px 18px;
+  background-color: #f3f3f3;
+  border: 2px solid #ccc;
+  border-radius: 24px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ingredient-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.ingredient-btn.selected {
+  background-color: #007aff;
+  color: white;
+  border-color: #007aff;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.skip-btn,
+.next-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.skip-btn {
+  background-color: #ccc;
+  color: #333;
+}
+
+.skip-btn:hover {
+  background-color: #b3b3b3;
+}
+
+.next-btn {
+  background-color: #007aff;
+  color: white;
+}
+
+.next-btn:hover {
+  background-color: #0062cc;
+}
