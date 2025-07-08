@@ -19,9 +19,13 @@ function IngredientSearchPage() {
   const navigate = useNavigate();
 
   const toggleIngredient = (item) => {
-    setIngredients(prev =>
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    );
+    setIngredients((prev) => {
+      if (prev.includes(item)) {
+        return prev.filter((i) => i !== item);
+      } else {
+        return [item, ...prev];  // 👈 선택되면 맨 앞으로
+      }
+    });
   };
 
   const handleCategorySelect = (type, value) => {
@@ -66,6 +70,13 @@ function IngredientSearchPage() {
     setIngredientsToDisplay(prev => prev + 20);
   };
 
+  // 선택되면 맨앞으로 추가
+  const displayedIngredients = [
+    ...ingredients.filter(item => ingredientOptions.includes(item)), // 선택된 재료 먼저
+    ...ingredientOptions.filter(item => !ingredients.includes(item)), // 그 외 재료 뒤로
+  ].slice(0, ingredientsToDisplay);
+
+
   return (
     <div className="search-buttons-page">
       <h4>선호도 선택</h4>
@@ -84,7 +95,7 @@ function IngredientSearchPage() {
     <div className="section">
   <h4>재료 선택</h4>
   <div className="buttons">
-    {ingredientOptions.slice(0, ingredientsToDisplay).map((item) => {
+    {displayedIngredients.map((item) => {  // 선택되면 맨앞으로 추가
       const info = emojiMap[item] || {
         emoji: null,
         name_ko: item.replace(/_/g, " "),
