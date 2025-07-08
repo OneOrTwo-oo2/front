@@ -1,0 +1,11 @@
+{
+  "carbohydrate": "탄수화물",
+  "protein": "단백질",
+  "sauce": "소스류",
+  "dairy": "유제품",
+  "vegetable": "야채류",
+  "fruit": "과일류",
+  "processed": "가공품",
+  "beverage": "음료",
+  "etc": "기타"
+}
