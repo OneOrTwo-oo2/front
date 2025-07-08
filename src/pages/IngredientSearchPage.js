@@ -4,6 +4,9 @@ import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from "../assets/emojiMap_full_ko.js";
 import { preferOptions, kindOptions, situationOptions, methodOptions } from '../components/options.js'; //선호도추가
+import ingredientList from '../assets/ingredientList.json';
+
+const ingredientOptions = ingredientList;
 
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
@@ -11,7 +14,6 @@ function IngredientSearchPage() {
   const [kind, setKind] = useState('');
   const [situation, setSituation] = useState('');
   const [method, setMethod] = useState('');
-  const [ingredientOptions, setIngredientOptions] = useState([]);
   const [ingredientsToDisplay, setIngredientsToDisplay] = useState(20);
 
   const location = useLocation();
@@ -37,26 +39,20 @@ function IngredientSearchPage() {
   };
 
   const handleSearch = () => {
-    const query = qs.stringify({
-      ingredients: ingredients.join(','),
-      ...(kind && { kind }),
-      ...(situation && { situation }),
-      ...(method && { method })
-    });
-    navigate(`/recipes?${query}`);
-  };
+      const ingredientNamesInKorean = ingredients.map((item) => {
+        const info = emojiMap[item];
+        return info?.name_ko || item.replace(/_/g, " "); // 매핑 없을 경우 기본 대체
+      });
 
-  useEffect(() => {
-    fetch("/api/yolo-classes")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setIngredientOptions(data);
-        else if (data.ingredients && Array.isArray(data.ingredients))
-          setIngredientOptions(data.ingredients);
-        else console.error("🚨 재료 형식 이상:", data);
-      })
-      .catch((err) => console.error("🚨 재료 fetch 실패:", err));
-  }, []);
+      const query = qs.stringify({
+        ingredients: ingredientNamesInKorean.join(','), // 👈 한글 이름으로 변환된 값
+        ...(kind && { kind }),
+        ...(situation && { situation }),
+        ...(method && { method }),
+      });
+
+      navigate(`/recipes?${query}`);
+    };
 
 
   useEffect(() => {
