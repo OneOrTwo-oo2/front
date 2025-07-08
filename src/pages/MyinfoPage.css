@@ -61,6 +61,26 @@
   color: #555;
 }
 
+.myinfo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-preference-btn {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-preference-btn:hover {
+  background-color: #45a049;
+}
+
 /* ✅ 삭제된 항목 관련 스타일 제거됨:
 .settings-btn
 .dropdown-popup
