@@ -1,0 +1,12 @@
+/* src/pages/HelpPage.css */
+.help-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+  line-height: 1.8;
+}
+
+.help-page h1, .help-page h2, .help-page h3 {
+  margin-top: 1.5em;
+  font-weight: bold;
+}
