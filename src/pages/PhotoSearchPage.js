@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PhotoSearchPage.css';
-
+import LoadingAnimation from '../components/loading_api';
 
 
 function PhotoSearchPage() {
@@ -91,14 +91,11 @@ function PhotoSearchPage() {
         )}
 
         {isLoading && (
-          <div className="loading-container">
-            <div className="spinner" />
-            <p className="loading-message">검색 중입니다...</p>
-          </div>
+          <LoadingAnimation />
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default PhotoSearchPage;
