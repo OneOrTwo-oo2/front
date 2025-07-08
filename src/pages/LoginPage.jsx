@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext"; // ✅ 인증 훅
 import "./LoginPage.css";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { fetchAuthUser } = useAuth(); // ✅ 인증 상태 갱신용
 
   useEffect(() => {
     /* global google */
@@ -22,30 +24,37 @@ function LoginPage() {
     const credential = response.credential;
 
     try {
+      // ✅ 1. 기존 사용자 쿠키 제거
+      await fetch("http://localhost:8000/api/auth/clear-cookie", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      // ✅ 2. 새 로그인 요청
       const res = await fetch("http://localhost:8000/api/auth/google-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential }),
-        credentials: "include", // ✅ 쿠키 기반 인증을 위해 반드시 필요
+        credentials: "include", // ✅ 쿠키 저장 필수
       });
 
       const data = await res.json();
-
-      // ✅ 새로운 유저인지 확인하는 콘솔로그
-      // console.log("📦 로그인 응답 데이터:", data);
-
       if (!res.ok) {
         throw new Error(data.detail || "로그인 실패");
       }
 
-      // ✅ 토큰은 쿠키에 저장되므로 localStorage나 디코딩 필요 없음
+      // ✅ 3. 현재 사용자 인증 갱신
+      await fetchAuthUser();
 
-      // ✅ 로그인 후 라우팅
-      if (data.isNewUser) {
-        navigate("/preference");
-      } else {
-        navigate("/main");
-      }
+      // ✅ 4. 페이지 이동
+      setTimeout(() => {
+        if (data.isNewUser) {
+          navigate("/preference");
+        } else {
+          navigate("/main");
+        }
+      }, 600); 
+
     } catch (err) {
       console.error("❌ 로그인 실패:", err.message);
       alert("로그인에 실패했습니다. 다시 시도해주세요.");

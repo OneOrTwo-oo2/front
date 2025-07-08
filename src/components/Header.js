@@ -1,14 +1,26 @@
 import './Header.css';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../utils/AuthContext'; // ✅ 인증 상태 갱신용
 import logo from '../assets/RecipeGo_logo2.svg';
 
 function Header() {
   const navigate = useNavigate();
+  const { fetchAuthUser } = useAuth(); // ✅ 인증 초기화용
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    alert("로그아웃 되었습니다.");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:8000/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // ✅ 쿠키 삭제를 위해 필요
+      });
+
+      await fetchAuthUser(); // ✅ 인증 상태 초기화
+      alert("로그아웃 되었습니다.");
+      navigate("/login");
+    } catch (err) {
+      alert("로그아웃에 실패했습니다.");
+      console.error("❌ 로그아웃 에러:", err.message);
+    }
   };
 
   return (
