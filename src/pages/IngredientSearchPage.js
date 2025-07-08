@@ -6,7 +6,7 @@ import emojiMap from "../assets/emojiMap_full_ko.js";
 import { preferOptions, kindOptions, situationOptions, methodOptions } from '../components/options.js'; //선호도추가
 import ingredientList from '../assets/ingredientList.json';
 
-const ingredientOptions = ingredientList;
+const ingredientOptions = ingredientList["탄수화물"];
 
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
