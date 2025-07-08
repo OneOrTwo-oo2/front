@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import confetti from 'canvas-confetti';
 import './MyinfoPage.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 
 Modal.setAppElement('#root');
@@ -189,7 +189,13 @@ function MyinfoPage() {
       )}
 
       <div className="myinfo-content">
-        <h2 className="section-title">저장된 레시피</h2>
+        <div className="myinfo-header">
+          <h2 className="section-title">저장된 레시피</h2>
+          <Link to="/preference">
+            <button className="edit-preference-btn">선호도 편집</button>
+          </Link>
+        </div>
+
         <input className="search-input" type="text" placeholder="레시피 검색"
           value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
 
