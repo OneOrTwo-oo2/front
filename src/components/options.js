@@ -1,10 +1,10 @@
 export const preferOptions = [
-    { label: '채식주의' },
-    { label: '저탄수화물' },
-    { label: '글루텐프리' },
-    { label: '다이어트' },
-    { label: '저염식' }
-  ];
+  { label: '채식주의', value: 'vegetarian' },
+  { label: '저탄수화물', value: 'low_carb' },
+  { label: '글루텐프리', value: 'gluten_free' },
+  { label: '다이어트', value: 'diet' },
+  { label: '저염식', value: 'low_sodium' }
+];
 
 
 export const kindOptions = [
