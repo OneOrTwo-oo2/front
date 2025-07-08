@@ -81,6 +81,30 @@
   background-color: #45a049;
 }
 
+
+.folder-title {
+  font-size: 30px; /* 기존 h3 기본값보다 작게 조정 */
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.folder-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.delete-folder-btn {
+  padding: 6px 10px;
+  background-color: #ff5c5c;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
 /* ✅ 삭제된 항목 관련 스타일 제거됨:
 .settings-btn
 .dropdown-popup
