@@ -7,6 +7,7 @@ import { preferOptions, kindOptions, situationOptions, methodOptions } from '../
 
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
+  const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
   const [situation, setSituation] = useState('');
   const [method, setMethod] = useState('');
@@ -23,12 +24,13 @@ function IngredientSearchPage() {
       if (prev.includes(item)) {
         return prev.filter((i) => i !== item);
       } else {
-        return [item, ...prev];  // 👈 선택되면 맨 앞으로
+        return [...prev, item];  // 👈 선택되면 맨 뒤로
       }
     });
   };
 
   const handleCategorySelect = (type, value) => {
+    if (type === 'preference') setPreference(value);
     if (type === 'kind') setKind(value);
     if (type === 'situation') setSituation(value);
     if (type === 'method') setMethod(value);
@@ -81,19 +83,44 @@ function IngredientSearchPage() {
     <div className="search-buttons-page">
       <h4>선호도 선택</h4>
       <div className="buttons">
-        {preferOptions.map((opt) => (
-          <button
-            key={opt.value}
-            className={kind === opt.value ? "active" : ""}
-            onClick={() => handleCategorySelect('kind', opt.value)}
-          >
-            {opt.label}
-          </button>
-        ))}
+          {preferOptions.map((opt) => (
+            <button
+              key={opt.value}
+              className={preference === opt.value ? "active" : ""}
+              onClick={() => handleCategorySelect('preference', opt.value)}>{opt.label}</button>))}
       </div>
-
     <div className="section">
+
   <h4>재료 선택</h4>
+      {ingredients.length > 0 && (<div className="section selected-ingredients-row">
+          <div className="buttons horizontal-scroll">
+            {ingredients.map((item) => {
+              const info = emojiMap[item] || {
+                emoji: null,
+                name_ko: item.replace(/_/g, " "),
+              };
+
+              return (
+                <button
+                  key={item}
+                  className="active"
+                  onClick={() => toggleIngredient(item)}  // 다시 누르면 제거
+                >
+                  {info.emoji ? (
+                    <img
+                      src={info.emoji}
+                      alt={info.name_ko}
+                      style={{ width: 25, height: 25, marginRight: 8 }}
+                    />
+                  ) : (
+                    <span style={{ marginRight: 8 }}>🧂</span>
+                  )}
+                  {info.name_ko}
+                </button>
+              );
+            })}
+      </div>
+</div>)}
   <div className="buttons">
     {displayedIngredients.map((item) => {  // 선택되면 맨앞으로 추가
       const info = emojiMap[item] || {
@@ -130,7 +157,6 @@ function IngredientSearchPage() {
     )}
   </div>
 </div>
-
 
       {/* 종류별, 상황별, 방법별 */}
       <div className="section">
