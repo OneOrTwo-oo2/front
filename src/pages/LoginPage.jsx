@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; // ✅ default import ❌ → 중괄호 import로 수정
 import "./LoginPage.css";
 
 function LoginPage() {
@@ -27,22 +26,21 @@ function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential }),
+        credentials: "include", // ✅ 쿠키 기반 인증을 위해 반드시 필요
       });
 
       const data = await res.json();
+
+      // ✅ 새로운 유저인지 확인하는 콘솔로그
+      // console.log("📦 로그인 응답 데이터:", data);
 
       if (!res.ok) {
         throw new Error(data.detail || "로그인 실패");
       }
 
-      // ✅ 토큰 저장
-      localStorage.setItem("token", data.token);
+      // ✅ 토큰은 쿠키에 저장되므로 localStorage나 디코딩 필요 없음
 
-      // ✅ 디코드 및 확인용 로그
-      const decoded = jwtDecode(data.token);
-      console.log("🔓 로그인된 user_id:", decoded.user_id);
-
-      // ✅ 라우팅
+      // ✅ 로그인 후 라우팅
       if (data.isNewUser) {
         navigate("/preference");
       } else {

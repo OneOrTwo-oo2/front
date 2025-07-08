@@ -1,10 +1,11 @@
+// ✅ 수정: axios 제거 + fetchWithAutoRefresh 사용
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector';
 import { useNavigate } from 'react-router-dom';
 import { kindOptions, situationOptions, methodOptions } from '../components/options';
+import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -36,22 +37,17 @@ function RecipeListPage() {
       fetchRecipes(ing, k, s, m, t);
     }
 
-    fetchBookmarks(); // ✅ 북마크 상태 불러오기
+    fetchBookmarks();
   }, []);
 
   const fetchBookmarks = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     try {
-      const res = await axios.get("http://localhost:8000/api/bookmarks", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetchWithAutoRefresh("/api/bookmarks", {
+        method: "GET"
       });
-
+      const data = await res.json();
       const bookmarkedIds = new Map();
-      res.data.forEach((recipe) => {
+      data.forEach((recipe) => {
         bookmarkedIds.set(Number(recipe.id), true);
       });
       setBookmarkedState(bookmarkedIds);
@@ -63,25 +59,26 @@ function RecipeListPage() {
   const fetchRecipes = async (ing, k, s, m, t) => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:8000/recipes', {
-        params: {
-          ...(ing && { ingredients: ing.split(',').map(i => i.trim()) }),
-          ...(k && { kind: k }),
-          ...(s && { situation: s }),
-          ...(m && { method: m }),
-          ...(t && { theme: t })
-        },
-        paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
-      });
+      const queryParams = {
+        ...(ing && { ingredients: ing.split(',').map(i => i.trim()) }),
+        ...(k && { kind: k }),
+        ...(s && { situation: s }),
+        ...(m && { method: m }),
+        ...(t && { theme: t })
+      };
 
-      const processed = res.data.results.map((r, idx) => ({
+      const query = qs.stringify(queryParams, { arrayFormat: 'repeat' });
+      const res = await fetch(`/recipes?${query}`);
+      const data = await res.json();
+
+      const processed = data.results.map((r, idx) => ({
         ...r,
         id: Number(r.id) || idx
       }));
 
       setResults(processed);
     } catch (err) {
-      console.error("❌ 에러:", err);
+      console.error("❌ 레시피 불러오기 실패:", err);
     } finally {
       setLoading(false);
     }
@@ -114,38 +111,28 @@ function RecipeListPage() {
   };
 
   const handleAddToBookmark = async (recipe) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("로그인이 필요합니다!");
-      return;
-    }
-
     const recipeId = Number(recipe.id);
-
     if (bookmarkedState.has(recipeId)) {
       alert("이미 추가된 레시피입니다!");
       return;
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/bookmark-with-recipe",
-        {
+      const res = await fetchWithAutoRefresh("/api/bookmark-with-recipe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
           title: recipe.title,
           image: recipe.image,
           summary: recipe.summary || "",
-          link: recipe.link,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+          link: recipe.link
+        })
+      });
 
-      const newRecipeId = Number(res.data.recipe_id);
-
+      const data = await res.json();
+      const newRecipeId = Number(data.recipe_id);
       setBookmarkedState((prev) => {
         const updated = new Map(prev);
         updated.set(newRecipeId, true);

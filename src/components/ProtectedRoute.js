@@ -1,31 +1,15 @@
-// src/components/ProtectedRoute.js
+// components/ProtectedRoute.js
 import { Navigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../utils/AuthContext';
 
 function ProtectedRoute({ element }) {
-  const token = localStorage.getItem('token');
+  const { authorized } = useAuth();
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
+  if (authorized === null) {
+    return <p>🔐 인증 확인 중...</p>; // 최초 1회만 표시됨
   }
 
-  try {
-    const decoded = jwtDecode(token);
-    const now = Date.now() / 1000;
-
-    if (decoded.exp && decoded.exp < now) {
-      // 토큰 만료됨
-      localStorage.removeItem('token');
-      return <Navigate to="/login" replace />;
-    }
-
-    // 토큰 유효 → 컴포넌트 렌더링
-    return element;
-  } catch (err) {
-    // 디코딩 실패 → 비정상 토큰
-    localStorage.removeItem('token');
-    return <Navigate to="/login" replace />;
-  }
+  return authorized ? element : <Navigate to="/login" replace />;
 }
 
 export default ProtectedRoute;
