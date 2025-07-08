@@ -1,5 +1,3 @@
-// ✅ 수정: axios 제거 + fetchWithAutoRefresh 사용 // 보안 강구 대책
-// 자동 갱신 흐름을 만들 때 fetch는 더 투명하게 제어 가능, fetch는 브라우저에 기본 내장되어 용량 부담 없음
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import confetti from 'canvas-confetti';
@@ -16,6 +14,7 @@ function MyinfoPage() {
   const [selectedFolder, setSelectedFolder] = useState('');
   const [folderRecipes, setFolderRecipes] = useState({});
   const [bookmarks, setBookmarks] = useState([]);
+  const [activeTab, setActiveTab] = useState('bookmark');
 
   const navigate = useNavigate();
 
@@ -37,9 +36,7 @@ function MyinfoPage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmarks", {
-        method: "GET",
-      });
+      const res = await fetchWithAutoRefresh("/api/bookmarks", { method: "GET" });
       const data = await res.json();
       setBookmarks(data);
     } catch (err) {
@@ -150,7 +147,17 @@ function MyinfoPage() {
       await fetchWithAutoRefresh(`/api/bookmark?recipeId=${recipeId}`, {
         method: "DELETE"
       });
-      setBookmarks(bookmarks.filter(r => r.id !== recipeId));
+
+      setBookmarks(prev => prev.filter(r => r.id !== recipeId));
+
+      setFolderRecipes(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(folderName => {
+          updated[folderName] = updated[folderName].filter(r => r.id !== recipeId);
+        });
+        return updated;
+      });
+
     } catch (err) {
       console.error("북마크 삭제 실패:", err);
     }
@@ -188,75 +195,77 @@ function MyinfoPage() {
         </Modal>
       )}
 
+      <div className="tab-buttons">
+        <button className={activeTab === 'bookmark' ? 'active' : ''} onClick={() => setActiveTab('bookmark')}>전체</button>
+        <button className={activeTab === 'folder' ? 'active' : ''} onClick={() => setActiveTab('folder')}>폴더</button>
+      </div>
+
       <div className="myinfo-content">
-        <div className="myinfo-header">
-          <h2 className="section-title">저장된 레시피</h2>
-          <Link to="/preference">
-            <button className="edit-preference-btn">선호도 편집</button>
-          </Link>
-        </div>
-
-        <input className="search-input" type="text" placeholder="레시피 검색"
-          value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-
-        <div className="folder-management">
-          <button onClick={handleCreateFolder}>새 폴더 만들기</button>
-          {folders.length > 0 && (
-            <select onChange={(e) => handleFolderChange(e.target.value)} value={selectedFolder}>
-              <option value="">폴더 선택</option>
-              {folders.map((f, i) => <option key={i} value={f.name}>{f.name}</option>)}
-            </select>
-          )}
-        </div>
-
-        <div className="bookmark-section">
-          <h3>북마크된 레시피</h3>
-          <div className="recipe-grid">
-            {bookmarks.length > 0 ? (
-              filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
-                  <img src={recipe.image} alt={recipe.title} className="recipe-img" />
-                  <div className="recipe-info">
-                    <h4>{recipe.title}</h4>
-                    <p>{recipe.summary}</p>
-                    <button onClick={(e) => { e.stopPropagation(); handleAddToFolder(recipe.id); }}>폴더에 추가</button>
-                    <button onClick={(e) => { e.stopPropagation(); handleRemoveBookmark(recipe.id); }}>삭제</button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>북마크된 레시피가 없습니다.</p>
-            )}
-          </div>
-        </div>
-
-        {selectedFolder && (
-          <div>
-            <h3>{selectedFolder} 폴더에 저장된 레시피</h3>
-            <div className="recipe-grid">
-              {getRecipesInFolder(selectedFolder).map(recipe => (
-                <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
-                  <img src={recipe.image} alt={recipe.title} className="recipe-img" />
-                  <div className="recipe-info">
-                    <h4>{recipe.title}</h4>
-                    <p>{recipe.summary}</p>
-                    <button onClick={(e) => { e.stopPropagation(); handleRemoveRecipeFromFolder(recipe.id); }}>폴더에서 제거</button>
-                  </div>
-                </div>
-              ))}
+        {activeTab === 'bookmark' && (
+          <>
+            <div className="myinfo-header">
+              <h2 className="section-title">북마크된 모든 레시피</h2>
+              <Link to="/preference">
+                <button className="edit-preference-btn">질병 편집</button>
+              </Link>
             </div>
-          </div>
+
+            <input className="search-input" type="text" placeholder="레시피 검색"
+              value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+
+            <div className="recipe-grid">
+              {bookmarks.length > 0 ? (
+                filteredRecipes.map(recipe => (
+                  <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
+                    <img src={recipe.image} alt={recipe.title} className="recipe-img" />
+                    <div className="recipe-info">
+                      <h4>{recipe.title}</h4>
+                      <p>{recipe.summary}</p>
+                      <button onClick={(e) => { e.stopPropagation(); handleAddToFolder(recipe.id); }}>폴더에 추가</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleRemoveBookmark(recipe.id); }}>삭제</button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>북마크된 레시피가 없습니다.</p>
+              )}
+            </div>
+          </>
         )}
 
-        {folders.length > 0 && (
-          <div>
-            {folders.map((f, i) => (
-              <div key={i} className="folder-item">
-                <span>{f.name}</span>
-                <button onClick={() => handleDeleteFolder(f.name)}>삭제</button>
+        {activeTab === 'folder' && (
+          <>
+            <div className="folder-management">
+              <button onClick={handleCreateFolder}>새 폴더 만들기</button>
+              {folders.length > 0 && (
+                <select onChange={(e) => handleFolderChange(e.target.value)} value={selectedFolder}>
+                  <option value="">폴더 선택</option>
+                  {folders.map((f, i) => <option key={i} value={f.name}>{f.name}</option>)}
+                </select>
+              )}
+            </div>
+
+            {selectedFolder && (
+              <div>
+                <div className="folder-title-container">
+                  <h3 className="folder-title">{selectedFolder} 폴더에 저장된 레시피</h3>
+                  <button className="delete-folder-btn" onClick={() => handleDeleteFolder(selectedFolder)}>폴더 삭제</button>
+                </div>
+                <div className="recipe-grid">
+                  {getRecipesInFolder(selectedFolder).map(recipe => (
+                    <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
+                      <img src={recipe.image} alt={recipe.title} className="recipe-img" />
+                      <div className="recipe-info">
+                        <h4>{recipe.title}</h4>
+                        <p>{recipe.summary}</p>
+                        <button onClick={(e) => { e.stopPropagation(); handleRemoveRecipeFromFolder(recipe.id); }}>폴더에서 제거</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
