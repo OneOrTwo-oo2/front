@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext"; // ✅ 인증 훅
 import "./LoginPage.css";
+import googleLogo from '../assets/google.png';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ function LoginPage() {
 
   return (
     <div className="login-container">
-      <img src="/logo.png" alt="로고" className="logo" />
+      <img src={googleLogo} alt="로고" className="logo" />
       <h2>Google 간편 로그인</h2>
       <div id="google-login-btn"></div>
     </div>
