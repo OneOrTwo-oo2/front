@@ -3,10 +3,26 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from "../assets/emojiMap_full_ko.js";
-import { preferOptions, kindOptions, situationOptions, methodOptions } from '../components/options.js'; //선호도추가
+import { preferOptions, kindOptions, situationOptions, methodOptions } from '../components/options.js';
 import ingredientList from '../assets/ingredientList.json';
 
-const ingredientOptions = ingredientList;
+const ingredientCategoryMap = {
+  carbohydrate: "탄수화물",
+  protein: "단백질",
+  sauce: "소스류",
+  dairy: "유제품",
+  vegetable: "야채류",
+  fruit: "과일류",
+  processed: "가공품",
+  beverage: "음료",
+  etc: "기타"
+};
+
+const groupedIngredients = Object.entries(ingredientCategoryMap).map(([key, label]) => ({
+  category: key,
+  label,
+  ingredients: ingredientList[label] || [],
+}));
 
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
@@ -14,7 +30,12 @@ function IngredientSearchPage() {
   const [kind, setKind] = useState('');
   const [situation, setSituation] = useState('');
   const [method, setMethod] = useState('');
-  const [ingredientsToDisplay, setIngredientsToDisplay] = useState(20);
+  const [ingredientsToDisplayMap, setIngredientsToDisplayMap] = useState(() =>
+    Object.keys(ingredientCategoryMap).reduce((acc, key) => {
+      acc[key] = 10;
+      return acc;
+    }, {})
+  );
 
   const location = useLocation();
   const { labels } = location.state || { labels: [] };
@@ -26,7 +47,7 @@ function IngredientSearchPage() {
       if (prev.includes(item)) {
         return prev.filter((i) => i !== item);
       } else {
-        return [...prev, item];  // 👈 선택되면 맨 뒤로
+        return [...prev, item];
       }
     });
   };
@@ -39,21 +60,20 @@ function IngredientSearchPage() {
   };
 
   const handleSearch = () => {
-      const ingredientNamesInKorean = ingredients.map((item) => {
-        const info = emojiMap[item];
-        return info?.name_ko || item.replace(/_/g, " "); // 매핑 없을 경우 기본 대체
-      });
+    const ingredientNamesInKorean = ingredients.map((item) => {
+      const info = emojiMap[item];
+      return info?.name_ko || item.replace(/_/g, " ");
+    });
 
-      const query = qs.stringify({
-        ingredients: ingredientNamesInKorean.join(','), // 👈 한글 이름으로 변환된 값
-        ...(kind && { kind }),
-        ...(situation && { situation }),
-        ...(method && { method }),
-      });
+    const query = qs.stringify({
+      ingredients: ingredientNamesInKorean.join(','),
+      ...(kind && { kind }),
+      ...(situation && { situation }),
+      ...(method && { method }),
+    });
 
-      navigate(`/recipes?${query}`);
-    };
-
+    navigate(`/recipes?${query}`);
+  };
 
   useEffect(() => {
     if (labels.length > 0) {
@@ -64,95 +84,112 @@ function IngredientSearchPage() {
   const isSearchDisabled =
     ingredients.length === 0 || !kind || !situation || !method;
 
-  const loadMoreIngredients = () => {
-    setIngredientsToDisplay(prev => prev + 20);
+  const loadMoreIngredients = (category) => {
+    setIngredientsToDisplayMap((prev) => ({
+      ...prev,
+      [category]: prev[category] + 10,
+    }));
   };
-
-  // 선택되면 맨앞으로 추가
-  const displayedIngredients = [
-    ...ingredients.filter(item => ingredientOptions.includes(item)), // 선택된 재료 먼저
-    ...ingredientOptions.filter(item => !ingredients.includes(item)), // 그 외 재료 뒤로
-  ].slice(0, ingredientsToDisplay);
-
 
   return (
     <div className="search-buttons-page">
       <h4>선호도 선택</h4>
       <div className="buttons">
-          {preferOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={preference === opt.value ? "active" : ""}
-              onClick={() => handleCategorySelect('preference', opt.value)}>{opt.label}</button>))}
+        {preferOptions.map((opt) => (
+          <button
+            key={opt.value}
+            className={preference === opt.value ? "active" : ""}
+            onClick={() => handleCategorySelect('preference', opt.value)}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
-    <div className="section">
 
-  <h4>재료 선택</h4>
-      {ingredients.length > 0 && (<div className="section selected-ingredients-row">
-          <div className="buttons horizontal-scroll">
-            {ingredients.map((item) => {
-              const info = emojiMap[item] || {
-                emoji: null,
-                name_ko: item.replace(/_/g, " "),
-              };
+      <div className="section">
+        <h4>재료 선택</h4>
+        {ingredients.length > 0 && (
+          <div className="section selected-ingredients-row">
+            <div className="buttons horizontal-scroll">
+              {ingredients.map((item) => {
+                const info = emojiMap[item] || {
+                  emoji: null,
+                  name_ko: item.replace(/_/g, " "),
+                };
 
-              return (
-                <button
-                  key={item}
-                  className="active"
-                  onClick={() => toggleIngredient(item)}  // 다시 누르면 제거
-                >
-                  {info.emoji ? (
-                    <img
-                      src={info.emoji}
-                      alt={info.name_ko}
-                      style={{ width: 25, height: 25, marginRight: 8 }}
-                    />
-                  ) : (
-                    <span style={{ marginRight: 8 }}>🧂</span>
-                  )}
-                  {info.name_ko}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={item}
+                    className="active"
+                    onClick={() => toggleIngredient(item)}
+                  >
+                    {info.emoji ? (
+                      <img
+                        src={info.emoji}
+                        alt={info.name_ko}
+                        style={{ width: 25, height: 25, marginRight: 8 }}
+                      />
+                    ) : (
+                      <span style={{ marginRight: 8 }}>🧂</span>
+                    )}
+                    {info.name_ko}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 카테고리별 출력 */}
+        {groupedIngredients.map(({ category, label, ingredients: items }) => {
+          const displayed = [
+            ...ingredients.filter((i) => items.includes(i)),
+            ...items.filter((i) => !ingredients.includes(i)),
+          ];
+          const count = ingredientsToDisplayMap[category] || 20;
+
+          return (
+            <div className="section" key={category}>
+              <h4>{label}</h4>
+              <div className="buttons">
+                {displayed.slice(0, count).map((item) => {
+                  const info = emojiMap[item] || {
+                    emoji: null,
+                    name_ko: item.replace(/_/g, " "),
+                  };
+
+                  return (
+                    <button
+                      key={item}
+                      className={ingredients.includes(item) ? "active" : ""}
+                      onClick={() => toggleIngredient(item)}
+                    >
+                      {info.emoji ? (
+                        <img
+                          src={info.emoji}
+                          alt={info.name_ko}
+                          style={{ width: 25, height: 25, marginRight: 8 }}
+                        />
+                      ) : (
+                        <span style={{ marginRight: 8 }}>🧂</span>
+                      )}
+                      {info.name_ko}
+                    </button>
+                  );
+                })}
+                {count < items.length && (
+                  <button
+                    className="load-more-btn"
+                    onClick={() => loadMoreIngredients(category)}
+                  >
+                    + 더 보기
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
-</div>)}
-  <div className="buttons">
-    {displayedIngredients.map((item) => {  // 선택되면 맨앞으로 추가
-      const info = emojiMap[item] || {
-        emoji: null,
-        name_ko: item.replace(/_/g, " "),
-      };
-
-      return (
-        <button
-          key={item}
-          className={ingredients.includes(item) ? "active" : ""}
-          onClick={() => toggleIngredient(item)}
-        >
-          {/* ✅ 이 부분이 핵심: 이미지 or 기본 이모지 출력 */}
-          {info.emoji ? (
-            <img
-              src={info.emoji}
-              alt={info.name_ko}
-              style={{ width: 25, height: 25, marginRight: 8 }}
-            />
-          ) : (
-            <span style={{ marginRight: 8 }}>🧂</span>
-          )}
-
-          {info.name_ko}
-        </button>
-      );
-    })}
-
-    {ingredientsToDisplay < ingredientOptions.length && (
-      <button className="load-more-btn" onClick={loadMoreIngredients}>
-        + 더 보기
-      </button>
-    )}
-  </div>
-</div>
 
       {/* 종류별, 상황별, 방법별 */}
       <div className="section">
