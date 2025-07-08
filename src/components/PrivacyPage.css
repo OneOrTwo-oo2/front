@@ -1,0 +1,16 @@
+.privacy-page {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.markdown-text {
+  white-space: pre-wrap;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin: 20px 0;
+}
