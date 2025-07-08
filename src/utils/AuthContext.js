@@ -1,13 +1,15 @@
 // src/utils/AuthContext.js
 import { createContext, useState, useEffect, useContext } from "react";
 
+// ✅ 1. Context 생성
 const AuthContext = createContext();
 
+// ✅ 2. Provider 정의
 export const AuthProvider = ({ children }) => {
   const [authorized, setAuthorized] = useState(null); // null = 로딩 중
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
+  const fetchAuthUser = () => {
     fetch("/api/auth/user", { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -21,13 +23,18 @@ export const AuthProvider = ({ children }) => {
         setAuthorized(false);
         setUser(null);
       });
+  };
+
+  useEffect(() => {
+    fetchAuthUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ authorized, user }}>
+    <AuthContext.Provider value={{ authorized, user, fetchAuthUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// ✅ 3. useAuth 훅 export
 export const useAuth = () => useContext(AuthContext);
