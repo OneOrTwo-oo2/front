@@ -1078,6 +1078,11 @@ const emojiMap = {
     "emoji": "/emojis/Cheddar_cheese.png",
     "name_ko": "체다 치즈",
     "name_en": "Cheddar cheese"
+  },
+    "nuts": {
+    "emoji": "/emojis/nuts.png",
+    "name_ko": "견과류",
+    "name_en": "nuts"
   }
 };
 

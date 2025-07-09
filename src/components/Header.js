@@ -1,7 +1,7 @@
 import './Header.css';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext'; // ✅ 인증 상태 갱신용
-import logo from '../assets/RecipeGo_logo2.svg';
+import logo from '../assets/recipego_logo.png';
 
 function Header() {
   const navigate = useNavigate();
