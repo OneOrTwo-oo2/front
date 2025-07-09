@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PreferenceToggleSection.css';
+import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 
 function PreferenceToggleSection() {
   const [ingredients, setIngredients] = useState([]);
@@ -9,44 +10,39 @@ function PreferenceToggleSection() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("/api/yolo-classes")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          // 배열인 경우 정상 저장
-          setIngredients(data);
-        } else if (data.ingredients && Array.isArray(data.ingredients)) {
-          // 혹시 data 안에 ingredients 키가 있는 형태일 수도 있음
-          setIngredients(data.ingredients);
-        } else {
-          console.error("🚨 yolo-classes 응답이 배열 형식이 아닙니다:", data);
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching YOLO classes:", err);
-        setIsLoading(false);
-      });
+    const fetchAll = async () => {
+      const [ingredientRes, prefRes] = await Promise.all([
+        fetch("/api/allergies"),
+        fetchWithAutoRefresh("/api/preferences", { credentials: "include" })
+      ]);
+
+      const ingredientData = await ingredientRes.json();
+      const prefData = await prefRes.json();
+
+      setIngredients(ingredientData);
+      setSelectedIngredients(prefData.allergies || []);
+      setIsLoading(false);
+    };
+
+    fetchAll().catch(err => {
+      console.error("초기 알러지 불러오기 실패", err);
+      setIsLoading(false);
+    });
   }, []);
 
-
-  const handleSelectItem = (item) => {
-    setSelectedIngredients((prevSelected) =>
-      prevSelected.includes(item)
-        ? prevSelected.filter((i) => i !== item)
-        : [...prevSelected, item]
+  const handleSelectItem = (itemName) => {
+    setSelectedIngredients((prev) =>
+      prev.includes(itemName)
+        ? prev.filter((i) => i !== itemName)
+        : [...prev, itemName]
     );
   };
 
   const handleSkip = () => {
-    console.log('Skipped');
-    navigate('/condition', { state: { selectedIngredients: [] } }); // ← 빈 상태로 이동
-
-    // 건너뛰기 시 처리
-  };
+    navigate('/condition', { state: { selectedIngredients: [] } });
+  }; // 건너뛰기 기능
 
   const handleNext = () => {
-    console.log('Next, selected ingredients:', selectedIngredients);
     navigate('/condition', { state: { selectedIngredients } });
   };
 
@@ -57,21 +53,17 @@ function PreferenceToggleSection() {
         {isLoading ? (
           <div>Loading...</div>
         ) : (
-          // 👇 변경 전
-          // selectedIngredients.includes(ingredient)
-
-          ingredients.slice(0, 20).map((ingredient, index) => (
+          ingredients.map((ingredient) => (
             <button
-              key={index}
+              key={ingredient.id}
               className={`ingredient-btn ${
-                selectedIngredients.includes(ingredient) ? 'selected' : ''
+                selectedIngredients.includes(ingredient.name) ? 'selected' : ''
               }`}
-              onClick={() => handleSelectItem(ingredient)}
+              onClick={() => handleSelectItem(ingredient.name)}
             >
-              {ingredient}
+              {ingredient.name}
             </button>
           ))
-
         )}
       </div>
 
