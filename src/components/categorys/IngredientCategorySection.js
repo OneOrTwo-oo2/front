@@ -3,7 +3,7 @@ import emojiMap from "../../assets/emojiMap_full_ko";
 import ingredientList from "../../assets/ingredientList.json";
 import ingredientCategoryMap from './ingredientCategoryMap.json';
 import SelectedIngredientsRow from "./SelectedIngredientsRow";
-
+import './IngredientCategorySection.css';
 function IngredientCategorySection({ selectedIngredients, setSelectedIngredients }) {
   const [displayCountMap, setDisplayCountMap] = useState({});
 
@@ -30,7 +30,11 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
 
   return (
     <>
+    <div className="selected-ingredients-wrapper">
+         <div className="selected-ingredients-box">
       <SelectedIngredientsRow ingredients={selectedIngredients} onToggle={toggleIngredient} />
+    </div>
+    </div>
       {Object.entries(ingredientCategoryMap).map(([category, label]) => {
         const items = ingredientList[label] || [];
         const displayCount = displayCountMap[category] || 0;
