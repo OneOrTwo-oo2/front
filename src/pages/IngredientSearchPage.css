@@ -78,3 +78,85 @@ select {
   overflow-y: auto;
 }
 
+
+.selected-ingredients-fixed {
+  position: sticky;
+  top: 100px;
+  z-index: 1000;
+  margin-bottom: 30px;
+}
+
+.selected-ingredients-row {
+  background-color: white;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ingredient-search-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 20px;
+}
+
+/* 왼쪽 고정 박스 */
+.selected-ingredients-fixed {
+  position: sticky;
+  top: 100px;
+  width: 220px;
+  background-color: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.text-prefer {
+  font-size: 18px;
+  font-weight: 1000;
+  color: #333;
+  margin-bottom: 8px;
+  text-align:center;
+}
+/* 오른쪽 메인 콘텐츠 */
+.ingredient-search-content {
+  flex: 1;
+}
+/* 🔍 검색 버튼을 우측 상단에 스티키하게 */
+.search-sticky-btn {
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+  z-index: 10;
+}
+
+/* 버튼 스타일 그대로 유지 */
+.search-sticky-btn .search-btn {
+  padding: 14px 24px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-sticky-btn .search-btn:hover {
+  background-color: #0056b3;
+}
+
+.search-sticky-btn .search-btn:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+}
