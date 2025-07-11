@@ -93,10 +93,6 @@ function RecipeDetailPage() {
         <p className="summary">{summary}</p>
       </>
     )}
-
-      <h2>📋 요약</h2>
-      <p className="summary">{summary}</p>
-
       {(yieldInfo || totalTime) && (
         <div className="meta-info">
           {yieldInfo && <p>👥 인분 수: {yieldInfo}</p>}

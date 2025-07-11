@@ -191,19 +191,20 @@ function RecipeListPage() {
 
       {watsonRecommendations.length > 0 && (
         <div className="watson-section">
-          <h3>🤖 Watson AI 추천 레시피</h3>
+          <h3>🤖 Watson AI 추천 레시피 3종</h3>
           <div className="recipe-grid">
             {watsonRecommendations.map((r, i) => (
-              <div key={`watson-${i}`} className="recipe-card" onClick={() => handleCardClick({ ...r, isWatson: true })}>
+              <div key={`watson-${i}`} className="recipe-card" onClick={() => handleCardClick({ ...r, link: r.url,isWatson: true })}>
+                <img src={r.url.image} alt={r.title} />
                 <h3>{r["제목"]}</h3>
-                {/* <p>{r.recommendation_reason}</p> */}
+                 {/* <p>{r.dietary_tips}</p> */}
                 <button>추천 레시피</button>
               </div>
             ))}
           </div>
         </div>
       )}
-
+        <h3> 일반 검색 레시피</h3>
       <div className="recipe-grid">
         {results.map((r, i) => (
           <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
