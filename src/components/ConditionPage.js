@@ -12,24 +12,34 @@ function ConditionPage() {
   const [selectedConditions, setSelectedConditions] = useState([]);
   const [agree, setAgree] = useState(false);
 
-  // ✅ 질환 목록 서버에서 가져오기
+  // ✅ 질환 목록 + 기존 선택값 불러오기
   useEffect(() => {
-    fetch("/api/diseases")
-      .then((res) => res.json())
-      .then(setConditions)
-      .catch(console.error);
+    const fetchData = async () => {
+      try {
+        const diseaseRes = await fetchWithAutoRefresh("/api/diseases");
+        const diseases = await diseaseRes.data;
+        setConditions(diseases);
+      } catch (err) {
+        console.error("질환 목록 로딩 실패:", err);
+      }
 
-    fetchWithAutoRefresh("/api/preferences", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => {
-        setSelectedConditions(data.diseases || []);
-      })
-      .catch(console.error);
+      try {
+        const prefRes = await fetchWithAutoRefresh("/api/preferences");
+        const prefData = await prefRes.data;
+        setSelectedConditions(prefData.diseases || []);
+      } catch (err) {
+        console.error("사용자 선호 불러오기 실패:", err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleSelectCondition = (name) => {
-    setSelectedConditions((prev) =>
-      prev.includes(name) ? prev.filter(i => i !== name) : [...prev, name]
+    setSelectedConditions(prev =>
+      prev.includes(name)
+        ? prev.filter(item => item !== name)
+        : [...prev, name]
     );
   };
 
@@ -39,26 +49,26 @@ function ConditionPage() {
 
   const handleNext = async () => {
     try {
-      const res = await fetch("/api/save-preference", {
+      const res = await fetchWithAutoRefresh("/api/save-preference", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // ✅ 쿠키 인증 기반
         body: JSON.stringify({
           allergies: selectedIngredients,
           diseases: selectedConditions,
         }),
       });
 
-      if (res.ok) {
-        navigate('/myinfo');
+      if (res.status === 200) {
+        navigate('/myinfo', { state: { isNewUser: true } });
       } else {
-        alert("저장 실패");
+        const errData = await res.data;
+        alert(errData?.detail || "저장 실패");
       }
     } catch (err) {
       console.error("저장 요청 실패:", err);
-      alert("저장 중 오류 발생");
+      alert("저장 중 오류가 발생했습니다.");
     }
   };
 
@@ -78,7 +88,6 @@ function ConditionPage() {
         ))}
       </div>
 
-      {/* 민감정보 동의 */}
       <div className="consent-section">
         <label>
           <input

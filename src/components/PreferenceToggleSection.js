@@ -11,23 +11,22 @@ function PreferenceToggleSection() {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [ingredientRes, prefRes] = await Promise.all([
-        fetch("/api/allergies"),
-        fetchWithAutoRefresh("/api/preferences", { credentials: "include" })
-      ]);
+      try {
+        const [ingredientRes, prefRes] = await Promise.all([
+          fetchWithAutoRefresh("/api/allergies"),
+          fetchWithAutoRefresh("/api/preferences")
+        ]);
 
-      const ingredientData = await ingredientRes.json();
-      const prefData = await prefRes.json();
-
-      setIngredients(ingredientData);
-      setSelectedIngredients(prefData.allergies || []);
-      setIsLoading(false);
+        setIngredients(ingredientRes.data || []);
+        setSelectedIngredients(prefRes.data?.allergies || []);
+      } catch (err) {
+        console.error("❌ 초기 알러지 불러오기 실패:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchAll().catch(err => {
-      console.error("초기 알러지 불러오기 실패", err);
-      setIsLoading(false);
-    });
+    fetchAll();
   }, []);
 
   const handleSelectItem = (itemName) => {
@@ -40,7 +39,7 @@ function PreferenceToggleSection() {
 
   const handleSkip = () => {
     navigate('/condition', { state: { selectedIngredients: [] } });
-  }; // 건너뛰기 기능
+  };
 
   const handleNext = () => {
     navigate('/condition', { state: { selectedIngredients } });
@@ -49,6 +48,7 @@ function PreferenceToggleSection() {
   return (
     <div className="preference-page">
       <h2>알러지 있는 재료가 있나요?</h2>
+
       <div className="ingredient-buttons">
         {isLoading ? (
           <div>Loading...</div>
@@ -68,12 +68,8 @@ function PreferenceToggleSection() {
       </div>
 
       <div className="buttons">
-        <button className="skip-btn" onClick={handleSkip}>
-          건너뛰기
-        </button>
-        <button className="next-btn" onClick={handleNext}>
-          다음
-        </button>
+        <button className="skip-btn" onClick={handleSkip}>건너뛰기</button>
+        <button className="next-btn" onClick={handleNext}>다음</button>
       </div>
     </div>
   );
