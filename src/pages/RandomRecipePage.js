@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import qs from 'qs';
 import './RecipeListPage.css'; // 동일한 스타일 재사용
+import apiClient from '../api/apiClient'; // ✅ axios 인스턴스
 
 function RandomRecipePage() {
   const [theme, setTheme] = useState('');
@@ -11,7 +11,7 @@ function RandomRecipePage() {
   const fetchRecipes = async (themeCode) => {
     setLoading(true);
     try {
-      const res = await axios.get('/recipes', {
+      const res = await apiClient.get('/recipes', {
         params: { theme: themeCode },
         paramsSerializer: params => qs.stringify(params),
       });

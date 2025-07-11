@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/apiClient'; // ✅ axios 인스턴스
 import './RecipeDetailPage.css';
 
 function RecipeDetailPage() {
@@ -24,7 +24,7 @@ function RecipeDetailPage() {
       }
       const fetchDetail = async () => {
         try {
-          const res = await axios.get("http://localhost:8000/recipe-detail", {
+          const res = await apiClient.get("/recipe-detail", {
             params: { link }
           });
           console.log("✅ 받아온 데이터:", res.data);
@@ -48,7 +48,7 @@ function RecipeDetailPage() {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/recipe-detail", {
+        const res = await apiClient.get("/recipe-detail", {
           params: { link }
         });
         console.log("✅ 받아온 데이터:", res.data);

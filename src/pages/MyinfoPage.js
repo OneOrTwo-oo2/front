@@ -37,7 +37,7 @@ function MyinfoPage() {
   const fetchBookmarks = async () => {
     try {
       const res = await fetchWithAutoRefresh("/api/bookmarks", { method: "GET" });
-      const data = await res.json();
+      const data = res.data;
       setBookmarks(data);
     } catch (err) {
       console.error("북마크 불러오기 실패:", err);
@@ -47,7 +47,7 @@ function MyinfoPage() {
   const fetchFolders = async () => {
     try {
       const res = await fetchWithAutoRefresh("/api/folders", { method: "GET" });
-      const data = await res.json();
+      const data = res.data;
       setFolders(data);
     } catch (err) {
       console.error("폴더 목록 불러오기 실패:", err);
@@ -70,7 +70,7 @@ function MyinfoPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: folderName })
       });
-      const data = await res.json();
+      const data = res.data;
       setFolders(prev => [...prev, data]);
       setSelectedFolder(data.name);
     } catch (err) {
@@ -85,7 +85,7 @@ function MyinfoPage() {
 
     try {
       const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`);
-      const data = await res.json();
+      const data = res.data;
       setFolderRecipes(prev => ({ ...prev, [folderName]: data }));
     } catch (err) {
       console.error("폴더 레시피 조회 실패:", err);
@@ -104,8 +104,8 @@ function MyinfoPage() {
         body: JSON.stringify({ recipe_id: recipeId })
       });
 
-      if (!res.ok) {
-        const error = await res.json();
+      if (!res.status || res.status >= 400) {
+        const error = res.data;
         alert(error.detail || "이미 추가된 레시피입니다.");
         return;
       }

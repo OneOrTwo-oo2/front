@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { kindOptions, situationOptions, methodOptions } from '../components/options';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import LoadingAnimation from '../components/loading_api';
+import apiClient from '../api/apiClient';
+import aiClient from '../api/aiClient';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -26,12 +28,8 @@ function RecipeListPage() {
   useEffect(() => {
     const fetchWatsonRecommendations = async () => {
       try {
-        const res = await fetch("http://localhost:8000/recommend", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ingredients })
-        });
-        const data = await res.json();
+        const res = await aiClient.post("/recommend", { ingredients });
+        const data = res.data;
         setWatsonRecommendations(data.result.recommended_recipes || []);
         setDietaryTips(data.result.dietary_tips || "");
       } catch (err) {
@@ -69,7 +67,7 @@ function RecipeListPage() {
       const res = await fetchWithAutoRefresh("/api/bookmarks", {
         method: "GET"
       });
-      const data = await res.json();
+      const data = await res.data;
       const bookmarkedIds = new Map();
       data.forEach((recipe) => {
         bookmarkedIds.set(Number(recipe.id), true);
@@ -92,8 +90,8 @@ function RecipeListPage() {
       };
 
       const query = qs.stringify(queryParams, { arrayFormat: 'repeat' });
-      const res = await fetch(`/recipes?${query}`);
-      const data = await res.json();
+      const res = await apiClient.get(`/recipes?${query}`);
+      const data = res.data;
 
       const processed = data.results.map((r, idx) => ({
         ...r,
@@ -162,7 +160,7 @@ function RecipeListPage() {
         })
       });
 
-      const data = await res.json();
+      const data = await res.data;
       const newRecipeId = Number(data.recipe_id);
       setBookmarkedState((prev) => {
         const updated = new Map(prev);

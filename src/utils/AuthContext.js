@@ -1,28 +1,21 @@
-// src/utils/AuthContext.js
 import { createContext, useState, useEffect, useContext } from "react";
+import apiClient from "../api/apiClient"; // ✅ axios client import
 
-// ✅ 1. Context 생성
 const AuthContext = createContext();
 
-// ✅ 2. Provider 정의
 export const AuthProvider = ({ children }) => {
   const [authorized, setAuthorized] = useState(null); // null = 로딩 중
   const [user, setUser] = useState(null);
 
-  const fetchAuthUser = () => {
-    fetch("/api/auth/user", { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((data) => {
-        setAuthorized(true);
-        setUser(data);
-      })
-      .catch(() => {
-        setAuthorized(false);
-        setUser(null);
-      });
+  const fetchAuthUser = async () => {
+    try {
+      const res = await apiClient.get("/api/auth/user");
+      setAuthorized(true);
+      setUser(res.data);
+    } catch (err) {
+      setAuthorized(false);
+      setUser(null);
+    }
   };
 
   useEffect(() => {
@@ -36,5 +29,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ 3. useAuth 훅 export
 export const useAuth = () => useContext(AuthContext);
