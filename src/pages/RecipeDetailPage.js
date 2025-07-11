@@ -6,7 +6,7 @@ import './RecipeDetailPage.css';
 function RecipeDetailPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { link } = location.state || {};
+  const { link, recommendation_reason, dietary_tips, isWatson  } = location.state || {};
 
   const [summary, setSummary] = useState('');
   const [ingredients, setIngredients] = useState([]);
@@ -15,6 +15,35 @@ function RecipeDetailPage() {
   const [totalTime, setTotalTime] = useState('');
   const [yieldInfo, setYieldInfo] = useState('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+      if (!isWatson && !link) return; // 일반 레시피인데 link 없으면 실패 처리
+      if (!link) {
+        setLoading(false);  // Watson 레시피는 link 없이도 보여야 하니까 로딩 false
+        return;
+      }
+      const fetchDetail = async () => {
+        try {
+          const res = await axios.get("http://localhost:8000/recipe-detail", {
+            params: { link }
+          });
+          console.log("✅ 받아온 데이터:", res.data);
+          setSummary(res.data.summary);
+          setIngredients(res.data.ingredients || []);
+          setSteps(res.data.steps || []);
+          setVideo(res.data.video || '');
+          setTotalTime(res.data.total_time || '');
+          setYieldInfo(res.data.yield_info || '');
+        } catch (err) {
+          console.error("❌ 상세 정보 불러오기 실패:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchDetail();
+    }, [link, isWatson]);
+
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -39,12 +68,31 @@ function RecipeDetailPage() {
     if (link) fetchDetail();
   }, [link]);
 
-  if (!link) return <p>링크 정보가 없습니다.</p>;
+  if (!link && !isWatson) return <p>링크 정보가 없습니다.</p>;
   if (loading) return <p>로딩 중...</p>;
 
   return (
     <div className="detail-container">
       <button onClick={() => navigate(-1)}>← 뒤로가기</button>
+              {isWatson && recommendation_reason && (
+      <div className="ai-recommendation">
+        <h3>🤖 추천 이유</h3>
+        <p>{recommendation_reason}</p>
+      </div>
+    )}
+
+    {isWatson && dietary_tips && (
+      <div className="ai-tips">
+        <h3>💡 식이요법 팁</h3>
+        <p>{dietary_tips}</p>
+      </div>
+    )}
+    {summary && (
+      <>
+        <h2>📋 요약</h2>
+        <p className="summary">{summary}</p>
+      </>
+    )}
 
       <h2>📋 요약</h2>
       <p className="summary">{summary}</p>

@@ -6,6 +6,7 @@ import DropdownSelector from '../components/DropdownSelector';
 import { useNavigate } from 'react-router-dom';
 import { kindOptions, situationOptions, methodOptions } from '../components/options';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
+import LoadingAnimation from '../components/loading_api';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -16,9 +17,32 @@ function RecipeListPage() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [bookmarkedState, setBookmarkedState] = useState(new Map());
+  const [watsonRecommendations, setWatsonRecommendations] = useState([]);  // 새로추가
+  const [dietaryTips, setDietaryTips] = useState("");   //새로추가
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
+
+  useEffect(() => {
+    const fetchWatsonRecommendations = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ingredients })
+        });
+        const data = await res.json();
+        setWatsonRecommendations(data.result.recommended_recipes || []);
+        setDietaryTips(data.result.dietary_tips || "");
+      } catch (err) {
+        console.error("❌ Watson 추천 실패:", err);
+      }
+    };
+
+      if (ingredients) {
+        fetchWatsonRecommendations();
+      }
+    }, [ingredients]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -95,9 +119,16 @@ function RecipeListPage() {
     fetchRecipes(ingredients, kind, situation, method, '');
   };
 
-  const handleCardClick = (recipe) => {
-    navigate("/recipes/detail", { state: { link: recipe.link } });
-  };
+ const handleCardClick = (recipe) => {
+      navigate("/recipes/detail", {
+        state: {
+          link: recipe.link,
+          recommendation_reason: recipe.recommendation_reason,
+          dietary_tips: dietaryTips,
+          isWatson: recipe.isWatson || false,
+        }
+      });
+    };
 
   const handleToggle = (key) => {
     setOpenDropdown(openDropdown === key ? null : key);
@@ -146,50 +177,33 @@ function RecipeListPage() {
     }
   };
 
-  return (
+    return (
     <div className="recipe-list-page">
       <h2>🔍레시피 검색</h2>
       <div className="search-bar">
-        <input
-          type="text"
-          value={ingredients}
-          onChange={(e) => setIngredients(e.target.value)}
-          placeholder="예: 김치, 감자"
-        />
-
-        <DropdownSelector
-          label="종류별"
-          options={kindOptions}
-          selected={kind ? kindOptions.find(opt => opt.value === kind)?.label : ''}
-          isOpen={openDropdown === 'kind'}
-          onToggle={() => handleToggle('kind')}
-          onSelect={(value) => handleSelect('kind', value)}
-        />
-
-        <DropdownSelector
-          label="상황별"
-          options={situationOptions}
-          selected={situation ? situationOptions.find(opt => opt.value === situation)?.label : ''}
-          isOpen={openDropdown === 'situation'}
-          onToggle={() => handleToggle('situation')}
-          onSelect={(value) => handleSelect('situation', value)}
-        />
-
-        <DropdownSelector
-          label="방법별"
-          options={methodOptions}
-          selected={method ? methodOptions.find(opt => opt.value === method)?.label : ''}
-          isOpen={openDropdown === 'method'}
-          onToggle={() => handleToggle('method')}
-          onSelect={(value) => handleSelect('method', value)}
-        />
-
+        <input type="text" value={ingredients} onChange={(e) => setIngredients(e.target.value)} placeholder="예: 김치, 감자" />
+        <DropdownSelector label="종류별" options={kindOptions} selected={kindOptions.find(opt => opt.value === kind)?.label || ''} isOpen={openDropdown === 'kind'} onToggle={() => handleToggle('kind')} onSelect={(value) => handleSelect('kind', value)} />
+        <DropdownSelector label="상황별" options={situationOptions} selected={situationOptions.find(opt => opt.value === situation)?.label || ''} isOpen={openDropdown === 'situation'} onToggle={() => handleToggle('situation')} onSelect={(value) => handleSelect('situation', value)} />
+        <DropdownSelector label="방법별" options={methodOptions} selected={methodOptions.find(opt => opt.value === method)?.label || ''} isOpen={openDropdown === 'method'} onToggle={() => handleToggle('method')} onSelect={(value) => handleSelect('method', value)} />
         <button onClick={handleSearch}>검색</button>
       </div>
 
-      {loading && <p>로딩 중...</p>}
-      {!loading && results.length > 0 && (
-        <p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>
+      {loading && <LoadingAnimation />}
+      {!loading && results.length > 0 && (<p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>)}
+
+      {watsonRecommendations.length > 0 && (
+        <div className="watson-section">
+          <h3>🤖 Watson AI 추천 레시피</h3>
+          <div className="recipe-grid">
+            {watsonRecommendations.map((r, i) => (
+              <div key={`watson-${i}`} className="recipe-card" onClick={() => handleCardClick({ ...r, isWatson: true })}>
+                <h3>{r["제목"]}</h3>
+                {/* <p>{r.recommendation_reason}</p> */}
+                <button>추천 레시피</button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="recipe-grid">
@@ -198,12 +212,7 @@ function RecipeListPage() {
             <img src={r.image} alt={r.title} />
             <h3>{r.title}</h3>
             <p>{r.summary}</p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddToBookmark(r);
-              }}
-            >
+            <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
               {bookmarkedState.has(Number(r.id)) ? "✅ 저장됨" : "북마크"}
             </button>
           </div>
