@@ -2,7 +2,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PhotoSearchPage.css';
 import LoadingAnimation from '../components/loading_api';
-
+import aiClient from '../api/aiClient.js';
 
 function PhotoSearchPage() {
   const [searchResults, setSearchResults] = useState([]);
@@ -27,20 +27,10 @@ function PhotoSearchPage() {
 
     setIsLoading(true);
 
-    fetch('/ingredients', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.detail || '서버 오류');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data.labels);
-        handleSearchSuccess(data.labels);
+    aiClient.post('/ingredients', formData)
+      .then((res) => {
+        console.log(res.data.labels);
+        handleSearchSuccess(res.data.labels);
       })
       .catch((error) => {
         console.error('검색 실패:', error);
