@@ -17,16 +17,21 @@ function RecipeListPage() {
   const [method, setMethod] = useState('');
   const [theme, setTheme] = useState('');
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [bookmarkedState, setBookmarkedState] = useState(new Map());
   const [watsonRecommendations, setWatsonRecommendations] = useState([]);  // 새로추가
   const [dietaryTips, setDietaryTips] = useState("");   //새로추가
+  const [isRecipeLoading, setIsRecipeLoading] = useState(false);
+  const [isWatsonLoading, setIsWatsonLoading] = useState(false);
+  const isLoading = isRecipeLoading || isWatsonLoading;
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     const fetchWatsonRecommendations = async () => {
+      if (!ingredients) return;
+
+      setIsWatsonLoading(true);
       try {
         const res = await aiClient.post("/recommend", { ingredients });
         const data = res.data;
@@ -34,13 +39,13 @@ function RecipeListPage() {
         setDietaryTips(data.result.dietary_tips || "");
       } catch (err) {
         console.error("❌ Watson 추천 실패:", err);
-      }
+      }finally {
+      setIsWatsonLoading(false);  // Watson 끝날 때 로딩 종료
+    }
     };
 
-      if (ingredients) {
-        fetchWatsonRecommendations();
-      }
-    }, [ingredients]);
+      fetchWatsonRecommendations();
+}, [ingredients]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -79,7 +84,7 @@ function RecipeListPage() {
   };
 
   const fetchRecipes = async (ing, k, s, m, t) => {
-    setLoading(true);
+    setIsRecipeLoading(true);
     try {
       const queryParams = {
         ...(ing && { ingredients: ing.split(',').map(i => i.trim()) }),
@@ -102,7 +107,7 @@ function RecipeListPage() {
     } catch (err) {
       console.error("❌ 레시피 불러오기 실패:", err);
     } finally {
-      setLoading(false);
+      setIsRecipeLoading(false);
     }
   };
 
@@ -185,17 +190,21 @@ function RecipeListPage() {
         <DropdownSelector label="방법별" options={methodOptions} selected={methodOptions.find(opt => opt.value === method)?.label || ''} isOpen={openDropdown === 'method'} onToggle={() => handleToggle('method')} onSelect={(value) => handleSelect('method', value)} />
         <button onClick={handleSearch}>검색</button>
       </div>
-
-      {loading && <LoadingAnimation />}
-      {!loading && results.length > 0 && (<p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>)}
+       {isLoading && (
+          <div className="loading-container">
+            <p className="loading-text">🤖 AI 추천 레시피를 검색 중입니다. 잠시만 기다려주세요!</p>
+            <LoadingAnimation />
+          </div>
+       )}
+      {!isLoading && results.length > 0 && (<p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>)}
 
       {watsonRecommendations.length > 0 && (
         <div className="watson-section">
           <h3>🤖 Watson AI 추천 레시피 3종</h3>
           <div className="recipe-grid">
             {watsonRecommendations.map((r, i) => (
-              <div key={`watson-${i}`} className="recipe-card" onClick={() => handleCardClick({ ...r, link: r.url,isWatson: true })}>
-                <img src={r.url.image} alt={r.title} />
+              <div key={`watson-${i}`} className="recipe-card" onClick={() => handleCardClick({r,...r, link: r.url,isWatson: true })}>
+                <img src={r.image} alt={r["제목"]} />
                 <h3>{r["제목"]}</h3>
                  {/* <p>{r.dietary_tips}</p> */}
                 <button>추천 레시피</button>
