@@ -8,13 +8,17 @@ function RecipeDetailPage() {
   const navigate = useNavigate();
   const { link, recommendation_reason, dietary_tips, isWatson  } = location.state || {};
 
-  const [summary, setSummary] = useState('');
+  const [summary, setSummary] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
   const [video, setVideo] = useState('');
   const [totalTime, setTotalTime] = useState('');
   const [yieldInfo, setYieldInfo] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const mainIngredients = ingredients.slice(0, 6);  // 상위 6개를 메인 재료
+  const seasoningIngredients = ingredients.slice(6); // 나머지는 조미료로
+
 
   useEffect(() => {
       if (!isWatson && !link) return; // 일반 레시피인데 link 없으면 실패 처리
@@ -87,10 +91,22 @@ function RecipeDetailPage() {
         <p>{dietary_tips}</p>
       </div>
     )}
+
+
     {summary && (
       <>
         <h2>📋 요약</h2>
-        <p className="summary">{summary}</p>
+        <div className="summary-box">
+          {/* 요약 본문 */}
+          {summary.text && <p className="summary-text">{summary.text}</p>}
+
+          {/* 메타 정보 */}
+          <div className="meta-info">
+            {summary.serving && <span> 👥 : {summary.serving}</span>}
+            {summary.time && <span>  ⏱️ 소요 시간 : {summary.time}</span>}
+            {summary.difficulty && <span>  🔥 난이도 : {summary.difficulty}</span>}
+          </div>
+        </div>
       </>
     )}
       {(yieldInfo || totalTime) && (
@@ -102,24 +118,36 @@ function RecipeDetailPage() {
 
       {ingredients.length > 0 && (
         <>
-          <h2>🧂 재료</h2>
-          <ul className="ingredients">
-            {ingredients.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
+            <h2>🧂 재료</h2>
+            <div className="ingredient-section">
+              <div className="ingredient-column">
+                <h4>🧺 주재료</h4>
+                <ul>
+                  {mainIngredients.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+              <div className="ingredient-column">
+                <h4>🧂 양념/조미료</h4>
+                <ul>
+                  {seasoningIngredients.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
         </>
       )}
 
-      <h2>🍳 조리순서</h2>
-      <ol className="steps">
-        {steps.map((s, i) => (
-          <li key={i}>
-            {s.img && <img src={s.img} alt={`step ${i + 1}`} />}
-            <p>{s.desc}</p>
-          </li>
-        ))}
-      </ol>
+     <h2>🔍 조리순서</h2>
+        <div className="steps">
+          {steps.map((s, i) => (
+            <div key={i} className="step-card">
+              {s.img && <img src={s.img} alt={`step ${i + 1}`} />}
+              <div className="step-desc">
+                <strong>{i + 1}. </strong>{s.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+
 
       {video && (
         <>
