@@ -203,7 +203,7 @@ function RecipeListPage() {
           <h3>🤖 Watson AI 추천 레시피 3종</h3>
           <div className="recipe-grid">
             {watsonRecommendations.map((r, i) => (
-              <div key={`watson-${i}`} className="recipe-card" onClick={() => handleCardClick({r,...r, link: r.url,isWatson: true })}>
+              <div key={`watson-${i}`} className="recipe-card watson-card" onClick={() => handleCardClick({r,...r, link: r.url,isWatson: true })}>
                 <img src={r.image} alt={r["제목"]} />
                 <h3>{r["제목"]}</h3>
                  {/* <p>{r.dietary_tips}</p> */}

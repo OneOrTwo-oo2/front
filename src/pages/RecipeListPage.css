@@ -43,8 +43,13 @@
   transition: transform 0.2s ease;
 }
 
+/* 🟩 Watson 카드만 배경색 다르게 지정 */
+.recipe-card.watson-card {
+  background-color: #e7f9e9; /* 연한 그린톤 */
+  border: 1px solid #88d18a;
+}
 .recipe-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px);
 }
 
 .recipe-card img {
