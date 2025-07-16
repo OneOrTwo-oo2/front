@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { kindOptions, levelOptions, preferOptions } from '../components/options';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import LoadingAnimation from '../components/loading_api';
@@ -26,7 +26,7 @@ function RecipeListPage() {
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
-
+  const location = useLocation();
 
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
@@ -51,32 +51,49 @@ function RecipeListPage() {
       fetchUserPreferences();
      },[]);
 
-//  useEffect(() => {
-//    if (!ingredients) return;
-//
-//    const fetchWatsonRecommendations = async () => {
-//      setIsWatsonLoading(true);
-//      try {
-//        const allergies = userPreferences.allergies;
-//        const diseases = userPreferences.diseases;
-//
-//        console.log("data: ", ingredients, allergies, diseases, kind, preference, level)
-//
-//        const res = await aiClient.post("/recommend", { ingredients, allergies, diseases, kind, preference, level });
-//        const data = res.data;
-//
-//        setWatsonRecommendations(data.result.recommended_recipes || []);
-//        setDietaryTips(data.result.dietary_tips || "");
-//      } catch (err) {
-//        console.error("❌ Watson 추천 실패:", err);
-//      }finally {
-//      setIsWatsonLoading(false);  // Watson 끝날 때 로딩 종료
-//    }
-//    };
+  // 이전 캐시 데이터 가져오기
+  useEffect(() => {
+    const saved = sessionStorage.getItem("searchInputs");
+
+    if (saved) {
+      const { ingredients, preference, kind, level } = JSON.parse(saved);
+      console.log("✅ 복원된 검색조건:", { ingredients, preference, kind, level });
+
+      setIngredients(ingredients || '');
+      setPreference(preference || '');
+      setKind(kind || '');
+      setLevel(level || '');
+
+      fetchRecipes(ingredients, kind, preference, level);
+    } else {
+      console.log("❌ 세션스토리지에 저장된 검색 정보가 없습니다.");
+    }
+
+    fetchBookmarks();
+  }, []);
+
+
+  useEffect(() => {
+  // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
+  const params = new URLSearchParams(window.location.search);
+  const ingredients = params.get('ingredients');
+  const preference = params.get('preference');
+  const kind = params.get('kind');
+  const level = params.get('level');
+
+  const currentQuery = JSON.stringify({ ingredients, preference, kind, level });
+  const previousQuery = sessionStorage.getItem("lastQuery");
+
+  if (currentQuery !== previousQuery) {
+    // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
+    sessionStorage.removeItem("watsonRecommendations");
+    sessionStorage.setItem("lastQuery", currentQuery);
+  }
+}, [location.search]);
+
 
   useEffect(() => {
       const cached = sessionStorage.getItem("watsonRecommendations");
-
 
       if (cached) {
         // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
@@ -93,8 +110,12 @@ function RecipeListPage() {
 
         setIsWatsonLoading(true);
         try {
-          const res = await aiClient.post("/recommend", { ingredients });
+          const allergies = userPreferences.allergies;
+          const diseases = userPreferences.diseases;
+          const res = await aiClient.post("/recommend", { ingredients, preference, kind, level, allergies, diseases  });
           const data = res.data;
+
+          console.log("data:",ingredients, preference, kind, level, allergies, diseases )
 
           setWatsonRecommendations(data.result.recommended_recipes || []);
           setDietaryTips(data.result.dietary_tips || "");
@@ -111,9 +132,7 @@ function RecipeListPage() {
       };
 
       fetchWatsonRecommendations();
-
-}, [ingredients, ingredients, userPreferences, kind, preference, level]);
-
+}, [ingredients, kind, preference, level]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -244,7 +263,7 @@ function RecipeListPage() {
       console.error("❌ 북마크 실패:", err);
       alert("북마크 중 오류 발생");
     }
-  };
+};
 
     return (
     <div className="recipe-list-page">

@@ -6,8 +6,6 @@ import emojiMap from '../assets/emojiMap_full_ko.js';
 import {
   preferOptions,
   kindOptions,
-  situationOptions,
-  methodOptions,
   levelOptions
 } from '../components/options.js';
 import IngredientCategorySection from '../components/categorys/IngredientCategorySection';
@@ -17,8 +15,6 @@ function IngredientSearchPage() {
   const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
   const [level, setLevel] = useState('');
-  //const [situation, setSituation] = useState('');
-  //const [method, setMethod] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,15 +27,15 @@ function IngredientSearchPage() {
   return match ? match.value : label;
   };
 
+  // 캐시 저장
   useEffect(() => {
       const saved = sessionStorage.getItem("searchInputs");
       if (saved) {
         const parsed = JSON.parse(saved);
-        setIngredients(parsed.ingredients || []);
+        setIngredients(Array.isArray(parsed.ingredients) ? parsed.ingredients : []);
         setPreference(parsed.preference || '');
         setKind(parsed.kind || '');
-        setSituation(parsed.situation || '');
-        setMethod(parsed.method || '');
+        setLevel(parsed.level || '');
       } else if (labels.length > 0) {
         setIngredients(labels);
       }
@@ -55,17 +51,14 @@ function IngredientSearchPage() {
         ingredients,
         preference,
         kind,
-        situation,
-        method
+        level
       }));
-    }, [ingredients, preference, kind, situation, method, isRestored]);
+    }, [ingredients, preference, kind, level, isRestored]);
 
   const handleCategorySelect = (type, value) => {
     if (type === 'preference') setPreference(value);
     if (type === 'kind') setKind(value);
     if (type === 'level') setLevel(value);
-    //if (type === 'situation') setSituation(value);
-    //if (type === 'method') setMethod(value);
   };
 
   // 고정 박스에 들어갈 항목들만 정리
@@ -75,8 +68,6 @@ function IngredientSearchPage() {
     if (preference) result.push({ type: '선호도', value: preference });
     if (kind) result.push({ type: '종류', value: kind });
     if (level) result.push({ type: '난이도', value: level });
-    //if (situation) result.push({ type: '상황', value: situation });
-    //if (method) result.push({ type: '방법', value: method });
 
     return result;
   };
@@ -87,8 +78,6 @@ function IngredientSearchPage() {
       선호도: preferOptions,
       종류: kindOptions,
       난이도: levelOptions
-      //상황: situationOptions,
-      //방법: methodOptions,
     };
 
     const matched = optionMap[type]?.find((opt) => opt.value === value);
@@ -102,8 +91,6 @@ function IngredientSearchPage() {
     if (type === '선호도') setPreference('');
     else if (type === '종류') setKind('');
     else if (type === '난이도') setLevel('');
-    //else if (type === '상황') setSituation('');
-    //else if (type === '방법') setMethod('');
   };
 
   const handleSearch = () => {
@@ -118,8 +105,7 @@ function IngredientSearchPage() {
     ingredients,
     preference,
     kind,
-    situation,
-    method
+    level
     }));
 
     const query = qs.stringify({
@@ -129,6 +115,7 @@ function IngredientSearchPage() {
       //...(method && { method }),
     });
     navigate(`/recipes?${query}`);
+    };
 
 //  const searchData = {
 //    ingredients,
@@ -142,7 +129,6 @@ function IngredientSearchPage() {
 //
 //  // 👉 location.state로도 함께 전달
 //  navigate('/RecipeListPage', { state: searchData });
-  };
 
   const isSearchDisabled = ingredients.length === 0;
 
@@ -183,7 +169,7 @@ function IngredientSearchPage() {
           </button>
         ))}
       </div>
-      {/* 종류 / 상황 / 방법 */}
+      {/* 종류 / 난이도 */}
       <div className="section">
         <h4>종류별</h4>
         <div className="buttons">
