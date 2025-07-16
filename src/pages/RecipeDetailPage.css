@@ -162,3 +162,28 @@ a:hover {
   padding-left: 1.5rem;
 }
 
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.25s, transform 0.15s;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+  transform: translateX(-2px);
+}
+
+.back-button:active {
+  transform: translateX(0);
+  background-color: #d5d5d5;
+}
