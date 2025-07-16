@@ -40,7 +40,8 @@ function App() {
             <Route path="/photo-search" element={<ProtectedRoute element={<PhotoSearchPage />} />} />
             <Route path="/myinfo" element={<ProtectedRoute element={<MyInfo />} />} />
             <Route path="/recipes" element={<ProtectedRoute element={<RecipeListPage />} />} />
-            <Route path="/Random-recipe" element={<ProtectedRoute element={<RandomRecipePage />} />} />
+            <Route path="/theme" element={<RandomRecipePage />} />
+            <Route path="/theme/*" element={<ProtectedRoute element={<RandomRecipePage />} />} />
             <Route path="/recipes/detail" element={<RecipeDetailPage />} /> {/* ❗비보호 라우트 */}
             <Route path="/privacy" element={<PrivacyPage />} /> //추가
             <Route path="/help" element={<HelpPage />} />

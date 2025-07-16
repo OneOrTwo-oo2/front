@@ -1,6 +1,14 @@
+/* ✅ 폰트 임포트 */
+@font-face {
+  font-family: 'MyFont';
+  src: url('../assets/fonts/BMJUA_ttf.ttf') format('truetype');
+  font-family: 'MyFont2';
+  src: url('../assets/fonts/NotoSansKR-Medium.ttf') format('truetype');
+}
+
 .recipe-list-page {
   padding: 40px;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'MyFont','Noto Sans KR', sans-serif;
 }
 
 .title {
@@ -41,6 +49,7 @@
   text-align: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease;
+  font-family: 'MyFont2','Noto Sans KR', sans-serif;
 }
 
 /* 🟩 Watson 카드만 배경색 다르게 지정 */
@@ -49,7 +58,7 @@
   border: 1px solid #88d18a;
 }
 .recipe-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-15px);
 }
 
 .recipe-card img {
@@ -125,18 +134,29 @@
   color: #333;
 }
 
-.theme-buttons {
-  margin-bottom: 20px;
-}
+
+/* 기존 스타일 */
 .theme-buttons button {
-  margin-right: 10px;
-  padding: 6px 12px;
+  margin: 6px 6px 10px 0;
+  padding: 10px 18px;
   background-color: #eee;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
+
+/* 마우스 오버 시 */
 .theme-buttons button:hover {
   background-color: #ddd;
 }
 
+/* ✅ 선택된 버튼 스타일 */
+.theme-buttons button.active {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2);
+  transform: translateY(1px);
+}
