@@ -23,6 +23,7 @@ function RecipeListPage() {
   const [isRecipeLoading, setIsRecipeLoading] = useState(false);
   const [isWatsonLoading, setIsWatsonLoading] = useState(false);
   const isLoading = isRecipeLoading || isWatsonLoading;
+  const location = useLocation();
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -82,6 +83,24 @@ function RecipeListPage() {
   const level = params.get('level');
 
   const currentQuery = JSON.stringify({ ingredients, preference, kind, level });
+  const previousQuery = sessionStorage.getItem("lastQuery");
+
+  if (currentQuery !== previousQuery) {
+    // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
+    sessionStorage.removeItem("watsonRecommendations");
+    sessionStorage.setItem("lastQuery", currentQuery);
+  }
+}, [location.search]);
+
+  useEffect(() => {
+  // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
+  const params = new URLSearchParams(window.location.search);
+  const ingredients = params.get('ingredients');
+  const kind = params.get('kind');
+  const situation = params.get('situation');
+  const method = params.get('method');
+
+  const currentQuery = JSON.stringify({ ingredients, kind, situation, method });
   const previousQuery = sessionStorage.getItem("lastQuery");
 
   if (currentQuery !== previousQuery) {
