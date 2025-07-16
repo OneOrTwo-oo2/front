@@ -27,25 +27,45 @@ function RecipeListPage() {
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  useEffect(() => {
-    const fetchWatsonRecommendations = async () => {
-      if (!ingredients) return;
 
-      setIsWatsonLoading(true);
-      try {
-        const res = await aiClient.post("/recommend", { ingredients });
-        const data = res.data;
-        setWatsonRecommendations(data.result.recommended_recipes || []);
-        setDietaryTips(data.result.dietary_tips || "");
-      } catch (err) {
-        console.error("❌ Watson 추천 실패:", err);
-      }finally {
-      setIsWatsonLoading(false);  // Watson 끝날 때 로딩 종료
-    }
-    };
+  useEffect(() => {
+      const cached = sessionStorage.getItem("watsonRecommendations");
+
+      if (cached) {
+        // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
+        const parsed = JSON.parse(cached);
+        setWatsonRecommendations(parsed.recommended_recipes || []);
+        setDietaryTips(parsed.dietary_tips || "");
+        setIsWatsonLoading(false); // 안전하게 로딩 꺼두기
+        return;
+      }
+
+      // ✅ 캐시가 없을 때만 Watson 호출
+      const fetchWatsonRecommendations = async () => {
+        if (!ingredients || ingredients.length === 0) return;
+
+        setIsWatsonLoading(true);
+        try {
+          const res = await aiClient.post("/recommend", { ingredients });
+          const data = res.data;
+
+          setWatsonRecommendations(data.result.recommended_recipes || []);
+          setDietaryTips(data.result.dietary_tips || "");
+
+          sessionStorage.setItem(
+            "watsonRecommendations",
+            JSON.stringify(data.result)
+          );
+        } catch (err) {
+          console.error("❌ Watson 추천 실패:", err);
+        } finally {
+          setIsWatsonLoading(false);
+        }
+      };
 
       fetchWatsonRecommendations();
-}, [ingredients]);
+}, [ingredients, kind, situation, method]);
+
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -112,6 +132,7 @@ function RecipeListPage() {
   };
 
   const handleSearch = () => {
+    sessionStorage.removeItem("watsonRecommendations");
     const query = qs.stringify({
       ingredients,
       ...(kind && { kind }),
