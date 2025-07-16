@@ -4,7 +4,7 @@ import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector';
 import { useNavigate } from 'react-router-dom';
-import { kindOptions, situationOptions, methodOptions } from '../components/options';
+import { kindOptions, levelOptions, preferOptions } from '../components/options';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import LoadingAnimation from '../components/loading_api';
 import apiClient from '../api/apiClient';
@@ -13,9 +13,9 @@ import aiClient from '../api/aiClient';
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
   const [kind, setKind] = useState('');
-  const [situation, setSituation] = useState('');
-  const [method, setMethod] = useState('');
-  const [theme, setTheme] = useState('');
+  const [preference, setPreference] = useState('');
+  const [level, setLevel] = useState('');
+  //const [theme, setTheme] = useState('');
   const [results, setResults] = useState([]);
   const [bookmarkedState, setBookmarkedState] = useState(new Map());
   const [watsonRecommendations, setWatsonRecommendations] = useState([]);  // 새로추가
@@ -27,42 +27,107 @@ function RecipeListPage() {
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  useEffect(() => {
-    const fetchWatsonRecommendations = async () => {
-      if (!ingredients) return;
+  const getOptionValue = (options, label) => {
+  const match = options.find(opt => opt.label === label);
+  return match ? match.value : label;
+  };
 
-      setIsWatsonLoading(true);
-      try {
-        const res = await aiClient.post("/recommend", { ingredients });
-        const data = res.data;
-        setWatsonRecommendations(data.result.recommended_recipes || []);
-        setDietaryTips(data.result.dietary_tips || "");
-      } catch (err) {
-        console.error("❌ Watson 추천 실패:", err);
-      }finally {
-      setIsWatsonLoading(false);  // Watson 끝날 때 로딩 종료
-    }
-    };
+  // ✅ label → value 변환
+  const kindValue = getOptionValue(kindOptions, kind);
+  const [userPreferences, setUserPreferences] = useState({ allergies: [], diseases: [] });
+
+  useEffect(() => {
+  // 페이지가 로드되면 사용자의 알러지/질병 정보를 미리 가져온다.
+    const fetchUserPreferences = async () => {
+     try {
+        const response = await apiClient.get("/api/preferences", { withCredentials: true });
+        setUserPreferences(response.data);
+        console.log("✅ 사용자 정보 로딩 성공:" , response.data);
+        } catch (error) {
+        console.error("❌ 사용자 정보를 가져오지 못했습니다. 로그인 상태를 확인하세요.", error);
+        }
+      };
+      fetchUserPreferences();
+     },[]);
+
+  useEffect(() => {
+//    if (!ingredients) return;
+//
+//    const fetchWatsonRecommendations = async () => {
+//      setIsWatsonLoading(true);
+//      try {
+//        const allergies = userPreferences.allergies;
+//        const diseases = userPreferences.diseases;
+//
+//        console.log("data: ", ingredients, allergies, diseases, kind, preference, level)
+//
+//        const res = await aiClient.post("/recommend", { ingredients, allergies, diseases, kind, preference, level });
+//        const data = res.data;
+//
+//        setWatsonRecommendations(data.result.recommended_recipes || []);
+//        setDietaryTips(data.result.dietary_tips || "");
+//      } catch (err) {
+//        console.error("❌ Watson 추천 실패:", err);
+//      }finally {
+//      setIsWatsonLoading(false);  // Watson 끝날 때 로딩 종료
+//    }
+//    };
+    const cached = sessionStorage.getItem("watsonRecommendations");
+
+      if (cached) {
+        // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
+        const parsed = JSON.parse(cached);
+        setWatsonRecommendations(parsed.recommended_recipes || []);
+        setDietaryTips(parsed.dietary_tips || "");
+        setIsWatsonLoading(false); // 안전하게 로딩 꺼두기
+        return;
+      }
+
+      // ✅ 캐시가 없을 때만 Watson 호출
+      const fetchWatsonRecommendations = async () => {
+        if (!ingredients || ingredients.length === 0) return;
+
+        setIsWatsonLoading(true);
+        try {
+          const res = await aiClient.post("/recommend", { ingredients });
+          const data = res.data;
+
+          setWatsonRecommendations(data.result.recommended_recipes || []);
+          setDietaryTips(data.result.dietary_tips || "");
+
+          sessionStorage.setItem(
+            "watsonRecommendations",
+            JSON.stringify(data.result)
+          );
+        } catch (err) {
+          console.error("❌ Watson 추천 실패:", err);
+        } finally {
+          setIsWatsonLoading(false);
+        }
+      };
 
       fetchWatsonRecommendations();
-}, [ingredients]);
+
+}, [ingredients, ingredients, userPreferences, kind, preference, level]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ing = params.get('ingredients');
     const k = params.get('kind');
-    const s = params.get('situation');
-    const m = params.get('method');
-    const t = params.get('theme');
+    const p = params.get('preference');
+    const l = params.get('level');
+    //const t = params.get('theme');
 
-    if (ing || t) {
+    //if (ing || t) {
       setIngredients(ing || '');
       setKind(k || '');
-      setSituation(s || '');
-      setMethod(m || '');
-      setTheme(t || '');
-      fetchRecipes(ing, k, s, m, t);
-    }
+      setPreference(p || '');
+      setLevel(l || '');
+      //setSituation(s || '');
+      //setMethod(m || '');
+      //setTheme(t || '');
+      fetchRecipes(ing, k, p, l);
+    //}
 
     fetchBookmarks();
   }, []);
@@ -83,15 +148,13 @@ function RecipeListPage() {
     }
   };
 
-  const fetchRecipes = async (ing, k, s, m, t) => {
+  const fetchRecipes = async (ing, k, p, l) => {
     setIsRecipeLoading(true);
     try {
       const queryParams = {
         ...(ing && { ingredients: ing.split(',').map(i => i.trim()) }),
-        ...(k && { kind: k }),
-        ...(s && { situation: s }),
-        ...(m && { method: m }),
-        ...(t && { theme: t })
+        ...(k && { kindValue }),
+        //...(t && { theme: t })
       };
 
       const query = qs.stringify(queryParams, { arrayFormat: 'repeat' });
@@ -112,14 +175,13 @@ function RecipeListPage() {
   };
 
   const handleSearch = () => {
+    sessionStorage.removeItem("watsonRecommendations");
     const query = qs.stringify({
       ingredients,
-      ...(kind && { kind }),
-      ...(situation && { situation }),
-      ...(method && { method })
+      ...(kind && { kindValue }),
     });
     window.history.pushState(null, '', `/recipes?${query}`);
-    fetchRecipes(ingredients, kind, situation, method, '');
+    fetchRecipes(ingredients, kindValue);
   };
 
  const handleCardClick = (recipe) => {
@@ -139,8 +201,7 @@ function RecipeListPage() {
 
   const handleSelect = (key, opt) => {
     if (key === 'kind') setKind(opt.value);
-    if (key === 'situation') setSituation(opt.value);
-    if (key === 'method') setMethod(opt.value);
+    if (key === 'level') setLevel(opt.value);
     setOpenDropdown(null);
   };
 
@@ -185,9 +246,6 @@ function RecipeListPage() {
       <h2>🔍레시피 검색</h2>
       <div className="search-bar">
         <input type="text" value={ingredients} onChange={(e) => setIngredients(e.target.value)} placeholder="예: 김치, 감자" />
-        <DropdownSelector label="종류별" options={kindOptions} selected={kindOptions.find(opt => opt.value === kind)?.label || ''} isOpen={openDropdown === 'kind'} onToggle={() => handleToggle('kind')} onSelect={(value) => handleSelect('kind', value)} />
-        <DropdownSelector label="상황별" options={situationOptions} selected={situationOptions.find(opt => opt.value === situation)?.label || ''} isOpen={openDropdown === 'situation'} onToggle={() => handleToggle('situation')} onSelect={(value) => handleSelect('situation', value)} />
-        <DropdownSelector label="방법별" options={methodOptions} selected={methodOptions.find(opt => opt.value === method)?.label || ''} isOpen={openDropdown === 'method'} onToggle={() => handleToggle('method')} onSelect={(value) => handleSelect('method', value)} />
         <button onClick={handleSearch}>검색</button>
       </div>
        {isLoading && (

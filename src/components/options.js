@@ -6,6 +6,13 @@ export const preferOptions = [
   { label: '저염식', value: 'low_sodium' }
 ];
 
+export const levelOptions = [
+    {label: '아무나', value:'level_one'},
+    {label: '초급', value:'two'},
+    {label: '중급', value:'level_three'},
+    {label: '고급', value:'level_four'},
+    {label: '신의 경지', value:'level_five'}
+];
 
 export const kindOptions = [
 //    { value: '', label: '종류별' },

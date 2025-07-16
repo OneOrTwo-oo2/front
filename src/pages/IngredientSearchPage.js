@@ -8,6 +8,7 @@ import {
   kindOptions,
   situationOptions,
   methodOptions,
+  levelOptions
 } from '../components/options.js';
 import IngredientCategorySection from '../components/categorys/IngredientCategorySection';
 
@@ -15,12 +16,18 @@ function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
   const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
-  const [situation, setSituation] = useState('');
-  const [method, setMethod] = useState('');
+  const [level, setLevel] = useState('');
+  //const [situation, setSituation] = useState('');
+  //const [method, setMethod] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
   const { labels } = location.state || { labels: [] };
+
+  const getOptionValue = (options, label) => {
+  const match = options.find(opt => opt.label === label);
+  return match ? match.value : label;
+  };
 
   useEffect(() => {
     if (labels.length > 0) setIngredients(labels);
@@ -29,8 +36,9 @@ function IngredientSearchPage() {
   const handleCategorySelect = (type, value) => {
     if (type === 'preference') setPreference(value);
     if (type === 'kind') setKind(value);
-    if (type === 'situation') setSituation(value);
-    if (type === 'method') setMethod(value);
+    if (type === 'level') setLevel(value);
+    //if (type === 'situation') setSituation(value);
+    //if (type === 'method') setMethod(value);
   };
 
   // 고정 박스에 들어갈 항목들만 정리
@@ -39,8 +47,9 @@ function IngredientSearchPage() {
 
     if (preference) result.push({ type: '선호도', value: preference });
     if (kind) result.push({ type: '종류', value: kind });
-    if (situation) result.push({ type: '상황', value: situation });
-    if (method) result.push({ type: '방법', value: method });
+    if (level) result.push({ type: '난이도', value: level });
+    //if (situation) result.push({ type: '상황', value: situation });
+    //if (method) result.push({ type: '방법', value: method });
 
     return result;
   };
@@ -50,8 +59,9 @@ function IngredientSearchPage() {
     const optionMap = {
       선호도: preferOptions,
       종류: kindOptions,
-      상황: situationOptions,
-      방법: methodOptions,
+      난이도: levelOptions
+      //상황: situationOptions,
+      //방법: methodOptions,
     };
 
     const matched = optionMap[type]?.find((opt) => opt.value === value);
@@ -64,8 +74,9 @@ function IngredientSearchPage() {
   const handleToggle = (type, value) => {
     if (type === '선호도') setPreference('');
     else if (type === '종류') setKind('');
-    else if (type === '상황') setSituation('');
-    else if (type === '방법') setMethod('');
+    else if (type === '난이도') setLevel('');
+    //else if (type === '상황') setSituation('');
+    //else if (type === '방법') setMethod('');
   };
 
   const handleSearch = () => {
@@ -73,15 +84,29 @@ function IngredientSearchPage() {
       const info = emojiMap[item];
       return info?.name_ko || item.replace(/_/g, ' ');
     });
+    // ✅ label → value 변환
+    const kindValue = getOptionValue(kindOptions, kind);
 
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
-      ...(kind && { kind }),
-      ...(situation && { situation }),
-      ...(method && { method }),
+      ...(kind && { kindValue }),
+      //...(situation && { situation }),
+      //...(method && { method }),
     });
-
     navigate(`/recipes?${query}`);
+
+//  const searchData = {
+//    ingredients,
+//    kind,
+//    preference,
+//    level,
+//  };
+//
+//  // 👉 sessionStorage 저장
+//  sessionStorage.setItem('recipeSearchState', JSON.stringify(searchData));
+//
+//  // 👉 location.state로도 함께 전달
+//  navigate('/RecipeListPage', { state: searchData });
   };
 
   const isSearchDisabled = ingredients.length === 0;
@@ -115,8 +140,8 @@ function IngredientSearchPage() {
         {preferOptions.map((opt) => (
           <button
             key={opt.value}
-            className={preference === opt.value ? 'active' : ''}
-            onClick={() => handleCategorySelect('preference', opt.value)}
+            className={preference === opt.label ? 'active' : ''}
+            onClick={() => handleCategorySelect('preference', opt.label)}
           >
             {opt.label}
           </button>
@@ -129,34 +154,21 @@ function IngredientSearchPage() {
           {kindOptions.map((opt) => (
             <button
               key={opt.value}
-              className={kind === opt.value ? 'active' : ''}
-              onClick={() => handleCategorySelect('kind', opt.value)}
+              className={kind === opt.label ? 'active' : ''}
+              onClick={() => handleCategorySelect('kind', opt.label)}
             >
               {opt.label}
             </button>
           ))}
         </div>
 
-        <h4>상황별</h4>
+        <h4>난이도별</h4>
         <div className="buttons">
-          {situationOptions.map((opt) => (
+          {levelOptions.map((opt) => (
             <button
               key={opt.value}
-              className={situation === opt.value ? 'active' : ''}
-              onClick={() => handleCategorySelect('situation', opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        <h4>방법별</h4>
-        <div className="buttons">
-          {methodOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={method === opt.value ? 'active' : ''}
-              onClick={() => handleCategorySelect('method', opt.value)}
+              className={level === opt.label ? 'active' : ''}
+              onClick={() => handleCategorySelect('level', opt.label)}
             >
               {opt.label}
             </button>
