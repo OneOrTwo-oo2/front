@@ -1,7 +1,7 @@
 /* ✅ 폰트 임포트 */
 @font-face {
   font-family: 'MyFont';
-  src: url('./assets/fonts/NotoSansKR-Medium.ttf') format('truetype');
+  src: url('./assets/fonts/BMJUA_ttf.ttf') format('truetype');
 }
 
 /* ✅ 기본 body 설정 */
