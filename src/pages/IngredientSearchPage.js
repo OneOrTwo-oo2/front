@@ -23,6 +23,8 @@ function IngredientSearchPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { labels } = location.state || { labels: [] };
+  const [isRestored, setIsRestored] = useState(false);
+
 
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
@@ -30,8 +32,33 @@ function IngredientSearchPage() {
   };
 
   useEffect(() => {
-    if (labels.length > 0) setIngredients(labels);
-  }, [labels]);
+      const saved = sessionStorage.getItem("searchInputs");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setIngredients(parsed.ingredients || []);
+        setPreference(parsed.preference || '');
+        setKind(parsed.kind || '');
+        setSituation(parsed.situation || '');
+        setMethod(parsed.method || '');
+      } else if (labels.length > 0) {
+        setIngredients(labels);
+      }
+
+      // ✅ 복원 완료 플래그 설정
+      setIsRestored(true);
+    }, []);
+
+    // ✅ 복원이 완료된 경우에만 sessionStorage에 저장
+  useEffect(() => {
+      if (!isRestored) return;
+      sessionStorage.setItem("searchInputs", JSON.stringify({
+        ingredients,
+        preference,
+        kind,
+        situation,
+        method
+      }));
+    }, [ingredients, preference, kind, situation, method, isRestored]);
 
   const handleCategorySelect = (type, value) => {
     if (type === 'preference') setPreference(value);
@@ -87,6 +114,14 @@ function IngredientSearchPage() {
     // ✅ label → value 변환
     const kindValue = getOptionValue(kindOptions, kind);
 
+    sessionStorage.setItem("searchInputs", JSON.stringify({
+    ingredients,
+    preference,
+    kind,
+    situation,
+    method
+    }));
+
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
       ...(kind && { kindValue }),
@@ -110,6 +145,7 @@ function IngredientSearchPage() {
   };
 
   const isSearchDisabled = ingredients.length === 0;
+
 
   return (
     <div className="ingredient-search-layout">

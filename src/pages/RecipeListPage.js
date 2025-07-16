@@ -27,6 +27,7 @@ function RecipeListPage() {
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
+
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
   return match ? match.value : label;
@@ -50,7 +51,7 @@ function RecipeListPage() {
       fetchUserPreferences();
      },[]);
 
-  useEffect(() => {
+//  useEffect(() => {
 //    if (!ingredients) return;
 //
 //    const fetchWatsonRecommendations = async () => {
@@ -72,7 +73,10 @@ function RecipeListPage() {
 //      setIsWatsonLoading(false);  // Watson 끝날 때 로딩 종료
 //    }
 //    };
-    const cached = sessionStorage.getItem("watsonRecommendations");
+
+  useEffect(() => {
+      const cached = sessionStorage.getItem("watsonRecommendations");
+
 
       if (cached) {
         // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
@@ -109,6 +113,7 @@ function RecipeListPage() {
       fetchWatsonRecommendations();
 
 }, [ingredients, ingredients, userPreferences, kind, preference, level]);
+
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

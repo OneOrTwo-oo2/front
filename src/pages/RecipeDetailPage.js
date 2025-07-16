@@ -77,7 +77,7 @@ function RecipeDetailPage() {
 
   return (
     <div className="detail-container">
-      <button onClick={() => navigate(-1)}>← 뒤로가기</button>
+      <button className="back-button" onClick={() => navigate(-1)}>← 뒤로가기</button>
               {isWatson && recommendation_reason && (
       <div className="ai-recommendation">
         <h3>🤖 추천 이유</h3>
