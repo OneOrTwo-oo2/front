@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { kindOptions, situationOptions, methodOptions } from '../components/options';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import LoadingAnimation from '../components/loading_api';
@@ -23,9 +23,28 @@ function RecipeListPage() {
   const [isRecipeLoading, setIsRecipeLoading] = useState(false);
   const [isWatsonLoading, setIsWatsonLoading] = useState(false);
   const isLoading = isRecipeLoading || isWatsonLoading;
+  const location = useLocation();
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
+
+  useEffect(() => {
+  // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
+  const params = new URLSearchParams(window.location.search);
+  const ingredients = params.get('ingredients');
+  const kind = params.get('kind');
+  const situation = params.get('situation');
+  const method = params.get('method');
+
+  const currentQuery = JSON.stringify({ ingredients, kind, situation, method });
+  const previousQuery = sessionStorage.getItem("lastQuery");
+
+  if (currentQuery !== previousQuery) {
+    // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
+    sessionStorage.removeItem("watsonRecommendations");
+    sessionStorage.setItem("lastQuery", currentQuery);
+  }
+}, [location.search]);
 
 
   useEffect(() => {
