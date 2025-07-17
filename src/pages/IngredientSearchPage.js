@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
@@ -18,53 +18,123 @@ function IngredientSearchPage() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { labels } = location.state || { labels: [] };
-  const [isRestored, setIsRestored] = useState(false);
+  // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
+  const labels = useMemo(() => {
+    return location.state?.labels || [];
+  }, [location.state?.labels]);
 
+  const [isRestored, setIsRestored] = useState(false);
+  // cursor 수정 - 이미 처리된 labels 추적
+  const processedLabelsRef = useRef(null);
+
+  // cursor 수정 - 페이지 키가 변경될 때마다 상태 초기화
+  useEffect(() => {
+    setIsRestored(false);
+    processedLabelsRef.current = null;
+  }, [location.key]);
 
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
   return match ? match.value : label;
   };
 
-  // 캐시 저장
+  // cursor 수정 - 캐시 저장 및 복원 로직 개선 (무한루프 방지)
   useEffect(() => {
+    // cursor 수정 - 이미 처리된 labels인지 확인
+    if (processedLabelsRef.current === JSON.stringify(labels)) {
+      return;
+    }
+
+    // cursor 수정 - 사진 검색 결과가 있으면 우선 처리
+    if (labels && labels.length > 0) {
+      console.log("✅ 사진 검색 결과 로딩:", labels);
+      setIngredients(labels);
+      setPreference('');
+      setKind('');
+      setLevel('');
+      // 사진 검색 결과가 있으면 sessionStorage 초기화
+      sessionStorage.removeItem("searchInputs");
+      setIsRestored(true);
+      processedLabelsRef.current = JSON.stringify(labels);
+      return;
+    }
+
+    // cursor 수정 - 재료 수정 버튼으로 들어온 경우에만 세션 유지
+    const isFromEditButton = sessionStorage.getItem("fromEditButton");
+    if (isFromEditButton === "true") {
+      // 재료 수정 버튼으로 들어온 경우 세션 유지
       const saved = sessionStorage.getItem("searchInputs");
       if (saved) {
         const parsed = JSON.parse(saved);
-        setIngredients(Array.isArray(parsed.ingredients) ? parsed.ingredients : []);
+        // cursor 수정 - 한글 이름을 영문 키로 변환
+        const convertedIngredients = Array.isArray(parsed.ingredients)
+          ? parsed.ingredients.map(koreanName => {
+              // 한글 이름으로 영문 키 찾기
+              const foundKey = Object.keys(emojiMap).find(key =>
+                emojiMap[key]?.name_ko === koreanName
+              );
+              return foundKey || koreanName;
+            })
+          : [];
+        setIngredients(convertedIngredients);
         setPreference(parsed.preference || '');
         setKind(parsed.kind || '');
         setLevel(parsed.level || '');
-      } else if (labels.length > 0) {
-        setIngredients(labels);
       }
+    } else { // 다른 경로로 들어온 경우 초기화
+      setIngredients([]);
+      setPreference('');
+      setKind('');
+      setLevel('');
+      sessionStorage.removeItem("searchInputs");
+      sessionStorage.removeItem("watsonRecommendations");
+      sessionStorage.removeItem("lastQuery");
+    }
 
-      // ✅ 복원 완료 플래그 설정
-      setIsRestored(true);
-    }, []);
+    // ✅ 복원 완료 플래그 설정
+    setIsRestored(true);
+    processedLabelsRef.current = JSON.stringify(labels);
+  }, [labels]); // cursor 수정 - 안정화된 labels 사용
 
-    // ✅ 복원이 완료된 경우에만 sessionStorage에 저장
-    useEffect(() => {
-      if (!isRestored) return;
-
-      const ingredientNamesInKorean = ingredients.map((item) => {
-        const info = emojiMap[item];
-        return info?.name_ko || item.replace(/_/g, ' ');
-      });
-
-      sessionStorage.setItem("searchInputs", JSON.stringify({
-        ingredients: ingredientNamesInKorean,
-        preference,
-        kind,
-        level
-      }));
-    }, [ingredients, preference, kind, level, isRestored]);
+  // ✅ 복원이 완료된 경우에만 sessionStorage에 저장 (무한 루프 방지)
+  useEffect(() => {
+    if (!isRestored) return;
+    const ingredientNamesInKorean = ingredients.map((item) => {
+      const info = emojiMap[item];
+      return info?.name_ko || item.replace(/_/g, ' ');
+    });
+    const currentData = {
+      ingredients: ingredientNamesInKorean,
+      preference,
+      kind,
+      level
+    };
+    const saved = sessionStorage.getItem("searchInputs");
+    const savedData = saved ? JSON.parse(saved) : null;
+    if (!savedData || JSON.stringify(savedData) !== JSON.stringify(currentData)) {
+      sessionStorage.setItem("searchInputs", JSON.stringify(currentData));
+    }
+  }, [ingredients, preference, kind, level, isRestored]);
 
   const handleCategorySelect = (type, value) => {
     if (type === 'preference') setPreference(value);
     if (type === 'kind') setKind(value);
     if (type === 'level') setLevel(value);
+  };
+
+  // cursor 수정 - 중복 선택 방지 강화
+  const toggleIngredient = (item) => {
+    setIngredients((prev) => {
+      // 이미 선택된 재료인지 확인
+      const isAlreadySelected = prev.includes(item);
+      if (isAlreadySelected) {
+        // 선택 해제
+        return prev.filter((i) => i !== item);
+      } else {
+        // 중복 체크 후 추가
+        return [...prev, item];
+      }
+    });
   };
 
   // 고정 박스에 들어갈 항목들만 정리
@@ -114,6 +184,9 @@ function IngredientSearchPage() {
     level
     }));
 
+    // cursor 수정 - 검색 시 fromEditButton 플래그 제거
+    sessionStorage.removeItem("fromEditButton");
+
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
       ...(kind && { kind: kindValue }),
@@ -140,6 +213,29 @@ function IngredientSearchPage() {
 
   const isSearchDisabled = ingredients.length === 0;
 
+  // cursor 수정 - 초기화 함수 개선
+  const handleReset = () => {
+    // 사진 검색 결과가 있으면 유지, 없으면 완전 초기화
+    if (labels && labels.length > 0) {
+      // 사진 검색 결과가 있으면 선택된 재료만 초기화
+      setIngredients([]);
+      setPreference('');
+      setKind('');
+      setLevel('');
+      sessionStorage.removeItem("searchInputs");
+      console.log("✅ 선택된 재료만 초기화되었습니다. (사진 검색 결과 유지)");
+    } else {
+      // 사진 검색 결과가 없으면 완전 초기화
+      setIngredients([]);
+      setPreference('');
+      setKind('');
+      setLevel('');
+      sessionStorage.removeItem("searchInputs");
+      sessionStorage.removeItem("watsonRecommendations");
+      sessionStorage.removeItem("lastQuery");
+      console.log("✅ 모든 선택사항이 초기화되었습니다.");
+    }
+  };
 
   return (
     <div className="ingredient-search-layout">
@@ -162,6 +258,7 @@ function IngredientSearchPage() {
         <IngredientCategorySection
           selectedIngredients={ingredients}
           setSelectedIngredients={setIngredients}
+          toggleIngredient={toggleIngredient}
         />
       </div>
               {/* 선호도 */}
@@ -213,6 +310,22 @@ function IngredientSearchPage() {
           disabled={isSearchDisabled}
         >
          🔍검색
+        </button>
+        <button
+          className="reset-btn"
+          onClick={handleReset}
+          style={{
+            marginLeft: '10px',
+            padding: '10px 20px',
+            backgroundColor: '#ff6b6b',
+            color: 'white',
+            border: 'none',
+            borderRadius: 5,
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+         🔄초기화
         </button>
       </div>
     </div>

@@ -160,3 +160,82 @@
   box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2);
   transform: translateY(1px);
 }
+
+/* cursor 수정 - 새로운 정보 표시 박스 스타일 */
+.search-info-box {
+  margin-bottom: 30px;
+}
+
+.search-info-box h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.selected-info-container {
+  background-color: rgba(255, 255, 224, 0.3); /* 연노랑색 거의 투명 */
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid rgba(255, 130, 20, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.info-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1e88e5; /* 블루계열 컬러 */
+  min-width: 180px;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 16px;
+  color: #333;
+  flex: 1;
+  word-wrap: break-word;
+}
+
+.edit-button-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.edit-ingredients-btn {
+  padding: 12px 24px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1e88e5; /* 컬러 */
+  background-color: rgba(30, 136, 29, 0.1);
+  border: 2px solid #1e88e5;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'MyFont','Noto Sans KR', sans-serif;
+}
+
+.edit-ingredients-btn:hover {
+  background-color: #1e88e5;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 136, 29, 0.3);
+}
+
+.search-results-count {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
+  font-weight: 500;
+}

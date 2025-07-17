@@ -20,14 +20,26 @@ function SelectedIngredientsRow({ ingredients, onToggle }) {
               onClick={() => onToggle(item)}
             >
               {info.emoji ? (
+                // cursor 수정 - 이미지 경로 수정 및 안정성 향상
                 <img
                   src={info.emoji}
                   alt={info.name_ko}
                   style={{ width: 25, height: 25, marginRight: 8 }}
+                  onError={(e) => {
+                    console.error(`Image failed to load: ${info.emoji}`);
+                    e.target.style.display = 'none';
+                    if (e.target.nextSibling) {
+                      e.target.nextSibling.style.display = 'inline';
+                    }
+                  }}
+                  onLoad={() => {
+                    console.log(`Image loaded successfully: ${info.emoji}`);
+                  }}
                 />
               ) : (
                 <span style={{ marginRight: 8 }}>🧂</span>
               )}
+              {info.emoji && <span style={{ marginRight: 8, display: 'none' }}>🧂</span>}
               {info.name_ko}
             </button>
           );
