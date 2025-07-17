@@ -1,5 +1,5 @@
 // ✅ 수정: axios 제거 + fetchWithAutoRefresh 사용
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector';
@@ -34,15 +34,29 @@ function RecipeListPage() {
   };
 
     const [userPreferences, setUserPreferences] = useState({ allergies: [], diseases: [] });
-    // 선호도, 사용자 정보 로딩 후 recommend로 전달
+    // cursor 수정 - 중복 호출 방지 ref 사용
+    const isInitializedRef = useRef(false);
+    // 선호도, 사용자 정보 로딩 후 recommend로 전달 (중복 useEffect 병합)
     useEffect(() => {
+      // cursor 수정 - 중복 실행 방지
+      if (isInitializedRef.current) return;
+      
       const initializePage = async () => {
         try {
+          // 사용자 정보 로딩
           const response = await apiClient.get("/api/preferences", { withCredentials: true });
           const preferences = response.data;
           setUserPreferences(preferences);  // ✅ 상태 저장
           console.log("✅ 사용자 정보 로딩 성공:", preferences);
 
+          // URL 파라미터 읽기
+          const params = new URLSearchParams(window.location.search);
+          const ing = params.get('ingredients');
+          const k = params.get('kind');
+          const p = params.get('preference');
+          const l = params.get('level');
+
+          // 세션스토리지에서 복원 또는 URL 파라미터 사용
           const saved = sessionStorage.getItem("searchInputs");
           if (saved) {
             const { ingredients, preference, kind, level } = JSON.parse(saved);
@@ -52,24 +66,26 @@ function RecipeListPage() {
             setPreference(preference || '');
             setKind(kind || '');
             setLevel(level || '');
-
             fetchRecipes(ingredients, kind, preference, level);
-
-            await aiClient.post("/recommend", {
-              ingredients,
-              preference,
-              kind,
-              level,
-              allergies: preferences.allergies,
-              diseases: preferences.diseases
-            });
+          } else if (ing || k || p || l) {
+            // URL 파라미터가 있으면 사용
+            setIngredients(ing || '');
+            setKind(k || '');
+            setPreference(p || '');
+            setLevel(l || '');
+            fetchRecipes(ing, k, p, l);
           } else {
             console.log("❌ 세션스토리지 없음");
           }
 
+          // 북마크 로딩
           fetchBookmarks();
+          
+          // cursor 수정 - 초기화 완료 플래그 설정
+          isInitializedRef.current = true;
         } catch (err) {
           console.error("❌ 초기 데이터 로딩 실패:", err);
+          isInitializedRef.current = true;
         }
       };
 
@@ -111,7 +127,15 @@ function RecipeListPage() {
 
         setIsWatsonLoading(true);
         try {
-          const res = await aiClient.post("/recommend", { ingredients });
+          // cursor 수정 - Watson API 호출 시 모든 정보 포함
+          const res = await aiClient.post("/recommend", { 
+            ingredients,
+            preference,
+            kind,
+            level,
+            allergies: userPreferences.allergies,
+            diseases: userPreferences.diseases
+          });
           const data = res.data;
 
           setWatsonRecommendations(data.result.recommended_recipes || []);
@@ -129,24 +153,8 @@ function RecipeListPage() {
       };
 
       fetchWatsonRecommendations();
-    }, [ingredients, kind, level, preference]);
+    }, [ingredients, kind, level, preference, userPreferences]);
 
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const ing = params.get('ingredients');
-    const k = params.get('kind');
-    const p = params.get('preference');
-    const l = params.get('level');
-
-    setIngredients(ing || '');
-    setKind(k || '');
-    setPreference(p || '');
-    setLevel(l || '');
-    fetchRecipes(ing, k, p, l);
-
-    fetchBookmarks();
-  }, []);
 
   const fetchBookmarks = async () => {
     try {
@@ -207,8 +215,11 @@ function RecipeListPage() {
   };
 
  const handleCardClick = (recipe) => {
-      navigate("/recipes/detail", {
+      navigate('/recipes/detail', {
         state: {
+          title: recipe.title,
+          image: recipe.image,
+          summary: recipe.summary,
           link: recipe.link,
           recommendation_reason: recipe.recommendation_reason,
           dietary_tips: dietaryTips,
@@ -261,18 +272,65 @@ function RecipeListPage() {
       console.error("❌ 북마크 실패:", err);
       alert("북마크 중 오류 발생");
     }
-};
+  };
 
     return (
     <div className="recipe-list-page">
-      <h2>🔍레시피 검색</h2>
-      <div className="search-bar">
-        <input type="text" value={ingredients} onChange={(e) => setIngredients(e.target.value)} placeholder="예: 김치, 감자" />
-        <button onClick={handleSearch}>검색</button>
+      {/* cursor 수정 - 검색 박스 제거하고 정보 표시 박스로 변경 */}
+      <div className="search-info-box">
+        <h2>🔍 레시피 검색</h2>
+        
+        {/* 선택된 정보 표시 박스 */}
+        <div className="selected-info-container">
+          <div className="info-row">
+            <span className="info-label">선택된 재료:</span>
+            <span className="info-value">
+              {Array.isArray(ingredients)
+                ? ingredients.join(', ')
+                : (ingredients ? ingredients.split(',').map(i => i.trim()).join(', ') : '')}
+            </span>
+          </div>
+          
+          {userPreferences.diseases && userPreferences.diseases.length > 0&& (
+            <div className="info-row">             <span className="info-label">사용자 질병정보:</span>
+              <span className="info-value">{userPreferences.diseases.join(', ')}</span>
+            </div>
+          )}
+          
+          {userPreferences.allergies && userPreferences.allergies.length > 0&& (
+            <div className="info-row">             <span className="info-label">사용자 알러지정보:</span>
+              <span className="info-value">{userPreferences.allergies.join(', ')}</span>
+            </div>
+          )}
+          
+          {preference && (
+            <div className="info-row">             <span className="info-label">사용자 선호도:</span>
+              <span className="info-value">{preference}</span>
+            </div>
+          )}
+          
+          {/* 재료 수정 버튼 */}
+          <div className="edit-button-container">
+            <button 
+              className="edit-ingredients-btn"
+              onClick={() => {
+                sessionStorage.setItem("fromEditButton", "true");
+                navigate('/ingredient-search');
+              }}
+            >
+              📝 재료 수정
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 검색 결과 개수 표시 */}
+      <div className="search-results-count">
+        총 {results.length}개의 레시피가 검색되었습니다.
       </div>
        {isLoading && (
           <div className="loading-container">
-            <p className="loading-text">🤖 AI 추천 레시피를 검색 중입니다. 잠시만 기다려주세요!</p>
+            <p className="loading-text"> AI 추천 레시피를 검색 중입니다. 잠시만 기다려주세요!</p>
             <LoadingAnimation />
           </div>
        )}
@@ -280,20 +338,20 @@ function RecipeListPage() {
 
       {watsonRecommendations.length > 0 && (
         <div className="watson-section">
-          <h3>🤖 Watson AI 추천 레시피 3종</h3>
+          <h3>🤖 Watson AI 추천 레시피3종</h3>
           <div className="recipe-grid">
             {watsonRecommendations.map((r, i) => (
-              <div key={`watson-${i}`} className="recipe-card watson-card" onClick={() => handleCardClick({r,...r, link: r.url,isWatson: true })}>
+              <div key={`watson-${i}`} className="recipe-card watson-card" onClick={() => handleCardClick({...r, link: r.url, isWatson: true })}>
                 <img src={r.image} alt={r["제목"]} />
                 <h3>{r["제목"]}</h3>
-                 {/* <p>{r.dietary_tips}</p> */}
+                {/* <p>{r.dietary_tips}</p> */}
                 <button>추천 레시피</button>
               </div>
             ))}
           </div>
         </div>
       )}
-        <h3> 일반 검색 레시피</h3>
+        <h3>검색 레시피</h3>
       <div className="recipe-grid">
         {results.map((r, i) => (
           <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
