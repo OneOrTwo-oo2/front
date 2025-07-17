@@ -4,7 +4,7 @@ import qs from 'qs';
 import './RecipeListPage.css';
 import DropdownSelector from '../components/DropdownSelector';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { kindOptions, situationOptions, methodOptions } from '../components/options';
+import { kindOptions, levelOptions, preferOptions } from '../components/options';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import LoadingAnimation from '../components/loading_api';
 import apiClient from '../api/apiClient';
@@ -13,9 +13,9 @@ import aiClient from '../api/aiClient';
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
   const [kind, setKind] = useState('');
-  const [situation, setSituation] = useState('');
-  const [method, setMethod] = useState('');
-  const [theme, setTheme] = useState('');
+  const [preference, setPreference] = useState('');
+  const [level, setLevel] = useState('');
+
   const [results, setResults] = useState([]);
   const [bookmarkedState, setBookmarkedState] = useState(new Map());
   const [watsonRecommendations, setWatsonRecommendations] = useState([]);  // 새로추가
@@ -28,28 +28,75 @@ function RecipeListPage() {
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  useEffect(() => {
-  // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
-  const params = new URLSearchParams(window.location.search);
-  const ingredients = params.get('ingredients');
-  const kind = params.get('kind');
-  const situation = params.get('situation');
-  const method = params.get('method');
+  const getOptionValue = (options, label) => {
+  const match = options.find(opt => opt.label === label);
+  return match ? match.value : label;
+  };
 
-  const currentQuery = JSON.stringify({ ingredients, kind, situation, method });
-  const previousQuery = sessionStorage.getItem("lastQuery");
+    const [userPreferences, setUserPreferences] = useState({ allergies: [], diseases: [] });
+    // 선호도, 사용자 정보 로딩 후 recommend로 전달
+    useEffect(() => {
+      const initializePage = async () => {
+        try {
+          const response = await apiClient.get("/api/preferences", { withCredentials: true });
+          const preferences = response.data;
+          setUserPreferences(preferences);  // ✅ 상태 저장
+          console.log("✅ 사용자 정보 로딩 성공:", preferences);
 
-  if (currentQuery !== previousQuery) {
-    // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
-    sessionStorage.removeItem("watsonRecommendations");
-    sessionStorage.setItem("lastQuery", currentQuery);
-  }
-}, [location.search]);
+          const saved = sessionStorage.getItem("searchInputs");
+          if (saved) {
+            const { ingredients, preference, kind, level } = JSON.parse(saved);
+            console.log("✅ 복원된 검색조건:", { ingredients, preference, kind, level });
+
+            setIngredients(ingredients || '');
+            setPreference(preference || '');
+            setKind(kind || '');
+            setLevel(level || '');
+
+            fetchRecipes(ingredients, kind, preference, level);
+
+            await aiClient.post("/recommend", {
+              ingredients,
+              preference,
+              kind,
+              level,
+              allergies: preferences.allergies,
+              diseases: preferences.diseases
+            });
+          } else {
+            console.log("❌ 세션스토리지 없음");
+          }
+
+          fetchBookmarks();
+        } catch (err) {
+          console.error("❌ 초기 데이터 로딩 실패:", err);
+        }
+      };
+
+      initializePage();
+    }, []);
 
 
-  useEffect(() => {
+    useEffect(() => {
+      // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
+      const params = new URLSearchParams(location.search);
+      const ingredients = params.get('ingredients');
+      const preference = params.get('preference');
+      const kind = params.get('kind');
+      const level = params.get('level');
+
+      const currentQuery = JSON.stringify({ ingredients, preference, kind, level });
+      const previousQuery = sessionStorage.getItem("lastQuery");
+
+      if (currentQuery !== previousQuery) {
+        // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
+        sessionStorage.removeItem("watsonRecommendations");
+        sessionStorage.setItem("lastQuery", currentQuery);
+      }
+    }, [location.search]);
+
+    useEffect(() => {
       const cached = sessionStorage.getItem("watsonRecommendations");
-
       if (cached) {
         // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
         const parsed = JSON.parse(cached);
@@ -58,7 +105,6 @@ function RecipeListPage() {
         setIsWatsonLoading(false); // 안전하게 로딩 꺼두기
         return;
       }
-
       // ✅ 캐시가 없을 때만 Watson 호출
       const fetchWatsonRecommendations = async () => {
         if (!ingredients || ingredients.length === 0) return;
@@ -83,25 +129,21 @@ function RecipeListPage() {
       };
 
       fetchWatsonRecommendations();
-}, [ingredients, kind, situation, method]);
+    }, [ingredients, kind, level, preference]);
 
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ing = params.get('ingredients');
     const k = params.get('kind');
-    const s = params.get('situation');
-    const m = params.get('method');
-    const t = params.get('theme');
+    const p = params.get('preference');
+    const l = params.get('level');
 
-    if (ing || t) {
-      setIngredients(ing || '');
-      setKind(k || '');
-      setSituation(s || '');
-      setMethod(m || '');
-      setTheme(t || '');
-      fetchRecipes(ing, k, s, m, t);
-    }
+    setIngredients(ing || '');
+    setKind(k || '');
+    setPreference(p || '');
+    setLevel(l || '');
+    fetchRecipes(ing, k, p, l);
 
     fetchBookmarks();
   }, []);
@@ -122,15 +164,17 @@ function RecipeListPage() {
     }
   };
 
-  const fetchRecipes = async (ing, k, s, m, t) => {
+  const fetchRecipes = async (ing, k, p, l) => {
+    const kindValue = getOptionValue(kindOptions, kind);
     setIsRecipeLoading(true);
     try {
       const queryParams = {
-        ...(ing && { ingredients: ing.split(',').map(i => i.trim()) }),
-        ...(k && { kind: k }),
-        ...(s && { situation: s }),
-        ...(m && { method: m }),
-        ...(t && { theme: t })
+      ...(ing && {
+        ingredients: Array.isArray(ing)
+          ? ing
+          : ing.split(',').map(i => i.trim())
+      }),
+        ...(k && { kind: kindValue }),
       };
 
       const query = qs.stringify(queryParams, { arrayFormat: 'repeat' });
@@ -152,14 +196,14 @@ function RecipeListPage() {
 
   const handleSearch = () => {
     sessionStorage.removeItem("watsonRecommendations");
+
+    const kindValue = getOptionValue(kindOptions, kind);
     const query = qs.stringify({
       ingredients,
-      ...(kind && { kind }),
-      ...(situation && { situation }),
-      ...(method && { method })
+      ...(kind && { kind: kindValue }),
     });
     window.history.pushState(null, '', `/recipes?${query}`);
-    fetchRecipes(ingredients, kind, situation, method, '');
+    fetchRecipes(ingredients, kindValue);
   };
 
  const handleCardClick = (recipe) => {
@@ -179,8 +223,7 @@ function RecipeListPage() {
 
   const handleSelect = (key, opt) => {
     if (key === 'kind') setKind(opt.value);
-    if (key === 'situation') setSituation(opt.value);
-    if (key === 'method') setMethod(opt.value);
+    if (key === 'level') setLevel(opt.value);
     setOpenDropdown(null);
   };
 
@@ -218,16 +261,13 @@ function RecipeListPage() {
       console.error("❌ 북마크 실패:", err);
       alert("북마크 중 오류 발생");
     }
-  };
+};
 
     return (
     <div className="recipe-list-page">
       <h2>🔍레시피 검색</h2>
       <div className="search-bar">
         <input type="text" value={ingredients} onChange={(e) => setIngredients(e.target.value)} placeholder="예: 김치, 감자" />
-        <DropdownSelector label="종류별" options={kindOptions} selected={kindOptions.find(opt => opt.value === kind)?.label || ''} isOpen={openDropdown === 'kind'} onToggle={() => handleToggle('kind')} onSelect={(value) => handleSelect('kind', value)} />
-        <DropdownSelector label="상황별" options={situationOptions} selected={situationOptions.find(opt => opt.value === situation)?.label || ''} isOpen={openDropdown === 'situation'} onToggle={() => handleToggle('situation')} onSelect={(value) => handleSelect('situation', value)} />
-        <DropdownSelector label="방법별" options={methodOptions} selected={methodOptions.find(opt => opt.value === method)?.label || ''} isOpen={openDropdown === 'method'} onToggle={() => handleToggle('method')} onSelect={(value) => handleSelect('method', value)} />
         <button onClick={handleSearch}>검색</button>
       </div>
        {isLoading && (

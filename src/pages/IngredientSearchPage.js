@@ -6,8 +6,7 @@ import emojiMap from '../assets/emojiMap_full_ko.js';
 import {
   preferOptions,
   kindOptions,
-  situationOptions,
-  methodOptions,
+  levelOptions
 } from '../components/options.js';
 import IngredientCategorySection from '../components/categorys/IngredientCategorySection';
 
@@ -15,8 +14,7 @@ function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
   const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
-  const [situation, setSituation] = useState('');
-  const [method, setMethod] = useState('');
+  const [level, setLevel] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -24,15 +22,20 @@ function IngredientSearchPage() {
   const [isRestored, setIsRestored] = useState(false);
 
 
+  const getOptionValue = (options, label) => {
+  const match = options.find(opt => opt.label === label);
+  return match ? match.value : label;
+  };
+
+  // 캐시 저장
   useEffect(() => {
       const saved = sessionStorage.getItem("searchInputs");
       if (saved) {
         const parsed = JSON.parse(saved);
-        setIngredients(parsed.ingredients || []);
+        setIngredients(Array.isArray(parsed.ingredients) ? parsed.ingredients : []);
         setPreference(parsed.preference || '');
         setKind(parsed.kind || '');
-        setSituation(parsed.situation || '');
-        setMethod(parsed.method || '');
+        setLevel(parsed.level || '');
       } else if (labels.length > 0) {
         setIngredients(labels);
       }
@@ -42,22 +45,26 @@ function IngredientSearchPage() {
     }, []);
 
     // ✅ 복원이 완료된 경우에만 sessionStorage에 저장
-  useEffect(() => {
+    useEffect(() => {
       if (!isRestored) return;
+
+      const ingredientNamesInKorean = ingredients.map((item) => {
+        const info = emojiMap[item];
+        return info?.name_ko || item.replace(/_/g, ' ');
+      });
+
       sessionStorage.setItem("searchInputs", JSON.stringify({
-        ingredients,
+        ingredients: ingredientNamesInKorean,
         preference,
         kind,
-        situation,
-        method
+        level
       }));
-    }, [ingredients, preference, kind, situation, method, isRestored]);
+    }, [ingredients, preference, kind, level, isRestored]);
 
   const handleCategorySelect = (type, value) => {
     if (type === 'preference') setPreference(value);
     if (type === 'kind') setKind(value);
-    if (type === 'situation') setSituation(value);
-    if (type === 'method') setMethod(value);
+    if (type === 'level') setLevel(value);
   };
 
   // 고정 박스에 들어갈 항목들만 정리
@@ -66,8 +73,7 @@ function IngredientSearchPage() {
 
     if (preference) result.push({ type: '선호도', value: preference });
     if (kind) result.push({ type: '종류', value: kind });
-    if (situation) result.push({ type: '상황', value: situation });
-    if (method) result.push({ type: '방법', value: method });
+    if (level) result.push({ type: '난이도', value: level });
 
     return result;
   };
@@ -77,8 +83,7 @@ function IngredientSearchPage() {
     const optionMap = {
       선호도: preferOptions,
       종류: kindOptions,
-      상황: situationOptions,
-      방법: methodOptions,
+      난이도: levelOptions
     };
 
     const matched = optionMap[type]?.find((opt) => opt.value === value);
@@ -91,8 +96,7 @@ function IngredientSearchPage() {
   const handleToggle = (type, value) => {
     if (type === '선호도') setPreference('');
     else if (type === '종류') setKind('');
-    else if (type === '상황') setSituation('');
-    else if (type === '방법') setMethod('');
+    else if (type === '난이도') setLevel('');
   };
 
   const handleSearch = () => {
@@ -100,24 +104,39 @@ function IngredientSearchPage() {
       const info = emojiMap[item];
       return info?.name_ko || item.replace(/_/g, ' ');
     });
+    // ✅ label → value 변환
+    const kindValue = getOptionValue(kindOptions, kind);
 
     sessionStorage.setItem("searchInputs", JSON.stringify({
-    ingredients,
+    ingredients: ingredientNamesInKorean,
     preference,
     kind,
-    situation,
-    method
+    level
     }));
 
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
-      ...(kind && { kind }),
-      ...(situation && { situation }),
-      ...(method && { method }),
+      ...(kind && { kind: kindValue }),
+      //...(situation && { situation }),
+      //...(method && { method }),
     });
-
     navigate(`/recipes?${query}`);
-  };
+
+    console.log("recipe 전달 data:", query)
+    };
+
+//  const searchData = {
+//    ingredients,
+//    kind,
+//    preference,
+//    level,
+//  };
+//
+//  // 👉 sessionStorage 저장
+//  sessionStorage.setItem('recipeSearchState', JSON.stringify(searchData));
+//
+//  // 👉 location.state로도 함께 전달
+//  navigate('/RecipeListPage', { state: searchData });
 
   const isSearchDisabled = ingredients.length === 0;
 
@@ -151,48 +170,35 @@ function IngredientSearchPage() {
         {preferOptions.map((opt) => (
           <button
             key={opt.value}
-            className={preference === opt.value ? 'active' : ''}
-            onClick={() => handleCategorySelect('preference', opt.value)}
+            className={preference === opt.label ? 'active' : ''}
+            onClick={() => handleCategorySelect('preference', opt.label)}
           >
             {opt.label}
           </button>
         ))}
       </div>
-      {/* 종류 / 상황 / 방법 */}
+      {/* 종류 / 난이도 */}
       <div className="section">
         <h4>종류별</h4>
         <div className="buttons">
           {kindOptions.map((opt) => (
             <button
               key={opt.value}
-              className={kind === opt.value ? 'active' : ''}
-              onClick={() => handleCategorySelect('kind', opt.value)}
+              className={kind === opt.label ? 'active' : ''}
+              onClick={() => handleCategorySelect('kind', opt.label)}
             >
               {opt.label}
             </button>
           ))}
         </div>
 
-        <h4>상황별</h4>
+        <h4>난이도별</h4>
         <div className="buttons">
-          {situationOptions.map((opt) => (
+          {levelOptions.map((opt) => (
             <button
               key={opt.value}
-              className={situation === opt.value ? 'active' : ''}
-              onClick={() => handleCategorySelect('situation', opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        <h4>방법별</h4>
-        <div className="buttons">
-          {methodOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={method === opt.value ? 'active' : ''}
-              onClick={() => handleCategorySelect('method', opt.value)}
+              className={level === opt.label ? 'active' : ''}
+              onClick={() => handleCategorySelect('level', opt.label)}
             >
               {opt.label}
             </button>
