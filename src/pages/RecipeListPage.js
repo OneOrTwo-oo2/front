@@ -246,17 +246,22 @@ function RecipeListPage() {
     }
 
     try {
+      // cursor 수정 - Watson 레시피와 일반 레시피 데이터 구조 통합 처리
+      const bookmarkData = {
+        title: recipe.title || recipe["제목"] || recipe.title,
+        image: recipe.image,
+        summary: recipe.summary || recipe.dietary_tips || "",
+        link: recipe.link || recipe.url || ""
+      };
+
+      console.log("✅ 북마크 데이터:", bookmarkData);
+
       const res = await fetchWithAutoRefresh("/api/bookmark-with-recipe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          title: recipe.title,
-          image: recipe.image,
-          summary: recipe.summary || "",
-          link: recipe.link
-        })
+        body: JSON.stringify(bookmarkData)
       });
 
       const data = await res.data;
@@ -309,6 +314,18 @@ function RecipeListPage() {
             </div>
           )}
           
+          {kind && (
+            <div className="info-row">             <span className="info-label">선택된 종류:</span>
+              <span className="info-value">{kind}</span>
+            </div>
+          )}
+          
+          {level && (
+            <div className="info-row">             <span className="info-label">선택된 난이도:</span>
+              <span className="info-value">{level}</span>
+            </div>
+          )}
+          
           {/* 재료 수정 버튼 */}
           <div className="edit-button-container">
             <button 
@@ -345,7 +362,9 @@ function RecipeListPage() {
                 <img src={r.image} alt={r["제목"]} />
                 <h3>{r["제목"]}</h3>
                 {/* <p>{r.dietary_tips}</p> */}
-                <button>추천 레시피</button>
+                <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark({...r, id: `watson-${i}`}); }}>
+                  북마크
+                </button>
               </div>
             ))}
           </div>

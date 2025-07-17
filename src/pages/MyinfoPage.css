@@ -1,114 +1,630 @@
 /* MyinfoPage.css */
 
 .myinfo-page {
-  padding: 30px;
-  font-family: 'Arial', sans-serif;
-  background-color: #fafafa;
+  padding: 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
-.section-title {
-  font-size: 28px;
-  font-weight: bold;
+/* 탭 버튼 */
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+.tab-buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.tab-buttons button.active {
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.tab-buttons button:hover:not(.active) {
+  background-color: #dee2e6;
+}
+
+/* 북마크 레이아웃 */
+.bookmark-layout {
+  display: flex;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 폴더 사이드바 */
+.folder-sidebar {
+  width: 280px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.folder-list {
   margin-bottom: 20px;
 }
 
+.folder-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.folder-item:hover {
+  background-color: #f8f9fa;
+}
+
+.folder-item.active {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.folder-icon {
+  font-size: 18px;
+  margin-right: 12px;
+}
+
+.folder-name {
+  flex: 1;
+  font-size: 15px;
+}
+
+.folder-count {
+  font-size: 13px;
+  color: #6c757d;
+  margin-left: 8px;
+}
+
+.delete-folder-btn-small {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.folder-item:hover .delete-folder-btn-small {
+  opacity: 1;
+}
+
+.delete-folder-btn-small:hover {
+  background-color: #f8d7da;
+}
+
+.add-folder-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  color: #6c757d;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-folder-btn:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+  color: #495057;
+}
+
+.add-folder-btn span {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* 레시피 섹션 */
+.recipe-section {
+  flex: 1;
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+.edit-preference-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.edit-preference-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+/* 검색 입력창 */
 .search-input {
   width: 100%;
   max-width: 400px;
-  padding: 10px 14px;
+  padding: 14px 20px;
   margin-bottom: 30px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  font-size: 18px;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 /* 레시피 카드 그리드 */
 .recipe-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
 }
 
 .recipe-card {
-  background-color: #fff;
-  border-radius: 12px;
+  background-color: white;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
 }
 
 .recipe-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .recipe-img {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
 }
 
 .recipe-info {
-  padding: 15px;
+  padding: 20px;
 }
 
 .recipe-info h4 {
-  font-size: 18px;
-  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #212529;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .recipe-info p {
-  font-size: 14px;
-  color: #555;
+  font-size: 16px;
+  color: #6c757d;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.myinfo-header {
+.recipe-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 80px;
+}
+
+.action-btn.add-btn {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.action-btn.add-btn:hover {
+  background-color: #bbdefb;
+}
+
+.action-btn.remove-btn {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.action-btn.remove-btn:hover {
+  background-color: #ffe0b2;
+}
+
+.action-btn.delete-btn {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.action-btn.delete-btn:hover {
+  background-color: #ffcdd2;
+}
+
+/* 빈 상태 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.empty-state p {
+  font-size: 18px;
+  margin: 0;
+}
+
+/* 폴더 관리 페이지 */
+.folder-management-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.folder-management-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 30px;
 }
 
-.edit-preference-btn {
-  padding: 8px 16px;
-  background-color: #4CAF50;
+.folder-management-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+.create-folder-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 25px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
 }
 
-.edit-preference-btn:hover {
-  background-color: #45a049;
+.create-folder-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
 
-
-.folder-title {
-  font-size: 30px; /* 기존 h3 기본값보다 작게 조정 */
-  margin-top: 20px;
-  margin-bottom: 10px;
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
-.folder-title-container {
+.folder-card {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.folder-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 20px rgba(0, 123, 255, 0.1);
+}
+
+.folder-card-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.folder-card-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
 }
 
 .delete-folder-btn {
-  padding: 6px 10px;
-  background-color: #ff5c5c;
-  border: none;
+  padding: 6px 12px;
+  background-color: #dc3545;
   color: white;
-  border-radius: 6px;
+  border: none;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
+.delete-folder-btn:hover {
+  background-color: #c82333;
+}
 
-/* ✅ 삭제된 항목 관련 스타일 제거됨:
-.settings-btn
-.dropdown-popup
-.dropdown-category
-.dropdown-category ul li
-등 관련 클래스 완전히 제거
-*/
+.folder-count-text {
+  font-size: 16px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* 모달 스타일 */
+.folder-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.folder-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.folder-modal-content {
+  padding: 30px;
+}
+
+.folder-modal-content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.folder-modal-content input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.folder-modal-content input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.folder-modal-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.folder-modal-buttons button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.folder-modal-buttons button:first-child {
+  background-color: #6c757d;
+  color: white;
+}
+
+.folder-modal-buttons button:first-child:hover {
+  background-color: #5a6268;
+}
+
+.folder-modal-buttons button:last-child {
+  background-color: #007bff;
+  color: white;
+}
+
+.folder-modal-buttons button:last-child:hover {
+  background-color: #0056b3;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .bookmark-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .folder-sidebar {
+    width: 100%;
+    position: static;
+  }
+  
+  .recipe-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .myinfo-page {
+    padding: 15px;
+  }
+  
+  .recipe-section {
+    padding: 20px;
+  }
+  
+  .recipe-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .recipe-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .folder-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .folder-management-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+}
+
+/* 왼쪽 탭 바 */
+.side-tab-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: absolute;
+  left: 40px;
+  top: 120px;
+  z-index: 10;
+}
+
+.side-tab-btn {
+  padding: 16px 32px;
+  background: #f8f9fa;
+  border: none;
+  border-radius: 16px 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  text-align: left;
+}
+
+.side-tab-btn.active {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  box-shadow: 0 4px 16px rgba(0,123,255,0.10);
+}
+
+@media (max-width: 1024px) {
+  .side-tab-bar {
+    position: static;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 24px;
+    left: 0;
+    top: 0;
+  }
+  .side-tab-btn {
+    border-radius: 16px;
+    width: auto;
+    text-align: center;
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+}
+
+.preference-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 600px;
+}
+
+.delete-all-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #dc3545, #ff7675);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+  margin-left: 12px;
+}
+.delete-all-btn:hover {
+  background: linear-gradient(135deg, #b71c1c, #ff7675);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
