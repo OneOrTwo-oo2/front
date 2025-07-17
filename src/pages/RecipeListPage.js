@@ -15,7 +15,7 @@ function RecipeListPage() {
   const [kind, setKind] = useState('');
   const [preference, setPreference] = useState('');
   const [level, setLevel] = useState('');
-  //const [theme, setTheme] = useState('');
+
   const [results, setResults] = useState([]);
   const [bookmarkedState, setBookmarkedState] = useState(new Map());
   const [watsonRecommendations, setWatsonRecommendations] = useState([]);  // 새로추가
@@ -27,93 +27,76 @@ function RecipeListPage() {
 
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
-  const location = useLocation();
 
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
   return match ? match.value : label;
   };
 
-  // ✅ label → value 변환
-  const kindValue = getOptionValue(kindOptions, kind);
-  const [userPreferences, setUserPreferences] = useState({ allergies: [], diseases: [] });
+    const [userPreferences, setUserPreferences] = useState({ allergies: [], diseases: [] });
+    // 선호도, 사용자 정보 로딩 후 recommend로 전달
+    useEffect(() => {
+      const initializePage = async () => {
+        try {
+          const response = await apiClient.get("/api/preferences", { withCredentials: true });
+          const preferences = response.data;
+          setUserPreferences(preferences);  // ✅ 상태 저장
+          console.log("✅ 사용자 정보 로딩 성공:", preferences);
 
-  useEffect(() => {
-  // 페이지가 로드되면 사용자의 알러지/질병 정보를 미리 가져온다.
-    const fetchUserPreferences = async () => {
-     try {
-        const response = await apiClient.get("/api/preferences", { withCredentials: true });
-        setUserPreferences(response.data);
-        console.log("✅ 사용자 정보 로딩 성공:" , response.data);
-        } catch (error) {
-        console.error("❌ 사용자 정보를 가져오지 못했습니다. 로그인 상태를 확인하세요.", error);
+          const saved = sessionStorage.getItem("searchInputs");
+          if (saved) {
+            const { ingredients, preference, kind, level } = JSON.parse(saved);
+            console.log("✅ 복원된 검색조건:", { ingredients, preference, kind, level });
+
+            setIngredients(ingredients || '');
+            setPreference(preference || '');
+            setKind(kind || '');
+            setLevel(level || '');
+
+            fetchRecipes(ingredients, kind, preference, level);
+
+            await aiClient.post("/recommend", {
+              ingredients,
+              preference,
+              kind,
+              level,
+              allergies: preferences.allergies,
+              diseases: preferences.diseases
+            });
+          } else {
+            console.log("❌ 세션스토리지 없음");
+          }
+
+          fetchBookmarks();
+        } catch (err) {
+          console.error("❌ 초기 데이터 로딩 실패:", err);
         }
       };
-      fetchUserPreferences();
-     },[]);
 
-  // 이전 캐시 데이터 가져오기
-  useEffect(() => {
-    const saved = sessionStorage.getItem("searchInputs");
-
-    if (saved) {
-      const { ingredients, preference, kind, level } = JSON.parse(saved);
-      console.log("✅ 복원된 검색조건:", { ingredients, preference, kind, level });
-
-      setIngredients(ingredients || '');
-      setPreference(preference || '');
-      setKind(kind || '');
-      setLevel(level || '');
-
-      fetchRecipes(ingredients, kind, preference, level);
-    } else {
-      console.log("❌ 세션스토리지에 저장된 검색 정보가 없습니다.");
-    }
-
-    fetchBookmarks();
-  }, []);
+      initializePage();
+    }, []);
 
 
-  useEffect(() => {
-  // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
-  const params = new URLSearchParams(window.location.search);
-  const ingredients = params.get('ingredients');
-  const preference = params.get('preference');
-  const kind = params.get('kind');
-  const level = params.get('level');
+    useEffect(() => {
+      // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
+      const params = new URLSearchParams(location.search);
+      const ingredients = params.get('ingredients');
+      const preference = params.get('preference');
+      const kind = params.get('kind');
+      const level = params.get('level');
 
-  const currentQuery = JSON.stringify({ ingredients, preference, kind, level });
-  const previousQuery = sessionStorage.getItem("lastQuery");
+      const currentQuery = JSON.stringify({ ingredients, preference, kind, level });
+      const previousQuery = sessionStorage.getItem("lastQuery");
 
-  if (currentQuery !== previousQuery) {
-    // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
-    sessionStorage.removeItem("watsonRecommendations");
-    sessionStorage.setItem("lastQuery", currentQuery);
-  }
-}, [location.search]);
+      if (currentQuery !== previousQuery) {
+        // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
+        sessionStorage.removeItem("watsonRecommendations");
+        sessionStorage.setItem("lastQuery", currentQuery);
+      }
+    }, [location.search]);
 
-  useEffect(() => {
-  // 쿼리스트링이 바뀌면 Watson 캐시를 삭제
-  const params = new URLSearchParams(window.location.search);
-  const ingredients = params.get('ingredients');
-  const kind = params.get('kind');
-  const situation = params.get('situation');
-  const method = params.get('method');
-
-  const currentQuery = JSON.stringify({ ingredients, kind, situation, method });
-  const previousQuery = sessionStorage.getItem("lastQuery");
-
-  if (currentQuery !== previousQuery) {
-    // ✅ 쿼리 바뀐 경우에만 Watson 캐시 삭제
-    sessionStorage.removeItem("watsonRecommendations");
-    sessionStorage.setItem("lastQuery", currentQuery);
-  }
-}, [location.search]);
-
-
-  useEffect(() => {
+    useEffect(() => {
       const cached = sessionStorage.getItem("watsonRecommendations");
-
       if (cached) {
         // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
         const parsed = JSON.parse(cached);
@@ -122,19 +105,14 @@ function RecipeListPage() {
         setIsWatsonLoading(false); // 안전하게 로딩 꺼두기
         return;
       }
-
       // ✅ 캐시가 없을 때만 Watson 호출
       const fetchWatsonRecommendations = async () => {
         if (!ingredients || ingredients.length === 0) return;
 
         setIsWatsonLoading(true);
         try {
-          const allergies = userPreferences.allergies;
-          const diseases = userPreferences.diseases;
-          const res = await aiClient.post("/recommend", { ingredients, preference, kind, level, allergies, diseases  });
+          const res = await aiClient.post("/recommend", { ingredients });
           const data = res.data;
-
-          console.log("data:",ingredients, preference, kind, level, allergies, diseases )
 
           setWatsonRecommendations(data.result.recommended_recipes || []);
           setDietaryTips(data.result.dietary_tips || "");
@@ -151,7 +129,8 @@ function RecipeListPage() {
       };
 
       fetchWatsonRecommendations();
-}, [ingredients, kind, preference, level]);
+    }, [ingredients, kind, level, preference]);
+
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -159,18 +138,12 @@ function RecipeListPage() {
     const k = params.get('kind');
     const p = params.get('preference');
     const l = params.get('level');
-    //const t = params.get('theme');
 
-    //if (ing || t) {
-      setIngredients(ing || '');
-      setKind(k || '');
-      setPreference(p || '');
-      setLevel(l || '');
-      //setSituation(s || '');
-      //setMethod(m || '');
-      //setTheme(t || '');
-      fetchRecipes(ing, k, p, l);
-    //}
+    setIngredients(ing || '');
+    setKind(k || '');
+    setPreference(p || '');
+    setLevel(l || '');
+    fetchRecipes(ing, k, p, l);
 
     fetchBookmarks();
   }, []);
@@ -192,12 +165,16 @@ function RecipeListPage() {
   };
 
   const fetchRecipes = async (ing, k, p, l) => {
+    const kindValue = getOptionValue(kindOptions, kind);
     setIsRecipeLoading(true);
     try {
       const queryParams = {
-        ...(ing && { ingredients: ing.split(',').map(i => i.trim()) }),
-        ...(k && { kindValue }),
-        //...(t && { theme: t })
+      ...(ing && {
+        ingredients: Array.isArray(ing)
+          ? ing
+          : ing.split(',').map(i => i.trim())
+      }),
+        ...(k && { kind: kindValue }),
       };
 
       const query = qs.stringify(queryParams, { arrayFormat: 'repeat' });
@@ -219,9 +196,11 @@ function RecipeListPage() {
 
   const handleSearch = () => {
     sessionStorage.removeItem("watsonRecommendations");
+
+    const kindValue = getOptionValue(kindOptions, kind);
     const query = qs.stringify({
       ingredients,
-      ...(kind && { kindValue }),
+      ...(kind && { kind: kindValue }),
     });
     window.history.pushState(null, '', `/recipes?${query}`);
     fetchRecipes(ingredients, kindValue);

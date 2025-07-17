@@ -45,10 +45,16 @@ function IngredientSearchPage() {
     }, []);
 
     // ✅ 복원이 완료된 경우에만 sessionStorage에 저장
-  useEffect(() => {
+    useEffect(() => {
       if (!isRestored) return;
+
+      const ingredientNamesInKorean = ingredients.map((item) => {
+        const info = emojiMap[item];
+        return info?.name_ko || item.replace(/_/g, ' ');
+      });
+
       sessionStorage.setItem("searchInputs", JSON.stringify({
-        ingredients,
+        ingredients: ingredientNamesInKorean,
         preference,
         kind,
         level
@@ -102,7 +108,7 @@ function IngredientSearchPage() {
     const kindValue = getOptionValue(kindOptions, kind);
 
     sessionStorage.setItem("searchInputs", JSON.stringify({
-    ingredients,
+    ingredients: ingredientNamesInKorean,
     preference,
     kind,
     level
@@ -110,11 +116,13 @@ function IngredientSearchPage() {
 
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
-      ...(kind && { kindValue }),
+      ...(kind && { kind: kindValue }),
       //...(situation && { situation }),
       //...(method && { method }),
     });
     navigate(`/recipes?${query}`);
+
+    console.log("recipe 전달 data:", query)
     };
 
 //  const searchData = {
