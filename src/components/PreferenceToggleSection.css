@@ -1,80 +1,402 @@
 .preference-page {
-  max-width: 600px;
-  margin: 60px auto;
-  padding: 24px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 40px;
   text-align: center;
   font-family: 'Noto Sans KR', sans-serif;
   background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
 }
 
-.preference-page h2 {
-  font-size: 22px;
-  margin-bottom: 24px;
-  color: #333;
+/* 헤더 섹션 */
+.preference-header {
+  margin-bottom: 40px;
+}
+
+.preference-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #212529;
+}
+
+.preference-subtitle {
+  font-size: 18px;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 선택된 알러지 섹션 */
+.selected-allergies-section {
+  margin-bottom: 40px;
+  text-align: left;
+}
+
+.selected-allergies-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 16px;
+}
+
+.selected-allergies-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selected-allergy-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.remove-allergy-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-allergy-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 알러지 선택 섹션 */
+.allergies-section {
+  margin-bottom: 40px;
+  text-align: left;
+}
+
+.allergies-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 20px;
 }
 
 .ingredient-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  justify-content: center;
-  margin-bottom: 40px;
+  justify-content: flex-start;
 }
 
 .ingredient-btn {
-  padding: 10px 18px;
-  background-color: #f3f3f3;
-  border: 2px solid #ccc;
-  border-radius: 24px;
-  font-size: 15px;
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
+  color: #495057;
 }
 
 .ingredient-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .ingredient-btn.selected {
-  background-color: #007aff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
-  border-color: #007aff;
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  transform: translateY(-2px);
 }
 
-.buttons {
+.ingredient-btn.selected:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #6c757d;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* 하단 버튼 */
+.action-buttons {
   display: flex;
   justify-content: center;
   gap: 16px;
+  margin-top: 40px;
 }
 
 .skip-btn,
-.next-btn {
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 24px;
+.save-btn {
+  padding: 14px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 25px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  min-width: 120px;
 }
 
 .skip-btn {
-  background-color: #ccc;
-  color: #333;
+  background-color: #6c757d;
+  color: white;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
 .skip-btn:hover {
-  background-color: #b3b3b3;
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
 }
 
-.next-btn {
-  background-color: #007aff !important;
-  color: black !important;
+.save-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
-.next-btn:hover {
-  background-color: #0062cc !important;
-  color: black !important;
+.save-btn:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.save-btn:disabled {
+  background: #adb5bd !important;
+  color: #fff !important;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .preference-page {
+    margin: 20px;
+    padding: 30px 20px;
+  }
+  
+  .preference-header h2 {
+    font-size: 24px;
+  }
+  
+  .preference-subtitle {
+    font-size: 14px;
+  }
+  
+  .ingredient-buttons {
+    justify-content: center;
+  }
+  
+  .ingredient-btn {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .skip-btn,
+  .save-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .preference-page {
+    margin: 10px;
+    padding: 20px 15px;
+  }
+  
+  .selected-allergies-list {
+    justify-content: center;
+  }
+  
+  .ingredient-buttons {
+    gap: 8px;
+  }
+  
+  .ingredient-btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+.disease-section {
+  margin-bottom: 40px;
+  text-align: left;
+}
+.disease-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 16px;
+}
+.disease-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 14px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 18px;
+  margin-bottom: 0;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+.disease-input:focus {
+  outline: none;
+  border-color: #007bff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.consent-section {
+  margin: 32px 0 0 0;
+  text-align: left;
+}
+.consent-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #007bff;
+  margin-bottom: 6px;
+}
+.consent-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #007bff;
+}
+.consent-desc {
+  font-size: 13px;
+  color: #6c757d;
+  margin: 0 0 0 2px;
+}
+
+.consent-link {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.consent-link:hover {
+  color: #0056b3;
+}
+
+.consent-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+.consent-modal-content {
+  padding: 30px;
+}
+.consent-modal-content h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+.consent-modal-body {
+  font-size: 16px !important;
+}
+
+.disease-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.disease-btn {
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #495057;
+}
+.disease-btn:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.disease-btn.selected {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  transform: translateY(-2px);
+}
+.disease-btn.selected:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
 }

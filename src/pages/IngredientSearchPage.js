@@ -117,9 +117,9 @@ function IngredientSearchPage() {
   }, [ingredients, preference, kind, level, isRestored]);
 
   const handleCategorySelect = (type, value) => {
-    if (type === 'preference') setPreference(value);
-    if (type === 'kind') setKind(value);
-    if (type === 'level') setLevel(value);
+    if (type === 'preference') setPreference(prev => prev === value ? '' : value);
+    if (type === 'kind') setKind(prev => prev === value ? '' : value);
+    if (type === 'level') setLevel(prev => prev === value ? '' : value);
   };
 
   // cursor 수정 - 중복 선택 방지 강화
@@ -177,12 +177,16 @@ function IngredientSearchPage() {
     // ✅ label → value 변환
     const kindValue = getOptionValue(kindOptions, kind);
 
-    sessionStorage.setItem("searchInputs", JSON.stringify({
-    ingredients: ingredientNamesInKorean,
-    preference,
-    kind,
-    level
-    }));
+    // cursor 수정 - 저장되는 값들 로그 추가
+    const searchData = {
+      ingredients: ingredientNamesInKorean,
+      preference,
+      kind,
+      level
+    };
+    console.log("✅ 저장되는 검색 데이터:", searchData);
+
+    sessionStorage.setItem("searchInputs", JSON.stringify(searchData));
 
     // cursor 수정 - 검색 시 fromEditButton 플래그 제거
     sessionStorage.removeItem("fromEditButton");

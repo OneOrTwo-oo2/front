@@ -120,11 +120,9 @@ select {
 }
 
 .text-prefer {
-  font-size: 18px;
-  font-weight: 1000;
-  color: #333;
-  margin-bottom: 8px;
-  text-align:center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 /* 오른쪽 메인 콘텐츠 */
 .ingredient-search-content {

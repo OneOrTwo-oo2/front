@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import './MyinfoPage.css';
 import { useNavigate, Link } from 'react-router-dom';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
+import PreferenceToggleSection from '../components/PreferenceToggleSection';
 
 Modal.setAppElement('#root');
 
@@ -11,10 +12,14 @@ function MyinfoPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [folders, setFolders] = useState([]);
-  const [selectedFolder, setSelectedFolder] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState('전체');
   const [folderRecipes, setFolderRecipes] = useState({});
   const [bookmarks, setBookmarks] = useState([]);
-  const [activeTab, setActiveTab] = useState('bookmark');
+  const [activeTab, setActiveTab] = useState('folder'); // 기본값 'folder'로 변경
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [addToFolderModal, setAddToFolderModal] = useState({ open: false, recipeId: null });
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -59,20 +64,19 @@ function MyinfoPage() {
   };
 
   const handleCreateFolder = async () => {
-    let folderName = prompt("새 폴더 이름을 입력하세요:");
-    if (folderName === null) return;
-    folderName = String(folderName).trim();
-    if (folderName === "") return alert("올바른 폴더 이름을 입력하세요.");
-
+    if (!newFolderName.trim()) return;
+    
     try {
       const res = await fetchWithAutoRefresh("/api/folders", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: folderName })
+        body: JSON.stringify({ name: newFolderName.trim() })
       });
       const data = res.data;
       setFolders(prev => [...prev, data]);
       setSelectedFolder(data.name);
+      setNewFolderName('');
+      setShowFolderModal(false);
     } catch (err) {
       console.error("폴더 생성 실패:", err);
     }
@@ -80,6 +84,8 @@ function MyinfoPage() {
 
   const handleFolderChange = async (folderName) => {
     setSelectedFolder(folderName);
+    if (folderName === '전체') return;
+    
     const folder = folders.find(f => f.name === folderName);
     if (!folder) return;
 
@@ -94,6 +100,8 @@ function MyinfoPage() {
 
   const handleAddToFolder = async (recipeId) => {
     if (!bookmarks.some(b => b.id === recipeId)) return alert("북마크 먼저 해주세요!");
+    if (selectedFolder === '전체') return alert("폴더를 먼저 선택해주세요.");
+    
     const folder = folders.find(f => f.name === selectedFolder);
     if (!folder) return alert("폴더를 먼저 선택해주세요.");
 
@@ -175,14 +183,69 @@ function MyinfoPage() {
       const updated = { ...folderRecipes };
       delete updated[folderName];
       setFolderRecipes(updated);
-      if (selectedFolder === folderName) setSelectedFolder('');
+      if (selectedFolder === folderName) setSelectedFolder('전체');
     } catch (err) {
       console.error("폴더 삭제 실패:", err);
     }
   };
 
-  const getRecipesInFolder = (folderName) => folderRecipes[folderName] || [];
-  const filteredRecipes = bookmarks.filter(recipe => recipe.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const getRecipesInFolder = (folderName) => {
+    if (folderName === '전체') {
+      return bookmarks.filter(recipe => recipe.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    return (folderRecipes[folderName] || []).filter(recipe => 
+      recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const currentRecipes = getRecipesInFolder(selectedFolder);
+
+  // 폴더에 레시피 추가 모달 열기
+  const openAddToFolderModal = (recipeId) => {
+    setAddToFolderModal({ open: true, recipeId });
+  };
+  // 폴더에 레시피 추가 모달 닫기
+  const closeAddToFolderModal = () => {
+    setAddToFolderModal({ open: false, recipeId: null });
+  };
+
+  // 폴더 선택 후 레시피 추가
+  const handleAddToFolderWithSelect = async (folderName) => {
+    const folder = folders.find(f => f.name === folderName);
+    if (!folder) return alert('폴더를 선택해주세요.');
+    try {
+      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipe_id: addToFolderModal.recipeId })
+      });
+      if (!res.status || res.status >= 400) {
+        const error = res.data;
+        alert(error.detail || "이미 추가된 레시피입니다.");
+        return;
+      }
+      // 폴더 레시피 새로고침
+      await handleFolderChange(folder.name);
+      closeAddToFolderModal();
+      alert('폴더에 추가되었습니다!');
+    } catch (err) {
+      console.error("폴더에 추가 실패:", err);
+      alert('추가에 실패했습니다.');
+    }
+  };
+
+  // 북마크 전체 삭제
+  const handleDeleteAllBookmarks = async () => {
+    try {
+      await fetchWithAutoRefresh('/api/bookmarks/all', { method: 'DELETE' });
+      setBookmarks([]);
+      setFolderRecipes({});
+      setShowDeleteAllModal(false);
+      alert('모든 북마크가 삭제되었습니다.');
+    } catch (err) {
+      alert('전체 삭제에 실패했습니다.');
+    }
+  };
 
   return (
     <div className="myinfo-page">
@@ -195,79 +258,207 @@ function MyinfoPage() {
         </Modal>
       )}
 
-      <div className="tab-buttons">
-        <button className={activeTab === 'bookmark' ? 'active' : ''} onClick={() => setActiveTab('bookmark')}>전체</button>
-        <button className={activeTab === 'folder' ? 'active' : ''} onClick={() => setActiveTab('folder')}>폴더</button>
+      {showFolderModal && (
+        <Modal 
+          isOpen={showFolderModal} 
+          onRequestClose={() => setShowFolderModal(false)}
+          className="folder-modal"
+          overlayClassName="folder-modal-overlay"
+        >
+          <div className="folder-modal-content">
+            <h3>새 폴더 만들기</h3>
+            <input
+              type="text"
+              placeholder="폴더 이름을 입력하세요"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleCreateFolder()}
+            />
+            <div className="folder-modal-buttons">
+              <button onClick={() => setShowFolderModal(false)}>취소</button>
+              <button onClick={handleCreateFolder}>만들기</button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* 폴더에 추가 모달 */}
+      {addToFolderModal.open && (
+        <Modal
+          isOpen={addToFolderModal.open}
+          onRequestClose={closeAddToFolderModal}
+          className="folder-modal"
+          overlayClassName="folder-modal-overlay"
+        >
+          <div className="folder-modal-content">
+            <h3>폴더 선택</h3>
+            <select
+              style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '8px', marginBottom: '20px' }}
+              defaultValue=""
+              onChange={e => handleAddToFolderWithSelect(e.target.value)}
+            >
+              <option value="" disabled>폴더를 선택하세요</option>
+              {folders.map(folder => (
+                <option key={folder.id} value={folder.name}>{folder.name}</option>
+              ))}
+            </select>
+            <button onClick={closeAddToFolderModal} style={{ padding: '8px 24px', borderRadius: '8px', background: '#6c757d', color: 'white', border: 'none', fontSize: '16px', fontWeight: 500, margin: '0 auto', display: 'block' }}>취소</button>
+          </div>
+        </Modal>
+      )}
+
+      {/* 왼쪽 탭 구조 */}
+      <div className="side-tab-bar">
+        <button
+          className={`side-tab-btn${activeTab === 'folder' ? ' active' : ''}`}
+          onClick={() => setActiveTab('folder')}
+        >
+          폴더
+        </button>
+        <button
+          className={`side-tab-btn${activeTab === 'preference' ? ' active' : ''}`}
+          onClick={() => setActiveTab('preference')}
+        >
+          질병편집
+        </button>
       </div>
 
       <div className="myinfo-content">
-        {activeTab === 'bookmark' && (
-          <>
-            <div className="myinfo-header">
-              <h2 className="section-title">북마크된 모든 레시피</h2>
-              <Link to="/preference">
-                <button className="edit-preference-btn">질병 편집</button>
-              </Link>
-            </div>
-
-            <input className="search-input" type="text" placeholder="레시피 검색"
-              value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-
-            <div className="recipe-grid">
-              {bookmarks.length > 0 ? (
-                filteredRecipes.map(recipe => (
-                  <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
-                    <img src={recipe.image} alt={recipe.title} className="recipe-img" />
-                    <div className="recipe-info">
-                      <h4>{recipe.title}</h4>
-                      <p>{recipe.summary}</p>
-                      <button onClick={(e) => { e.stopPropagation(); handleAddToFolder(recipe.id); }}>폴더에 추가</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleRemoveBookmark(recipe.id); }}>삭제</button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>북마크된 레시피가 없습니다.</p>
-              )}
-            </div>
-          </>
-        )}
-
         {activeTab === 'folder' && (
-          <>
-            <div className="folder-management">
-              <button onClick={handleCreateFolder}>새 폴더 만들기</button>
-              {folders.length > 0 && (
-                <select onChange={(e) => handleFolderChange(e.target.value)} value={selectedFolder}>
-                  <option value="">폴더 선택</option>
-                  {folders.map((f, i) => <option key={i} value={f.name}>{f.name}</option>)}
-                </select>
-              )}
+          <div className="bookmark-layout">
+            <div className="folder-sidebar">
+              <div className="folder-list">
+                <div 
+                  className={`folder-item ${selectedFolder === '전체' ? 'active' : ''}`}
+                  onClick={() => handleFolderChange('전체')}
+                >
+                  <span className="folder-icon">📁</span>
+                  <span className="folder-name">전체</span>
+                  <span className="folder-count">({bookmarks.length})</span>
+                </div>
+                {folders.map((folder) => (
+                  <div 
+                    key={folder.id}
+                    className={`folder-item ${selectedFolder === folder.name ? 'active' : ''}`}
+                    onClick={() => handleFolderChange(folder.name)}
+                  >
+                    <span className="folder-icon">📂</span>
+                    <span className="folder-name">{folder.name}</span>
+                    <span className="folder-count">({getRecipesInFolder(folder.name).length})</span>
+                    <button 
+                      className="delete-folder-btn-small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFolder(folder.name);
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="add-folder-btn"
+                onClick={() => setShowFolderModal(true)}
+              >
+                <span>+</span> 새 폴더
+              </button>
             </div>
 
-            {selectedFolder && (
-              <div>
-                <div className="folder-title-container">
-                  <h3 className="folder-title">{selectedFolder} 폴더에 저장된 레시피</h3>
-                  <button className="delete-folder-btn" onClick={() => handleDeleteFolder(selectedFolder)}>폴더 삭제</button>
-                </div>
-                <div className="recipe-grid">
-                  {getRecipesInFolder(selectedFolder).map(recipe => (
+            <div className="recipe-section">
+              <div className="recipe-header">
+                <h2 className="section-title">
+                  {selectedFolder === '전체' ? '북마크된 모든 레시피' : `${selectedFolder} 폴더`}
+                </h2>
+                <button className="delete-all-btn" onClick={() => setShowDeleteAllModal(true)}>
+                  북마크 전체 삭제
+                </button>
+              </div>
+
+              <input 
+                className="search-input" 
+                type="text" 
+                placeholder="레시피 검색"
+                value={searchTerm} 
+                onChange={e => setSearchTerm(e.target.value)} 
+              />
+
+              <div className="recipe-grid">
+                {currentRecipes.length > 0 ? (
+                  currentRecipes.map(recipe => (
                     <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
                       <img src={recipe.image} alt={recipe.title} className="recipe-img" />
                       <div className="recipe-info">
                         <h4>{recipe.title}</h4>
                         <p>{recipe.summary}</p>
-                        <button onClick={(e) => { e.stopPropagation(); handleRemoveRecipeFromFolder(recipe.id); }}>폴더에서 제거</button>
+                        <div className="recipe-actions">
+                          {selectedFolder !== '전체' && (
+                            <button 
+                              className="action-btn remove-btn"
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                handleRemoveRecipeFromFolder(recipe.id); 
+                              }}
+                            >
+                              폴더에서 제거
+                            </button>
+                          )}
+                          {selectedFolder === '전체' && (
+                            <button 
+                              className="action-btn add-btn"
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                openAddToFolderModal(recipe.id); 
+                              }}
+                            >
+                              폴더에 추가
+                            </button>
+                          )}
+                          <button 
+                            className="action-btn delete-btn"
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              handleRemoveBookmark(recipe.id); 
+                            }}
+                          >
+                            삭제
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className="empty-state">
+                    <p>북마크된 레시피가 없습니다.</p>
+                  </div>
+                )}
               </div>
-            )}
-          </>
+            </div>
+          </div>
+        )}
+        {activeTab === 'preference' && (
+          <div className="preference-section">
+            <PreferenceToggleSection />
+          </div>
         )}
       </div>
+      {/* 북마크 전체 삭제 확인 모달 */}
+      {showDeleteAllModal && (
+        <Modal
+          isOpen={showDeleteAllModal}
+          onRequestClose={() => setShowDeleteAllModal(false)}
+          className="folder-modal"
+          overlayClassName="folder-modal-overlay"
+        >
+          <div className="folder-modal-content">
+            <h3>정말 모든 북마크를 삭제하시겠습니까?</h3>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+              <button onClick={() => setShowDeleteAllModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#6c757d', color: 'white', border: 'none' }}>취소</button>
+              <button onClick={handleDeleteAllBookmarks} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#dc3545', color: 'white', border: 'none' }}>전체 삭제</button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
