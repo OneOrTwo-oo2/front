@@ -18,10 +18,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch origin/main
+        run: git fetch origin main
+
       - name: Check for changes in frontend
         id: frontend
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^frontend/'; then
+          BEFORE=$(git merge-base origin/main HEAD)
+          echo "Comparing from $BEFORE to HEAD"
+          if git diff --name-only $BEFORE HEAD | grep '^front/'; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -49,5 +54,5 @@ jobs:
       - name: Build & Push Frontend Image
         run: |
           IMAGE=${{ secrets.ECR_REGISTRY }}/front-web
-          docker build -t $IMAGE ./frontend
+          docker build -t $IMAGE ./front
           docker push $IMAGE
