@@ -1,7 +1,7 @@
 /* 전체 페이지 스타일 */
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  background: linear-gradient(135deg, rgba(255,107,107,0.5) 0%, rgba(255,142,142,0.5) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

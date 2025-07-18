@@ -1,14 +1,17 @@
 // MainContent.js
 import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../App.css';  // App의 스타일을 사용할 경우
+import '../App.css';
+import img11 from '../assets/img11.png';
+import img4 from '../assets/img4.png';
+import img2 from '../assets/img2.png';
 
-import { characterImages } from '../assets/characters';
 
 function MainPage() {
   const imgRefs = [useRef(null), useRef(null), useRef(null)];
   const [clickedIndex, setClickedIndex] = useState(null);
   const navigate = useNavigate();
+  const cardMinHeight = 220;
 
   const handleMouseMove = (e, index) => {
     const card = imgRefs[index].current;
@@ -60,7 +63,7 @@ function MainPage() {
   return (
     <div className="app">
       <div className="main">
-        {[characterImages[1], characterImages[2], characterImages[3]].map((imgSrc, i) => (
+        {[img11, img2, img4].map((imgSrc, i) => (
           <div className="partition" key={i}>
             <div
               ref={imgRefs[i]}
@@ -68,15 +71,11 @@ function MainPage() {
               onMouseMove={(e) => handleMouseMove(e, i)}
               onMouseLeave={() => resetTransform(i)}
               onClick={() => handleClick(i)}
-              style={{ backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}
+              style={{ background: '#f7f7f7', borderRadius: '12px', minHeight: cardMinHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <img
-                src={imgSrc}
-                alt={`캐릭터${i + 1}`}
-                style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
-              />
+              <img src={imgSrc} alt={`메인${i+1}`} style={{ width: '150%', height: '350%', borderRadius: '12px', objectFit: 'contain', maxHeight: 800 }} />
             </div>
-            <p>
+            <p style={{ fontWeight: 500, fontSize: '1.1rem', marginTop: 18 }}>
               {i === 0 && '재료 선택해서 레시피 보기'}
               {i === 1 && '사진으로 검색해서 레시피보기'}
               {i === 2 && '레시피 둘러보기'}
