@@ -1,3 +1,5 @@
+name: Deploy frontend image to ECR
+
 on:
   push:
     branches:
@@ -5,14 +7,10 @@ on:
     paths:
       - '**'
 
-  pull_request:
-    types: [closed]
-    branches:
-      - main
-
 jobs:
   detect-changes:
-    if: github.ref == 'refs/heads/main'
+    # ✅ 진짜 main에 push될 때만 실행되도록 제한
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       frontend_changed: ${{ steps.set_output.outputs.changed }}
@@ -31,11 +29,8 @@ jobs:
           echo "Comparing from $BEFORE to HEAD"
           CHANGED=$(git diff --name-only $BEFORE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
           if [ -n "$CHANGED" ]; then
-            echo "✅ 변경된 파일 목록:"
-            echo "$CHANGED"
             echo "changed=true" >> $GITHUB_ENV
           else
-            echo "ℹ️ 프론트엔드 관련 변경 없음"
             echo "changed=false" >> $GITHUB_ENV
           fi
 
@@ -45,7 +40,8 @@ jobs:
 
   deploy-frontend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.ref == 'refs/heads/main'
+    # ✅ main 브랜치이고 push 이벤트이면서 변경이 있을 때만 실행
+    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,6 +60,6 @@ jobs:
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}/front-web
+          IMAGE=${{ secrets.ECR_REGISTRY }}
           docker build -t $IMAGE .
           docker push $IMAGE
