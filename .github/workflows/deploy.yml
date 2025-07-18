@@ -5,13 +5,18 @@ on:
     branches:
       - main
     paths:
-      - '**'  # 모든 변경 감지, 내부에서 필요한 변경만 필터링
+      - '**'
+
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      frontend_changed: ${{ steps.frontend.outputs.changed }}
+      frontend_changed: ${{ steps.set_output.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,23 +26,23 @@ jobs:
         run: git fetch origin main
 
       - name: Check for frontend-relevant changes
-        id: frontend
+        id: check
         run: |
           BEFORE=$(git merge-base origin/main HEAD)
           echo "Comparing from $BEFORE to HEAD"
           CHANGED=$(git diff --name-only $BEFORE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
-
           if [ -n "$CHANGED" ]; then
             echo "✅ 변경된 파일 목록:"
             echo "$CHANGED"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "changed=true" >> $GITHUB_ENV
           else
             echo "ℹ️ 프론트엔드 관련 변경 없음"
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "changed=false" >> $GITHUB_ENV
           fi
 
-      - name: Debug output
-        run: echo "Frontend Changed: ${{ steps.frontend.outputs.changed }}"
+      - name: Set output
+        id: set_output
+        run: echo "changed=${{ env.changed }}" >> $GITHUB_OUTPUT
 
   deploy-frontend:
     needs: detect-changes
@@ -56,10 +61,4 @@ jobs:
       - name: Login to ECR
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-          | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
-      - name: Build & Push Frontend Image
-        run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}/front-web
-          docker build -t $IMAGE .
-          docker push $IMAGE
+          | doc
