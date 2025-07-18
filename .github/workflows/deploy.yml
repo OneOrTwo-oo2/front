@@ -1,9 +1,11 @@
+name: Deploy frontend image to ECR
+
 on:
   push:
     branches:
       - main
     paths:
-      - '**'  # 전체를 감지하되 내부에서 필요한 파일만 필터링
+      - '**'  # 모든 변경 감지, 내부에서 필요한 변경만 필터링
 
 jobs:
   detect-changes:
@@ -23,11 +25,19 @@ jobs:
         run: |
           BEFORE=$(git merge-base origin/main HEAD)
           echo "Comparing from $BEFORE to HEAD"
-          if git diff --name-only $BEFORE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+          CHANGED=$(git diff --name-only $BEFORE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+
+          if [ -n "$CHANGED" ]; then
+            echo "✅ 변경된 파일 목록:"
+            echo "$CHANGED"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ 프론트엔드 관련 변경 없음"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Debug output
+        run: echo "Frontend Changed: ${{ steps.frontend.outputs.changed }}"
 
   deploy-frontend:
     needs: detect-changes
