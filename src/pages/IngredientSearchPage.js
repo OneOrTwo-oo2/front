@@ -18,6 +18,7 @@ function IngredientSearchPage() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const previewUrl = location.state?.previewUrl || sessionStorage.getItem('uploadedImageUrl');
   // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
   const labels = useMemo(() => {
     return location.state?.labels || [];
@@ -190,6 +191,8 @@ function IngredientSearchPage() {
 
     // cursor 수정 - 검색 시 fromEditButton 플래그 제거
     sessionStorage.removeItem("fromEditButton");
+    // 검색 시 업로드 이미지 URL도 제거
+    sessionStorage.removeItem("uploadedImageUrl");
 
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
@@ -228,6 +231,8 @@ function IngredientSearchPage() {
       setLevel('');
       sessionStorage.removeItem("searchInputs");
       console.log("✅ 선택된 재료만 초기화되었습니다. (사진 검색 결과 유지)");
+      // 초기화 시 업로드 이미지 URL도 제거
+      sessionStorage.removeItem("uploadedImageUrl");
     } else {
       // 사진 검색 결과가 없으면 완전 초기화
       setIngredients([]);
@@ -238,6 +243,8 @@ function IngredientSearchPage() {
       sessionStorage.removeItem("watsonRecommendations");
       sessionStorage.removeItem("lastQuery");
       console.log("✅ 모든 선택사항이 초기화되었습니다.");
+      // 초기화 시 업로드 이미지 URL도 제거
+      sessionStorage.removeItem("uploadedImageUrl");
     }
   };
 
@@ -308,6 +315,7 @@ function IngredientSearchPage() {
       </div>
     </div>
 <div className="search-sticky-btn">
+        {/* 검색/초기화 버튼과 함께 미리보기 이미지 */}
         <button
           className="search-btn"
           onClick={handleSearch}
@@ -331,6 +339,13 @@ function IngredientSearchPage() {
         >
          🔄초기화
         </button>
+        {/* 버튼 아래에 미리보기 이미지 */}
+        {previewUrl && (
+          <div style={{ marginTop: 18, textAlign: 'center' }}>
+            <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto' }} />
+            <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진</div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,12 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../App.css';  // App의 스타일을 사용할 경우
 
-
-import { getProjectImages } from '../utils/get-project-images'
-const img1 = getProjectImages(1);
-const img2 = getProjectImages(2);
-const img3 = getProjectImages(3);
-const logo = getProjectImages(4);
+import { characterImages } from '../assets/characters';
 
 function MainPage() {
   const imgRefs = [useRef(null), useRef(null), useRef(null)];
@@ -65,7 +60,7 @@ function MainPage() {
   return (
     <div className="app">
       <div className="main">
-        {[img1, img2, img3].map((imgSrc, i) => (
+        {[characterImages[1], characterImages[2], characterImages[3]].map((imgSrc, i) => (
           <div className="partition" key={i}>
             <div
               ref={imgRefs[i]}
@@ -77,7 +72,7 @@ function MainPage() {
             >
               <img
                 src={imgSrc}
-                alt={`img${i + 1}`}
+                alt={`캐릭터${i + 1}`}
                 style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
               />
             </div>
