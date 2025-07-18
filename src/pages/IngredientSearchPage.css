@@ -148,6 +148,7 @@ select {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-right: 10px;
 }
 
 .search-sticky-btn .search-btn:hover {
@@ -157,4 +158,14 @@ select {
 .search-sticky-btn .search-btn:disabled {
   background-color: #d3d3d3;
   cursor: not-allowed;
+}
+
+.search-sticky-btn .reset-btn {
+  background-color: #ff6b6b;
+  color: white;
+  margin-right: 0;
+}
+
+.search-sticky-btn .reset-btn:hover {
+  background-color: #d43a3a;
 }
