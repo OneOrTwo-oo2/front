@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/**'                # 프론트엔드 변경 감지 경로
+      - 'frontend/**'
       - '.github/workflows/deploy.yml'
 
 jobs:
@@ -48,6 +48,6 @@ jobs:
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}:latest
+          IMAGE=${{ secrets.ECR_REGISTRY }}/front-web
           docker build -t $IMAGE ./frontend
           docker push $IMAGE
