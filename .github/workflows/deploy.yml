@@ -48,6 +48,6 @@ jobs:
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}/front-web:latest
+          IMAGE=${{ secrets.ECR_REGISTRY }}:latest
           docker build -t $IMAGE ./frontend
           docker push $IMAGE
