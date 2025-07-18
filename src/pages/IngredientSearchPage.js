@@ -324,20 +324,10 @@ function IngredientSearchPage() {
          🔍검색
         </button>
         <button
-          className="reset-btn"
+          className="search-btn reset-btn"
           onClick={handleReset}
-          style={{
-            marginLeft: '10px',
-            padding: '10px 20px',
-            backgroundColor: '#ff6b6b',
-            color: 'white',
-            border: 'none',
-            borderRadius: 5,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
         >
-         🔄초기화
+         초기화
         </button>
         {/* 버튼 아래에 미리보기 이미지 */}
         {previewUrl && (

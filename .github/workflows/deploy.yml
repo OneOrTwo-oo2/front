@@ -5,31 +5,49 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/**'                # 프론트엔드 변경 감지 경로
-      - '.github/workflows/deploy.yml'
+      - '**'
 
 jobs:
   detect-changes:
+    # ✅ 진짜 main 브랜치에서 push된 경우만 실행
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      frontend_changed: ${{ steps.frontend.outputs.changed }}
+      frontend_changed: ${{ steps.set_output.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # ✅ 전체 히스토리 가져와야 diff가 정확히 비교 가능
 
-      - name: Check for changes in frontend
-        id: frontend
+      - name: Fetch latest origin/main
+        run: git fetch origin main
+
+      - name: Check for frontend-relevant changes
+        id: check
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^frontend/'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+          echo "🔍 HEAD: $(git rev-parse HEAD)"
+          echo "🔍 origin/main: $(git rev-parse origin/main)"
+
+          # ✅ 공통 조상부터 HEAD까지의 변경 파일을 감지
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+
+          echo "✅ 변경된 파일 목록:"
+          echo "$CHANGED"
+
+          if [ -n "$CHANGED" ]; then
+            echo "changed=true" >> $GITHUB_ENV
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed=false" >> $GITHUB_ENV
           fi
+
+      - name: Set output
+        id: set_output
+        run: echo "changed=${{ env.changed }}" >> $GITHUB_OUTPUT
 
   deploy-frontend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend_changed == 'true'
+    # ✅ push 이벤트 && main 브랜치 && 변경된 내용이 있을 때만 실행
+    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,6 +66,6 @@ jobs:
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}:latest
-          docker build -t $IMAGE ./frontend
+          IMAGE=${{ secrets.ECR_REGISTRY }}
+          docker build -t $IMAGE .
           docker push $IMAGE

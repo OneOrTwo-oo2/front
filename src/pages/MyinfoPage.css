@@ -459,6 +459,7 @@
 
 .folder-modal-content input {
   width: 100%;
+  box-sizing: border-box;
   padding: 14px 16px;
   border: 2px solid #e9ecef;
   border-radius: 12px;
