@@ -43,11 +43,6 @@ jobs:
         id: set_output
         run: echo "changed=${{ env.changed }}" >> $GITHUB_OUTPUT
 
-      - name: Debug output
-        env:
-          CHANGED: ${{ steps.set_output.outputs.changed }}
-        run: echo "Frontend Changed: $CHANGED"
-
   deploy-frontend:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend_changed == 'true' && github.ref == 'refs/heads/main'
