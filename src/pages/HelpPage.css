@@ -2,11 +2,58 @@
 .help-page {
   max-width: 800px;
   margin: 40px auto;
-  padding: 0 20px;
+  padding: 32px 24px 48px 24px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
   line-height: 1.8;
+  font-size: 1.08rem;
+  min-height: 70vh;
 }
 
-.help-page h1, .help-page h2, .help-page h3 {
-  margin-top: 1.5em;
+.help-page h1 {
+  font-size: 2.2rem;
+  color: #667eea;
+  margin-bottom: 0.7em;
+  text-align: center;
+}
+
+.help-page h2, .help-page h3 {
+  margin-top: 2.2em;
   font-weight: bold;
+  color: #764ba2;
+}
+
+.help-page ul, .help-page ol {
+  margin-left: 1.2em;
+  margin-bottom: 1.2em;
+}
+
+.help-page code, .help-page pre {
+  background: #f7f7fa;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.98em;
+}
+
+.help-page .qna {
+  background: #f8f9ff;
+  border-left: 4px solid #667eea;
+  padding: 12px 18px;
+  margin: 18px 0;
+  border-radius: 8px;
+}
+
+.help-page .qna strong {
+  color: #667eea;
+}
+
+@media (max-width: 600px) {
+  .help-page {
+    padding: 12px 4vw 32px 4vw;
+    font-size: 0.98rem;
+  }
+  .help-page h1 {
+    font-size: 1.3rem;
+  }
 }

@@ -11,7 +11,7 @@ function MainPage() {
   const imgRefs = [useRef(null), useRef(null), useRef(null)];
   const [clickedIndex, setClickedIndex] = useState(null);
   const navigate = useNavigate();
-  const cardMinHeight = 220;
+  const cardMinHeight = 280;
 
   const handleMouseMove = (e, index) => {
     const card = imgRefs[index].current;
@@ -71,11 +71,11 @@ function MainPage() {
               onMouseMove={(e) => handleMouseMove(e, i)}
               onMouseLeave={() => resetTransform(i)}
               onClick={() => handleClick(i)}
-              style={{ background: '#f7f7f7', borderRadius: '12px', minHeight: cardMinHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ background: '#f7f7f7', borderRadius: '12px', minHeight: cardMinHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', userSelect: 'none' }}
             >
-              <img src={imgSrc} alt={`메인${i+1}`} style={{ width: '150%', height: '350%', borderRadius: '12px', objectFit: 'contain', maxHeight: 800 }} />
+              <img src={imgSrc} alt={`메인${i+1}`} style={{ width: '120%', height: 'auto', borderRadius: '12px', objectFit: 'contain', maxHeight: 250, userSelect: 'none', pointerEvents: 'none' }} />
             </div>
-            <p style={{ fontWeight: 500, fontSize: '1.1rem', marginTop: 18 }}>
+            <p style={{ fontWeight: 500, fontSize: '1.1rem', marginTop: 24, userSelect: 'none' }}>
               {i === 0 && '재료 선택해서 레시피 보기'}
               {i === 1 && '사진으로 검색해서 레시피보기'}
               {i === 2 && '레시피 둘러보기'}
