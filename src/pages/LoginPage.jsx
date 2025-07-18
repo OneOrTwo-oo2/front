@@ -1,13 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
-import apiClient from "../api/apiClient"; // ✅ axios 기반 API 클라이언트
+import apiClient from "../api/apiClient";
 import "./LoginPage.css";
 import googleLogo from "../assets/google.png";
 
 function LoginPage() {
   const navigate = useNavigate();
   const { fetchAuthUser } = useAuth();
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreeToTerms: false
+  });
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailChecked, setEmailChecked] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState(false);
 
   useEffect(() => {
     /* global google */
@@ -18,29 +30,30 @@ function LoginPage() {
 
     google.accounts.id.renderButton(
       document.getElementById("google-login-btn"),
-      { theme: "outline", size: "large" }
+      { 
+        theme: "outline", 
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        width: 280
+      }
     );
   }, []);
 
   const handleCredentialResponse = async (response) => {
     const credential = response.credential;
+    setIsLoading(true);
 
     try {
-      // ✅ 1. 기존 쿠키 제거
       await apiClient.post("/api/auth/clear-cookie");
-
-      // ✅ 2. 구글 로그인
       const res = await apiClient.post(
         "/api/auth/google-login",
         { credential },
-        { withCredentials: true } // axios에서도 명시적으로 설정
+        { withCredentials: true }
       );
       const data = res.data;
-
-      // ✅ 3. 사용자 상태 갱신
       await fetchAuthUser();
 
-      // ✅ 4. 이동
       setTimeout(() => {
         if (data.isNewUser) {
           navigate("/preference");
@@ -50,16 +63,294 @@ function LoginPage() {
       }, 600);
 
     } catch (err) {
-      console.error("❌ 로그인 실패:", err.response?.data?.detail || err.message);
-      alert("로그인에 실패했습니다. 다시 시도해주세요.");
+      console.error("❌ 구글 로그인 실패:", err.response?.data?.detail || err.message);
+      alert("구글 로그인에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+    
+    // 이메일이 변경되면 중복확인 상태 초기화
+    if (name === 'email') {
+      setEmailChecked(false);
+      setEmailAvailable(false);
+    }
+    
+    // 에러 메시지 초기화
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
+
+  const checkEmailDuplicate = async () => {
+    if (!formData.email) {
+      alert("이메일을 먼저 입력해주세요.");
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    setIsCheckingEmail(true);
+    try {
+      const res = await apiClient.post("/api/auth/check-email", {
+        email: formData.email
+      });
+      
+      const { available, message } = res.data;
+      setEmailAvailable(available);
+      setEmailChecked(true);
+      alert(message);
+    } catch (err) {
+      console.error("중복확인 실패:", err);
+      
+      // 네트워크 오류인지 API 오류인지 구분
+      if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+        // 백엔드 서버가 실행되지 않았을 때 임시 처리
+        const shouldContinue = window.confirm(
+          "서버에 연결할 수 없습니다. 백엔드 서버가 실행되지 않았을 수 있습니다.\n\n" +
+          "임시로 중복확인을 건너뛰고 계속하시겠습니까?"
+        );
+        
+        if (shouldContinue) {
+          setEmailAvailable(true);
+          setEmailChecked(true);
+          alert("임시로 사용 가능한 이메일로 설정했습니다. 실제 서버에서는 중복확인이 필요합니다.");
+        }
+      } else if (err.response?.status === 404) {
+        alert("중복확인 API를 찾을 수 없습니다. 서버를 확인해주세요.");
+      } else if (err.response?.status === 500) {
+        alert("서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      } else {
+        alert("중복확인 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.email) {
+      newErrors.email = "이메일을 입력해주세요.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "올바른 이메일 형식을 입력해주세요.";
+    }
+
+    if (!isLogin) {
+      // 회원가입 시에만 이메일 중복확인 필요
+      if (!emailChecked) {
+        newErrors.email = "이메일 중복확인을 해주세요.";
+      } else if (!emailAvailable) {
+        newErrors.email = "이미 가입된 이메일입니다.";
+      }
+    }
+
+    if (!formData.password) {
+      newErrors.password = "비밀번호를 입력해주세요.";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "비밀번호는 6자 이상이어야 합니다.";
+    }
+
+    if (!isLogin) {
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = "비밀번호 확인을 입력해주세요.";
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+      }
+
+      if (!formData.agreeToTerms) {
+        newErrors.agreeToTerms = "개인정보 수집 및 이용에 동의해주세요.";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setIsLoading(true);
+
+    try {
+      if (isLogin) {
+        // 로그인
+        const res = await apiClient.post("/api/auth/login", {
+          email: formData.email,
+          password: formData.password
+        }, { withCredentials: true });
+        
+        await fetchAuthUser();
+        navigate("/main");
+      } else {
+        // 회원가입
+        const res = await apiClient.post("/api/auth/signup", {
+          email: formData.email,
+          password: formData.password
+        }, { withCredentials: true });
+        
+        await fetchAuthUser();
+        navigate("/preference");
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.detail || 
+        (isLogin ? "로그인에 실패했습니다." : "회원가입에 실패했습니다.");
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setFormData({
+      email: "",
+      password: "",
+      confirmPassword: "",
+      agreeToTerms: false
+    });
+    setErrors({});
+    setEmailChecked(false);
+    setEmailAvailable(false);
+  };
+
   return (
-    <div className="login-container">
-      <img src={googleLogo} alt="로고" className="logo" />
-      <h2>Google 간편 로그인</h2>
-      <div id="google-login-btn"></div>
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-header">
+          <h1 className="app-title">Recipe Go</h1>
+          <p className="app-subtitle">맛있는 레시피를 찾아보세요</p>
+        </div>
+
+        <div className="login-form-container">
+          <div className="form-header">
+            <h2>{isLogin ? "로그인" : "회원가입"}</h2>
+            <p>{isLogin ? "계정에 로그인하세요" : "새로운 계정을 만드세요"}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">이메일</label>
+              <div className="email-input-group">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="example@email.com"
+                  className={errors.email ? "error" : ""}
+                />
+                {!isLogin && (
+                  <button
+                    type="button"
+                    onClick={checkEmailDuplicate}
+                    disabled={isCheckingEmail || !formData.email}
+                    className="check-email-btn"
+                  >
+                    {isCheckingEmail ? "확인 중..." : "중복확인"}
+                  </button>
+                )}
+              </div>
+              {emailChecked && (
+                <span className={`email-status ${emailAvailable ? 'available' : 'unavailable'}`}>
+                  {emailAvailable ? "✓ 사용 가능한 이메일입니다." : "✗ 이미 가입된 이메일입니다."}
+                </span>
+              )}
+              {errors.email && <span className="error-message">{errors.email}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">비밀번호</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="비밀번호를 입력하세요"
+                className={errors.password ? "error" : ""}
+              />
+              {errors.password && <span className="error-message">{errors.password}</span>}
+            </div>
+
+            {!isLogin && (
+              <div className="form-group">
+                <label htmlFor="confirmPassword">비밀번호 확인</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  className={errors.confirmPassword ? "error" : ""}
+                />
+                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              </div>
+            )}
+
+            {!isLogin && (
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="agreeToTerms"
+                    checked={formData.agreeToTerms}
+                    onChange={handleInputChange}
+                  />
+                  <span className="checkmark"></span>
+                  <span className="checkbox-text">
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer">개인정보 수집 및 이용</a>에 동의합니다.
+                  </span>
+                </label>
+                {errors.agreeToTerms && <span className="error-message">{errors.agreeToTerms}</span>}
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              className="submit-btn"
+              disabled={isLoading}
+            >
+              {isLoading ? "처리 중..." : (isLogin ? "로그인" : "회원가입")}
+            </button>
+          </form>
+
+          <div className="divider">
+            <span>또는</span>
+          </div>
+
+          <div className="google-login-section">
+            <div id="google-login-btn"></div>
+          </div>
+
+          <div className="toggle-mode">
+            <p>
+              {isLogin ? "계정이 없으신가요?" : "이미 계정이 있으신가요?"}
+              <button type="button" onClick={toggleMode} className="toggle-btn">
+                {isLogin ? "회원가입" : "로그인"}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
