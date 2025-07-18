@@ -1,12 +1,9 @@
-name: Deploy frontend image to ECR
-
 on:
   push:
     branches:
       - main
     paths:
-      - 'frontend/**'
-      - '.github/workflows/deploy.yml'
+      - '**'  # 전체를 감지하되 내부에서 필요한 파일만 필터링
 
 jobs:
   detect-changes:
@@ -18,10 +15,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for changes in frontend
+      - name: Fetch origin/main
+        run: git fetch origin main
+
+      - name: Check for frontend-relevant changes
         id: frontend
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^frontend/'; then
+          BEFORE=$(git merge-base origin/main HEAD)
+          echo "Comparing from $BEFORE to HEAD"
+          if git diff --name-only $BEFORE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)'; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -49,5 +51,5 @@ jobs:
       - name: Build & Push Frontend Image
         run: |
           IMAGE=${{ secrets.ECR_REGISTRY }}/front-web
-          docker build -t $IMAGE ./frontend
+          docker build -t $IMAGE .
           docker push $IMAGE
