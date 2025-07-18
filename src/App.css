@@ -8,6 +8,7 @@
 body {
   margin: 0;
   font-family: 'MyFont', sans-serif;
+  background-color: rgba(255, 99, 132, 0.32);
   font-size: 50px;
 }
 
