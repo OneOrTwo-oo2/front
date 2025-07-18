@@ -165,6 +165,7 @@ function RecipeDetailPage() {
       )}
 
       <a href={link} target="_blank" rel="noopener noreferrer">🔗 원본 레시피 보기</a>
+      <span style={{ fontSize: '7pt', color: '#888', marginLeft: 6 }}>(출처 : 만개의 레시피 )</span>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 // src/pages/HelpPage.jsx
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import './HelpPage.css'; // 선택사항
 
 function HelpPage() {
@@ -19,7 +20,7 @@ function HelpPage() {
   return (
     <div className="help-page">
       <h1>📘 도움말</h1>
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
     </div>
   );
 }

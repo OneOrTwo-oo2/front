@@ -362,8 +362,8 @@ function RecipeListPage() {
                 <img src={r.image} alt={r["제목"]} />
                 <h3>{r["제목"]}</h3>
                 {/* <p>{r.dietary_tips}</p> */}
-                <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark({...r, id: `watson-${i}`}); }}>
-                  북마크
+                <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark({...r, id: r.id || `watson-${i}`}); }}>
+                  {bookmarkedState.has(Number(r.id)) ? "✅ 저장됨" : "북마크"}
                 </button>
               </div>
             ))}
