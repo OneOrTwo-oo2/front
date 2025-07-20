@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # ✅ 머지 전 커밋과 비교하기 위해 2개 히스토리 필요
+          fetch-depth: 2  # ✅ HEAD와 이전 커밋 비교 위해 2개 필요
 
       - name: Get previous commit SHA
         id: prev
@@ -58,6 +58,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create .env file
+        run: echo "${{ secrets.FRONTEND_ENV_FILE }}" > .env
 
       - name: Login to ECR
         run: |
