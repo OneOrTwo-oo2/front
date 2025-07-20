@@ -1,9 +1,6 @@
 name: Deploy frontend image to ECR
 
 on:
-  pull_request:
-    paths:
-      - '**'
   push:
     branches:
       - main
@@ -12,30 +9,28 @@ on:
 
 jobs:
   detect-changes:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       frontend_changed: ${{ steps.set_output.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2  # ✅ 머지 전 커밋과 비교하기 위해 2개 히스토리 필요
 
-      - name: Determine changed files
+      - name: Get previous commit SHA
+        id: prev
+        run: echo "before_sha=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
+
+      - name: Check for frontend-relevant changes
         id: check
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          else
-            BASE_SHA="$(git rev-parse HEAD^)"
-            HEAD_SHA="$(git rev-parse HEAD)"
-          fi
+          BEFORE=${{ steps.prev.outputs.before_sha }}
+          AFTER=$(git rev-parse HEAD)
 
-          echo "🔍 BASE: $BASE_SHA"
-          echo "🔍 HEAD: $HEAD_SHA"
+          echo "🔍 Compare: $BEFORE → $AFTER"
 
-          CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+          CHANGED=$(git diff --name-only $BEFORE $AFTER | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
 
           echo "✅ 변경된 파일 목록:"
           echo "$CHANGED"
@@ -46,9 +41,13 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Set output
+        id: set_output
+        run: echo "changed=${{ steps.check.outputs.changed }}" >> $GITHUB_OUTPUT
+
   deploy-frontend:
     needs: detect-changes
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.frontend_changed == 'true'
+    if: needs.detect-changes.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
