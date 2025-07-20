@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './utils/AuthContext';
 import PrivacyPage from './components/PrivacyPage'; //추가
 import HelpPage from './pages/HelpPage'; //추가
-import React from 'react';
 
 // pages
 import MainPage from './pages/MainPage';
