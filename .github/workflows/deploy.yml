@@ -1,6 +1,9 @@
 name: Deploy frontend image to ECR
 
 on:
+  pull_request:
+    paths:
+      - '**'
   push:
     branches:
       - main
@@ -9,46 +12,43 @@ on:
 
 jobs:
   detect-changes:
-    # ✅ main 브랜치에서 push 이벤트일 때만 실행
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     outputs:
       frontend_changed: ${{ steps.set_output.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 🔍 전체 히스토리 필요
+          fetch-depth: 0
 
-      - name: Fetch latest origin/main
-        run: git fetch origin main
-
-      - name: Check for frontend-relevant changes
+      - name: Determine changed files
         id: check
         run: |
-          BASE=$(git merge-base origin/main HEAD)
-          echo "🔍 BASE: $BASE"
-          echo "🔍 HEAD: $(git rev-parse HEAD)"
-          echo "🔍 origin/main: $(git rev-parse origin/main)"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="$(git rev-parse HEAD^)"
+            HEAD_SHA="$(git rev-parse HEAD)"
+          fi
 
-          CHANGED=$(git diff --name-only $BASE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+          echo "🔍 BASE: $BASE_SHA"
+          echo "🔍 HEAD: $HEAD_SHA"
+
+          CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
 
           echo "✅ 변경된 파일 목록:"
           echo "$CHANGED"
 
           if [ -n "$CHANGED" ]; then
-            echo "changed=true" >> $GITHUB_ENV
+            echo "changed=true" >> $GITHUB_OUTPUT
           else
-            echo "changed=false" >> $GITHUB_ENV
+            echo "changed=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Set output
-        id: set_output
-        run: echo "changed=${{ env.changed }}" >> $GITHUB_OUTPUT
 
   deploy-frontend:
     needs: detect-changes
-    # ✅ main 브랜치 && push 이벤트 && 변경 감지되었을 때 실행
-    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
