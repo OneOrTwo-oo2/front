@@ -9,6 +9,7 @@ on:
 
 jobs:
   detect-changes:
+    # ✅ main 브랜치에서 push 이벤트일 때만 실행
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
@@ -16,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 🔍 전체 히스토리 필요
 
       - name: Fetch latest origin/main
         run: git fetch origin main
@@ -24,11 +25,12 @@ jobs:
       - name: Check for frontend-relevant changes
         id: check
         run: |
+          BASE=$(git merge-base origin/main HEAD)
+          echo "🔍 BASE: $BASE"
           echo "🔍 HEAD: $(git rev-parse HEAD)"
           echo "🔍 origin/main: $(git rev-parse origin/main)"
 
-          # ✅ 직접 HEAD와 origin/main을 비교하여 변경 감지
-          CHANGED=$(git diff --name-only origin/main HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+          CHANGED=$(git diff --name-only $BASE HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
 
           echo "✅ 변경된 파일 목록:"
           echo "$CHANGED"
@@ -45,7 +47,8 @@ jobs:
 
   deploy-frontend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # ✅ main 브랜치 && push 이벤트 && 변경 감지되었을 때 실행
+    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
