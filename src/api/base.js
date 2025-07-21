@@ -6,5 +6,5 @@ export const BASE_API = isDevelopment
   : process.env.REACT_APP_BASE_API;
 
 export const AI_API = isDevelopment 
-  ? (process.env.REACT_APP_AI_API || "http://localhost:8000")
+  ? (process.env.REACT_APP_AI_API || "http://localhost:8001")
   : process.env.REACT_APP_AI_API;
