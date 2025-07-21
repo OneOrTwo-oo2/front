@@ -20,7 +20,7 @@ export async function fetchWithAutoRefresh(url, options = {}) {
   } catch (err) {
     if (err.response?.status === 401) {
       try {
-        const refreshRes = await apiClient.post("/api/auth/refresh-token", null, {
+        const refreshRes = await apiClient.post("/auth/refresh-token", null, {
           withCredentials: true,
         });
 

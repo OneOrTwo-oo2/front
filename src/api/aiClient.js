@@ -1,8 +1,8 @@
 import axios from "axios";
-import { AI_API } from "./base";
+import { getAiApi } from "./base";
 
 const aiClient = axios.create({
-  baseURL: AI_API,
+  baseURL: getAiApi(),
 });
 
 export default aiClient;

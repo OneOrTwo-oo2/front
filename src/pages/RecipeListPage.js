@@ -44,7 +44,7 @@ function RecipeListPage() {
       const initializePage = async () => {
         try {
           // 사용자 정보 로딩
-          const response = await apiClient.get("/api/preferences", { withCredentials: true });
+          const response = await apiClient.get("/preferences", { withCredentials: true });
           const preferences = response.data;
           setUserPreferences(preferences);  // ✅ 상태 저장
           console.log("✅ 사용자 정보 로딩 성공:", preferences);
@@ -117,7 +117,7 @@ function RecipeListPage() {
         // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
         const parsed = JSON.parse(cached);
         setWatsonRecommendations(parsed.recommended_recipes || []);
-        setDietaryTips(parsed.dietary_tips || "");
+        //setDietaryTips(parsed.dietary_tips || "");
         setIsWatsonLoading(false); // 안전하게 로딩 꺼두기
         return;
       }
@@ -139,7 +139,6 @@ function RecipeListPage() {
           const data = res.data;
 
           setWatsonRecommendations(data.result.recommended_recipes || []);
-          setDietaryTips(data.result.dietary_tips || "");
 
           sessionStorage.setItem(
             "watsonRecommendations",
@@ -158,7 +157,7 @@ function RecipeListPage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmarks", {
+      const res = await fetchWithAutoRefresh("/bookmarks", {
         method: "GET"
       });
       const data = await res.data;
@@ -222,7 +221,8 @@ function RecipeListPage() {
           summary: recipe.summary,
           link: recipe.link,
           recommendation_reason: recipe.recommendation_reason,
-          dietary_tips: dietaryTips,
+          dietary_tips: recipe.dietary_tips,
+          //dietary_tips: dietaryTips,
           isWatson: recipe.isWatson || false,
         }
       });
@@ -256,7 +256,7 @@ function RecipeListPage() {
 
       console.log("✅ 북마크 데이터:", bookmarkData);
 
-      const res = await fetchWithAutoRefresh("/api/bookmark-with-recipe", {
+      const res = await fetchWithAutoRefresh("/bookmark-with-recipe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
