@@ -41,7 +41,7 @@ function MyinfoPage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmarks", { method: "GET" });
+      const res = await fetchWithAutoRefresh("/bookmarks", { method: "GET" });
       const data = res.data;
       setBookmarks(data);
     } catch (err) {
@@ -51,7 +51,7 @@ function MyinfoPage() {
 
   const fetchFolders = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/folders", { method: "GET" });
+      const res = await fetchWithAutoRefresh("/folders", { method: "GET" });
       const data = res.data;
       setFolders(data);
     } catch (err) {
@@ -67,7 +67,7 @@ function MyinfoPage() {
     if (!newFolderName.trim()) return;
     
     try {
-      const res = await fetchWithAutoRefresh("/api/folders", {
+      const res = await fetchWithAutoRefresh("/folders", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newFolderName.trim() })
@@ -90,7 +90,7 @@ function MyinfoPage() {
     if (!folder) return;
 
     try {
-      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`);
+      const res = await fetchWithAutoRefresh(`/folders/${folder.id}/recipes`);
       const data = res.data;
       setFolderRecipes(prev => ({ ...prev, [folderName]: data }));
     } catch (err) {
@@ -106,7 +106,7 @@ function MyinfoPage() {
     if (!folder) return alert("폴더를 먼저 선택해주세요.");
 
     try {
-      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`, {
+      const res = await fetchWithAutoRefresh(`/folders/${folder.id}/recipes`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipe_id: recipeId })
@@ -134,7 +134,7 @@ function MyinfoPage() {
     if (!folder) return;
 
     try {
-      await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes/${recipeId}`, {
+      await fetchWithAutoRefresh(`/folders/${folder.id}/recipes/${recipeId}`, {
         method: "DELETE"
       });
 
@@ -152,7 +152,7 @@ function MyinfoPage() {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
-      await fetchWithAutoRefresh(`/api/bookmark?recipeId=${recipeId}`, {
+      await fetchWithAutoRefresh(`/bookmark?recipeId=${recipeId}`, {
         method: "DELETE"
       });
 
@@ -176,7 +176,7 @@ function MyinfoPage() {
     if (!folder || !window.confirm(`${folderName} 폴더를 삭제할까요?`)) return;
 
     try {
-      await fetchWithAutoRefresh(`/api/folders/${folder.id}`, {
+      await fetchWithAutoRefresh(`/folders/${folder.id}`, {
         method: "DELETE"
       });
       setFolders(folders.filter(f => f.name !== folderName));
@@ -214,7 +214,7 @@ function MyinfoPage() {
     const folder = folders.find(f => f.name === folderName);
     if (!folder) return alert('폴더를 선택해주세요.');
     try {
-      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`, {
+      const res = await fetchWithAutoRefresh(`/folders/${folder.id}/recipes`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipe_id: addToFolderModal.recipeId })
@@ -237,7 +237,7 @@ function MyinfoPage() {
   // 북마크 전체 삭제
   const handleDeleteAllBookmarks = async () => {
     try {
-      await fetchWithAutoRefresh('/api/bookmarks/all', { method: 'DELETE' });
+      await fetchWithAutoRefresh('/bookmarks/all', { method: 'DELETE' });
       setBookmarks([]);
       setFolderRecipes({});
       setShowDeleteAllModal(false);

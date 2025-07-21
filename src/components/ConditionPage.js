@@ -18,7 +18,7 @@ function ConditionPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const diseaseRes = await fetchWithAutoRefresh("/api/diseases");
+        const diseaseRes = await fetchWithAutoRefresh("/diseases");
         const diseases = await diseaseRes.data;
         setConditions(diseases);
       } catch (err) {
@@ -26,7 +26,7 @@ function ConditionPage() {
       }
 
       try {
-        const prefRes = await fetchWithAutoRefresh("/api/preferences");
+        const prefRes = await fetchWithAutoRefresh("/preferences");
         const prefData = await prefRes.data;
         setSelectedConditions(prefData.diseases || []);
       } catch (err) {
@@ -67,7 +67,7 @@ function ConditionPage() {
     
     // 백그라운드에서 API 호출 (선택사항)
     try {
-      await fetchWithAutoRefresh("/api/save-preference", {
+      await fetchWithAutoRefresh("/save-preference", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ function ConditionPage() {
 
   const handleNext = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/save-preference", {
+      const res = await fetchWithAutoRefresh("/save-preference", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

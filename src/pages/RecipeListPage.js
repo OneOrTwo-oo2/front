@@ -44,7 +44,7 @@ function RecipeListPage() {
       const initializePage = async () => {
         try {
           // 사용자 정보 로딩
-          const response = await apiClient.get("/api/preferences", { withCredentials: true });
+          const response = await apiClient.get("/preferences", { withCredentials: true });
           const preferences = response.data;
           setUserPreferences(preferences);  // ✅ 상태 저장
           console.log("✅ 사용자 정보 로딩 성공:", preferences);
@@ -158,7 +158,7 @@ function RecipeListPage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmarks", {
+      const res = await fetchWithAutoRefresh("/bookmarks", {
         method: "GET"
       });
       const data = await res.data;
@@ -256,7 +256,7 @@ function RecipeListPage() {
 
       console.log("✅ 북마크 데이터:", bookmarkData);
 
-      const res = await fetchWithAutoRefresh("/api/bookmark-with-recipe", {
+      const res = await fetchWithAutoRefresh("/bookmark-with-recipe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
