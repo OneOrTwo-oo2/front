@@ -1,8 +1,8 @@
 import axios from "axios";
-import { BASE_API } from "./base";
+import { getBaseApi } from "./base";
 
 const apiClient = axios.create({
-  baseURL: BASE_API,
+  baseURL: getBaseApi(),
   withCredentials: true, // 세션 등 필요하면
 });
 
