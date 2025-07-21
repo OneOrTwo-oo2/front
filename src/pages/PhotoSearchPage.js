@@ -10,16 +10,17 @@ function PhotoSearchPage() {
   const [previewUrl, setPreviewUrl] = useState(() => sessionStorage.getItem('uploadedImageUrl'));
   const [showPreview, setShowPreview] = useState(false); // 미리보기 토글 상태
   const [showResult, setShowResult] = useState(false); // 결과 보여주기 상태
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0.5); // 정확도 임계값
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSearchSuccess = (labels) => {
-    setSearchResults(labels); // 결과 저장
+  const handleSearchSuccess = (ingredients) => {
+    setSearchResults(ingredients); // 결과 저장
     setShowResult(true); // 결과 보여주기
     setIsLoading(false);
     // 1.5초 후 자동 이동
     setTimeout(() => {
-      navigate('/ingredient-search', { state: { labels, previewUrl } });
+      navigate('/ingredient-search', { state: { ingredients, previewUrl, confidenceThreshold } });
     }, 1500);
   };
 
@@ -37,8 +38,8 @@ function PhotoSearchPage() {
 
     aiClient.post('/ingredients', formData)
       .then((res) => {
-        console.log(res.data.labels);
-        handleSearchSuccess(res.data.labels);
+        console.log(res.data.ingredients);
+        handleSearchSuccess(res.data.ingredients);
       })
       .catch((error) => {
         console.error('검색 실패:', error);
@@ -60,6 +61,40 @@ function PhotoSearchPage() {
     processFile(file);
   };
 
+  // 정확도에 따른 색상 결정 함수
+  const getIngredientStyle = (confidence) => {
+    const confidencePercent = confidence * 100;
+    
+    if (confidencePercent >= 70) {
+      return {
+        background: '#4CAF50', // 초록색 (높은 정확도: 70% 이상)
+        color: 'white',
+        borderRadius: 12,
+        padding: '4px 12px',
+        fontSize: '1rem',
+        border: '1px solid #45a049'
+      };
+    } else if (confidencePercent >= 20) {
+      return {
+        background: '#ff9800', // 주황색 (중간 정확도: 20~70%)
+        color: 'white',
+        borderRadius: 12,
+        padding: '4px 12px',
+        fontSize: '1rem',
+        border: '1px solid #e68900'
+      };
+    } else {
+      return {
+        background: '#f44336', // 빨간색 (낮은 정확도: 20% 미만)
+        color: 'white',
+        borderRadius: 12,
+        padding: '4px 12px',
+        fontSize: '1rem',
+        border: '1px solid #d32f2f'
+      };
+    }
+  };
+
   return (
     <div className="photo-upload-page">
       <div className="styled-drop">
@@ -72,17 +107,24 @@ function PhotoSearchPage() {
               )}
             </div>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>추출된 재료</div>
+            
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
               {searchResults && searchResults.length > 0 ? (
                 searchResults.map((item, idx) => (
-                  <span key={idx} style={{ background: '#f3f3f3', borderRadius: 12, padding: '4px 12px', fontSize: '1rem', color: '#333', border: '1px solid #e0e0e0' }}>{item}</span>
+                  <span 
+                    key={idx} 
+                    style={getIngredientStyle(item.confidence)}
+                    title={`정확도: ${(item.confidence * 100).toFixed(1)}%`}
+                  >
+                    {item.label}
+                  </span>
                 ))
               ) : (
                 <span style={{ color: '#aaa' }}>재료 없음</span>
               )}
             </div>
             <div style={{ color: '#888', fontSize: '0.97rem', marginTop: 10 }}>
-              1.5초 후 재료 선택 화면으로 이동합니다
+              초록색: 높은 정확도, 주황색: 중간 정확도, 빨간색: 낮은 정확도. 1.5초 후 재료 선택 화면으로 이동합니다
             </div>
           </div>
         ) : (
@@ -105,6 +147,69 @@ function PhotoSearchPage() {
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
+                
+                {/* 정확도 임계값 설정 - 사진 검색 전에 표시 */}
+                <div style={{ 
+                  marginTop: 24, 
+                  padding: '16px 20px', 
+                  backgroundColor: '#f8f9fa', 
+                  borderRadius: 12, 
+                  border: '1px solid #e9ecef',
+                  maxWidth: 400,
+                  margin: '24px auto 0'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.95rem', 
+                    fontWeight: 600, 
+                    color: '#495057', 
+                    marginBottom: 12,
+                    textAlign: 'center'
+                  }}>
+                    🔍 정확도 임계값 설정
+                  </div>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    color: '#6c757d', 
+                    marginBottom: 16,
+                    textAlign: 'center'
+                  }}>
+                    초록색: 70% 이상, 주황색: 20~70%, 빨간색: 20% 미만
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 12,
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: '0.85rem', color: '#6c757d', minWidth: 40 }}>10%</span>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="0.9"
+                      step="0.1"
+                      value={confidenceThreshold}
+                      onChange={(e) => setConfidenceThreshold(parseFloat(e.target.value))}
+                      style={{ 
+                        flex: 1, 
+                        height: 6, 
+                        borderRadius: 3,
+                        background: '#dee2e6',
+                        outline: 'none',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <span style={{ fontSize: '0.85rem', color: '#6c757d', minWidth: 40 }}>90%</span>
+                  </div>
+                  <div style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#868e96', 
+                    marginTop: 8,
+                    textAlign: 'center'
+                  }}>
+                    낮게 설정하면 더 많은 재료가 감지되지만 정확도가 낮을 수 있습니다
+                  </div>
+                </div>
+                
                 {/* 미리보기 이미지는 항상 보여줌 */}
                 {previewUrl && (
                   <div style={{ marginTop: 16, textAlign: 'center' }}>
