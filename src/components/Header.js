@@ -2,6 +2,7 @@ import './Header.css';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext'; // ✅ 인증 상태 갱신용
 import logo from '../assets/recipego_logo.png';
+import apiClient from '../api/apiClient';
 
 function Header() {
   const navigate = useNavigate();
@@ -9,11 +10,7 @@ function Header() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8000/api/auth/logout", {
-        method: "POST",
-        credentials: "include", // ✅ 쿠키 삭제를 위해 필요
-      });
-
+      await apiClient.post("/auth/logout");
       await fetchAuthUser(); // ✅ 인증 상태 초기화
       alert("로그아웃 되었습니다.");
       navigate("/login");
