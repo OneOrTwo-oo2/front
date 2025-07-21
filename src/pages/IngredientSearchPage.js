@@ -20,18 +20,23 @@ function IngredientSearchPage() {
   const navigate = useNavigate();
   const previewUrl = location.state?.previewUrl || sessionStorage.getItem('uploadedImageUrl');
   // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
-  const labels = useMemo(() => {
-    return location.state?.labels || [];
-  }, [location.state?.labels]);
+  const ingredientsFromPhoto = useMemo(() => {
+    return location.state?.ingredients || [];
+  }, [location.state?.ingredients]);
+  
+  // 정확도 임계값 받기
+  const confidenceThreshold = useMemo(() => {
+    return location.state?.confidenceThreshold || 0.5;
+  }, [location.state?.confidenceThreshold]);
 
   const [isRestored, setIsRestored] = useState(false);
-  // cursor 수정 - 이미 처리된 labels 추적
-  const processedLabelsRef = useRef(null);
+  // cursor 수정 - 이미 처리된 ingredients 추적
+  const processedIngredientsRef = useRef(null);
 
   // cursor 수정 - 페이지 키가 변경될 때마다 상태 초기화
   useEffect(() => {
     setIsRestored(false);
-    processedLabelsRef.current = null;
+    processedIngredientsRef.current = null;
   }, [location.key]);
 
   const getOptionValue = (options, label) => {
@@ -41,22 +46,28 @@ function IngredientSearchPage() {
 
   // cursor 수정 - 캐시 저장 및 복원 로직 개선 (무한루프 방지)
   useEffect(() => {
-    // cursor 수정 - 이미 처리된 labels인지 확인
-    if (processedLabelsRef.current === JSON.stringify(labels)) {
+    // cursor 수정 - 이미 처리된 ingredients인지 확인
+    if (processedIngredientsRef.current === JSON.stringify(ingredientsFromPhoto)) {
       return;
     }
 
     // cursor 수정 - 사진 검색 결과가 있으면 우선 처리
-    if (labels && labels.length > 0) {
-      console.log("✅ 사진 검색 결과 로딩:", labels);
-      setIngredients(labels);
+    if (ingredientsFromPhoto && ingredientsFromPhoto.length > 0) {
+      console.log("✅ 사진 검색 결과 로딩:", ingredientsFromPhoto);
+      
+      // 새로운 형식: {label, confidence} 객체 배열에서 label만 추출
+      const ingredientLabels = ingredientsFromPhoto.map(item => 
+        typeof item === 'string' ? item : item.label
+      );
+      
+      setIngredients(ingredientLabels);
       setPreference('');
       setKind('');
       setLevel('');
       // 사진 검색 결과가 있으면 sessionStorage 초기화
       sessionStorage.removeItem("searchInputs");
       setIsRestored(true);
-      processedLabelsRef.current = JSON.stringify(labels);
+      processedIngredientsRef.current = JSON.stringify(ingredientsFromPhoto);
       return;
     }
 
@@ -94,8 +105,8 @@ function IngredientSearchPage() {
 
     // ✅ 복원 완료 플래그 설정
     setIsRestored(true);
-    processedLabelsRef.current = JSON.stringify(labels);
-  }, [labels]); // cursor 수정 - 안정화된 labels 사용
+    processedIngredientsRef.current = JSON.stringify(ingredientsFromPhoto);
+  }, [ingredientsFromPhoto]); // cursor 수정 - 안정화된 ingredientsFromPhoto 사용
 
   // ✅ 복원이 완료된 경우에만 sessionStorage에 저장 (무한 루프 방지)
   useEffect(() => {
@@ -223,7 +234,7 @@ function IngredientSearchPage() {
   // cursor 수정 - 초기화 함수 개선
   const handleReset = () => {
     // 사진 검색 결과가 있으면 유지, 없으면 완전 초기화
-    if (labels && labels.length > 0) {
+    if (ingredientsFromPhoto && ingredientsFromPhoto.length > 0) {
       // 사진 검색 결과가 있으면 선택된 재료만 초기화
       setIngredients([]);
       setPreference('');
@@ -270,6 +281,8 @@ function IngredientSearchPage() {
           selectedIngredients={ingredients}
           setSelectedIngredients={setIngredients}
           toggleIngredient={toggleIngredient}
+          ingredientsWithConfidence={ingredientsFromPhoto}
+          confidenceThreshold={confidenceThreshold}
         />
       </div>
               {/* 선호도 */}
