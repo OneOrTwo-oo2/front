@@ -154,6 +154,11 @@ function RecipeListPage() {
       fetchWatsonRecommendations();
     }, [ingredients, kind, level, preference, userPreferences]);
 
+    useEffect(() => {
+      // 뒤로가기로 진입할 때마다 북마크 상태 새로고침
+      fetchBookmarks();
+    }, [location.key]);
+
 
   const fetchBookmarks = async () => {
     try {
@@ -238,7 +243,7 @@ function RecipeListPage() {
     setOpenDropdown(null);
   };
 
-  const handleAddToBookmark = async (recipe) => {
+  const handleAddToBookmark = async (recipe, watsonIdx = null) => {
     const recipeId = Number(recipe.id);
     if (bookmarkedState.has(recipeId)) {
       alert("이미 추가된 레시피입니다!");
@@ -272,6 +277,15 @@ function RecipeListPage() {
         return updated;
       });
 
+      // Watson 추천 레시피라면 id를 실제로 교체
+      if (watsonIdx !== null) {
+        setWatsonRecommendations(prev => {
+          const updated = [...prev];
+          updated[watsonIdx] = { ...updated[watsonIdx], id: newRecipeId };
+          return updated;
+        });
+      }
+
       alert("✅ 북마크에 저장되었습니다!");
     } catch (err) {
       console.error("❌ 북마크 실패:", err);
@@ -288,7 +302,7 @@ function RecipeListPage() {
         {/* 선택된 정보 표시 박스 */}
         <div className="selected-info-container">
           <div className="info-row">
-            <span className="info-label">선택된 재료:</span>
+            <span className="info-label" style={{ fontSize: '1.25rem', fontWeight: 600 }}>선택된 재료:</span>
             <span className="info-value">
               {Array.isArray(ingredients)
                 ? ingredients.join(', ')
@@ -362,9 +376,21 @@ function RecipeListPage() {
                 <img src={r.image} alt={r["제목"]} />
                 <h3>{r["제목"]}</h3>
                 {/* <p>{r.dietary_tips}</p> */}
-                <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark({...r, id: r.id || `watson-${i}`}); }}>
-                  {bookmarkedState.has(Number(r.id)) ? "✅ 저장됨" : "북마크"}
-                </button>
+                <div className="bookmark-btn-wrapper" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+                  <button className="bookmark-btn" onClick={(e) => { e.stopPropagation(); handleAddToBookmark({...r, id: r.id || `watson-${i}`}, i); }}>
+                    {bookmarkedState.has(Number(r.id)) ? (
+                      <>
+                        <span className="icon" style={{ color: '#2dbd5a' }}>✅</span>
+                        <span style={{ color: '#2dbd5a' }}>저장됨</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="icon">🔖</span>
+                        북마크
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -377,9 +403,21 @@ function RecipeListPage() {
             <img src={r.image} alt={r.title} />
             <h3>{r.title}</h3>
             <p>{r.summary}</p>
-            <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
-              {bookmarkedState.has(Number(r.id)) ? "✅ 저장됨" : "북마크"}
-            </button>
+            <div className="bookmark-btn-wrapper" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <button className="bookmark-btn" onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
+                {bookmarkedState.has(Number(r.id)) ? (
+                  <>
+                    <span className="icon" style={{ color: '#2dbd5a' }}>✅</span>
+                    <span style={{ color: '#2dbd5a' }}>저장됨</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="icon">🔖</span>
+                    북마크
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         ))}
       </div>

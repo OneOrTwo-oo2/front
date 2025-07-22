@@ -613,13 +613,13 @@
 }
 
 .delete-all-btn {
-  padding: 10px 20px;
+  padding: 8px 14px;
   background: linear-gradient(135deg, #dc3545, #ff7675);
   color: white;
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
@@ -628,4 +628,14 @@
 .delete-all-btn:hover {
   background: linear-gradient(135deg, #b71c1c, #ff7675);
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.cancel-btn {
+  font-size: 15px;
+}
+.delete-btn {
+  font-size: 15px;
+}
+.add-btn {
+  font-size: 15px;
 }

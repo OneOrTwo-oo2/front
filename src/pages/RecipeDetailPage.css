@@ -187,3 +187,42 @@ a:hover {
   transform: translateX(0);
   background-color: #d5d5d5;
 }
+
+.sticky-bookmark-btn {
+  position: sticky;
+  top: 32px;
+  float: right;
+  z-index: 10;
+  margin-bottom: 24px;
+  margin-left: 16px;
+}
+
+.bookmark-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f5f7fa;
+  color: #2d5a8e;
+  border: 1.5px solid #b3c6e0;
+  border-radius: 24px;
+  padding: 8px 18px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #0001;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+}
+.bookmark-btn:hover:enabled {
+  background: #e3f0ff;
+  color: #1a3a5e;
+  border-color: #7fa7d9;
+}
+.bookmark-btn .icon {
+  font-size: 1.2em;
+  margin-right: 2px;
+}
+.bookmark-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
