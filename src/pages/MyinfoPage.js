@@ -41,7 +41,7 @@ function MyinfoPage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmarks", { method: "GET" });
+      const res = await fetchWithAutoRefresh("/bookmarks", { method: "GET" });
       const data = res.data;
       setBookmarks(data);
     } catch (err) {
@@ -51,7 +51,7 @@ function MyinfoPage() {
 
   const fetchFolders = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/folders", { method: "GET" });
+      const res = await fetchWithAutoRefresh("/folders", { method: "GET" });
       const data = res.data;
       setFolders(data);
     } catch (err) {
@@ -67,7 +67,7 @@ function MyinfoPage() {
     if (!newFolderName.trim()) return;
     
     try {
-      const res = await fetchWithAutoRefresh("/api/folders", {
+      const res = await fetchWithAutoRefresh("/folders", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newFolderName.trim() })
@@ -90,7 +90,7 @@ function MyinfoPage() {
     if (!folder) return;
 
     try {
-      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`);
+      const res = await fetchWithAutoRefresh(`/folders/${folder.id}/recipes`);
       const data = res.data;
       setFolderRecipes(prev => ({ ...prev, [folderName]: data }));
     } catch (err) {
@@ -106,7 +106,7 @@ function MyinfoPage() {
     if (!folder) return alert("폴더를 먼저 선택해주세요.");
 
     try {
-      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`, {
+      const res = await fetchWithAutoRefresh(`/folders/${folder.id}/recipes`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipe_id: recipeId })
@@ -134,7 +134,7 @@ function MyinfoPage() {
     if (!folder) return;
 
     try {
-      await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes/${recipeId}`, {
+      await fetchWithAutoRefresh(`/folders/${folder.id}/recipes/${recipeId}`, {
         method: "DELETE"
       });
 
@@ -152,7 +152,7 @@ function MyinfoPage() {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
-      await fetchWithAutoRefresh(`/api/bookmark?recipeId=${recipeId}`, {
+      await fetchWithAutoRefresh(`/bookmark?recipeId=${recipeId}`, {
         method: "DELETE"
       });
 
@@ -176,7 +176,7 @@ function MyinfoPage() {
     if (!folder || !window.confirm(`${folderName} 폴더를 삭제할까요?`)) return;
 
     try {
-      await fetchWithAutoRefresh(`/api/folders/${folder.id}`, {
+      await fetchWithAutoRefresh(`/folders/${folder.id}`, {
         method: "DELETE"
       });
       setFolders(folders.filter(f => f.name !== folderName));
@@ -201,12 +201,16 @@ function MyinfoPage() {
   const currentRecipes = getRecipesInFolder(selectedFolder);
 
   // 폴더에 레시피 추가 모달 열기
-  const openAddToFolderModal = (recipeId) => {
-    setAddToFolderModal({ open: true, recipeId });
-  };
+  const [selectedAddFolder, setSelectedAddFolder] = useState("");
   // 폴더에 레시피 추가 모달 닫기
   const closeAddToFolderModal = () => {
     setAddToFolderModal({ open: false, recipeId: null });
+    setSelectedAddFolder(""); // 모달 닫을 때 선택된 폴더 초기화
+  };
+
+  const openAddToFolderModal = (recipeId) => {
+    setAddToFolderModal({ open: true, recipeId });
+    setSelectedAddFolder(""); // 폴더 선택 초기화
   };
 
   // 폴더 선택 후 레시피 추가
@@ -214,7 +218,7 @@ function MyinfoPage() {
     const folder = folders.find(f => f.name === folderName);
     if (!folder) return alert('폴더를 선택해주세요.');
     try {
-      const res = await fetchWithAutoRefresh(`/api/folders/${folder.id}/recipes`, {
+      const res = await fetchWithAutoRefresh(`/folders/${folder.id}/recipes`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipe_id: addToFolderModal.recipeId })
@@ -237,7 +241,7 @@ function MyinfoPage() {
   // 북마크 전체 삭제
   const handleDeleteAllBookmarks = async () => {
     try {
-      await fetchWithAutoRefresh('/api/bookmarks/all', { method: 'DELETE' });
+      await fetchWithAutoRefresh('/bookmarks/all', { method: 'DELETE' });
       setBookmarks([]);
       setFolderRecipes({});
       setShowDeleteAllModal(false);
@@ -294,15 +298,18 @@ function MyinfoPage() {
             <h3>폴더 선택</h3>
             <select
               style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '8px', marginBottom: '20px' }}
-              defaultValue=""
-              onChange={e => handleAddToFolderWithSelect(e.target.value)}
+              value={selectedAddFolder}
+              onChange={e => setSelectedAddFolder(e.target.value)}
             >
               <option value="" disabled>폴더를 선택하세요</option>
               {folders.map(folder => (
                 <option key={folder.id} value={folder.name}>{folder.name}</option>
               ))}
             </select>
-            <button onClick={closeAddToFolderModal} style={{ padding: '8px 24px', borderRadius: '8px', background: '#6c757d', color: 'white', border: 'none', fontSize: '16px', fontWeight: 500, margin: '0 auto', display: 'block' }}>취소</button>
+            <div style={{ display: 'flex', gap: '5px', marginTop: '12px' }}>
+              <button className="cancel-btn" onClick={closeAddToFolderModal} style={{ flex: 1, padding: '8px', borderRadius: '15px', background: '#6c757d', color: 'white', border: 'none' }}>취소</button>
+              <button className="add-btn" onClick={() => handleAddToFolderWithSelect(selectedAddFolder)} style={{ flex: 1, padding: '8px', borderRadius: '15px', background: '#1976d2', color: 'white', border: 'none' }} disabled={!selectedAddFolder}>확인</button>
+            </div>
           </div>
         </Modal>
       )}
@@ -452,9 +459,9 @@ function MyinfoPage() {
         >
           <div className="folder-modal-content">
             <h3>정말 모든 북마크를 삭제하시겠습니까?</h3>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-              <button onClick={() => setShowDeleteAllModal(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#6c757d', color: 'white', border: 'none' }}>취소</button>
-              <button onClick={handleDeleteAllBookmarks} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#dc3545', color: 'white', border: 'none' }}>전체 삭제</button>
+            <div style={{ display: 'flex', gap: '5px', marginTop: '24px' }}>
+              <button className="cancel-btn" onClick={() => setShowDeleteAllModal(false)} style={{ flex: 1, padding: '8px', borderRadius: '15px', background: '#6c757d', color: 'white', border: 'none' }}>취소</button>
+              <button className="delete-btn" onClick={handleDeleteAllBookmarks} style={{ flex: 1, padding: '8px', borderRadius: '15px', background: '#dc3545', color: 'white', border: 'none' }}>전체 삭제</button>
             </div>
           </div>
         </Modal>

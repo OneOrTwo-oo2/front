@@ -45,9 +45,9 @@ function LoginPage() {
     setIsLoading(true);
 
     try {
-      await apiClient.post("/api/auth/clear-cookie");
+      await apiClient.post("/auth/clear-cookie");
       const res = await apiClient.post(
-        "/api/auth/google-login",
+        "/auth/google-login",
         { credential },
         { withCredentials: true }
       );
@@ -105,7 +105,7 @@ function LoginPage() {
 
     setIsCheckingEmail(true);
     try {
-      const res = await apiClient.post("/api/auth/check-email", {
+      const res = await apiClient.post("/auth/check-email", {
         email: formData.email
       });
       
@@ -191,7 +191,7 @@ function LoginPage() {
     try {
       if (isLogin) {
         // 로그인
-        const res = await apiClient.post("/api/auth/login", {
+        const res = await apiClient.post("/auth/login", {
           email: formData.email,
           password: formData.password
         }, { withCredentials: true });
@@ -200,7 +200,7 @@ function LoginPage() {
         navigate("/main");
       } else {
         // 회원가입
-        const res = await apiClient.post("/api/auth/signup", {
+        const res = await apiClient.post("/auth/signup", {
           email: formData.email,
           password: formData.password
         }, { withCredentials: true });

@@ -1086,4 +1086,10 @@ const emojiMap = {
   }
 };
 
+// === 자동 매핑 체크 코드 (개발용, 필요시 삭제) ===
+// 아래 CLASS_LABELS는 백엔드 config.py에서 복사해서 붙여넣으세요.
+// const CLASS_LABELS = [ ... ];
+// const notMapped = CLASS_LABELS.filter(label => !emojiMap[label]);
+// console.log('매핑 안되는 라벨:', notMapped);
+
 export default emojiMap;

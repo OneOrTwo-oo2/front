@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient'; // ✅ axios 인스턴스
 import './RecipeDetailPage.css';
+import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 
 function RecipeDetailPage() {
   const location = useLocation();
@@ -15,6 +16,8 @@ function RecipeDetailPage() {
   const [totalTime, setTotalTime] = useState('');
   const [yieldInfo, setYieldInfo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
   const mainIngredients = ingredients.slice(0, 6);  // 상위 6개를 메인 재료
   const seasoningIngredients = ingredients.slice(6); // 나머지는 조미료로
@@ -72,12 +75,74 @@ function RecipeDetailPage() {
     if (link) fetchDetail();
   }, [link]);
 
+  // 북마크 상태 확인 (초기 진입 시 및 저장 직후)
+  const checkBookmark = async () => {
+    if (!summary) return;
+    try {
+      const res = await fetchWithAutoRefresh('/bookmarks', { method: 'GET' });
+      const data = await res.data;
+      // title, link, summary.text 등 여러 기준으로 비교
+      const found = data.find(r => (
+        (r.title && (r.title === summary.title || r.title === summary.text)) ||
+        (r.link && r.link === link)
+      ));
+      setIsBookmarked(!!found);
+    } catch (err) {
+      setIsBookmarked(false);
+    }
+  };
+
+  useEffect(() => {
+    checkBookmark();
+  }, [summary]);
+
+  // 북마크 추가
+  const handleBookmark = async () => {
+    if (isBookmarked || bookmarkLoading) return;
+    setBookmarkLoading(true);
+    try {
+      const bookmarkData = {
+        title: summary?.title || summary?.text || '',
+        image: summary?.image || '',
+        summary: summary?.text || '',
+        link: link || '',
+      };
+      await fetchWithAutoRefresh('/bookmark-with-recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookmarkData),
+      });
+      setIsBookmarked(true); // 저장 성공 시 즉시 true로!
+      checkBookmark(); // 저장 직후 서버와 동기화
+    } catch (err) {
+      alert('북마크 저장에 실패했습니다.');
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
+
+  // 맨 위로 이동
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (!link && !isWatson) return <p>링크 정보가 없습니다.</p>;
   if (loading) return <p>로딩 중...</p>;
 
   return (
     <div className="detail-container">
       <button className="back-button" onClick={() => navigate(-1)}>← 뒤로가기</button>
+
+      {/* Sticky 북마크 버튼 */}
+      <div className="sticky-bookmark-btn">
+        <button className="bookmark-btn" onClick={handleBookmark} disabled={isBookmarked || bookmarkLoading}>
+          {isBookmarked ? (
+            <><span className="icon" style={{ color: '#2dbd5a' }}>✅</span><span style={{ color: '#2dbd5a' }}>저장됨</span></>
+          ) : (
+            <><span className="icon">🔖</span>북마크</>
+          )}
+        </button>
+      </div>
               {isWatson && recommendation_reason && (
       <div className="ai-recommendation">
         <h3>🤖 추천 이유</h3>
@@ -166,6 +231,11 @@ function RecipeDetailPage() {
 
       <a href={link} target="_blank" rel="noopener noreferrer">🔗 원본 레시피 보기</a>
       <span style={{ fontSize: '7pt', color: '#888', marginLeft: 6 }}>(출처 : 만개의 레시피 )</span>
+
+      {/* 맨 아래 조리순서 끝나면 맨 위로 버튼 */}
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '32px 0' }}>
+        <button className="back-button" onClick={handleScrollTop}>↑ 맨 위로</button>
+      </div>
     </div>
   );
 }
