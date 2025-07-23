@@ -9,7 +9,6 @@ RUN npm install
 
 # 프로젝트 복사 (단, env-config.js는 제외)
 COPY . .
-RUN rm -f public/env-config.js  # 🔥 빌드에 박히지 않도록 제거
 
 # React 빌드
 RUN npm run build
@@ -22,9 +21,6 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # ✅ 빌드 결과 복사
 COPY --from=build /app/build /usr/share/nginx/html
-
-# ✅ 런타임 환경 변수 파일 복사
-COPY public/env-config.js /usr/share/nginx/html/env-config.js
 
 # ✅ nginx 설정 복사
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
