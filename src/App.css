@@ -121,3 +121,45 @@ body {
   display: block;
   margin: 0 auto;
 }
+
+/* ✅ 반응형 메인 카드/네비게이션 바 */
+@media (max-width: 600px) {
+  .main {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 32px 4px 24px 4px;
+    gap: 12px;
+  }
+  .partition {
+    width: 95vw;
+    min-width: 0;
+    padding: 0 4px;
+    margin-bottom: 18px;
+  }
+  .main-img {
+    max-width: 90vw;
+    min-width: 0;
+    padding: 0;
+  }
+  .main-img img {
+    max-width: 80vw;
+    min-width: 0;
+    height: auto;
+  }
+  .partition p {
+    font-size: 1rem;
+    margin-top: 10px;
+    word-break: keep-all;
+    white-space: normal;
+  }
+  .menu-label,
+  .info-label {
+    font-size: 1.1rem;
+    padding: 0 4px;
+  }
+  .menu-dropdown li {
+    font-size: 1rem;
+    padding: 10px 8px;
+  }
+}

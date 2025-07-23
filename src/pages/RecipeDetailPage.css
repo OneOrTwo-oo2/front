@@ -226,3 +226,33 @@ a:hover {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+@media (max-width: 600px) {
+  .recipe-detail-layout {
+    padding: 0 4px;
+  }
+  .recipe-detail-img {
+    max-width: 95vw;
+    height: auto;
+    margin: 0 auto 10px auto;
+    display: block;
+  }
+  .recipe-detail-title {
+    font-size: 1.2rem;
+    margin: 8px 0 4px 0;
+    text-align: center;
+  }
+  .recipe-detail-meta, .recipe-detail-desc {
+    font-size: 1rem;
+    padding: 4px 0;
+  }
+  .ingredient-list {
+    font-size: 0.98rem;
+    padding: 4px 0;
+  }
+  .action-btn, .bookmark-btn {
+    font-size: 1rem;
+    padding: 8px 12px;
+    margin: 4px 2px;
+  }
+}

@@ -609,6 +609,11 @@ const emojiMap = {
     "name_ko": "적색 양파",
     "name_en": "Red onion"
   },
+  "onion": {
+    "emoji": "/emojis/onion.png",
+    "name_ko": "양파",
+    "name_en": "onion"
+  },
   "Bag_ramen": {
     "emoji": "/emojis/bag_ramen.png",
     "name_ko": "봉지 라면",

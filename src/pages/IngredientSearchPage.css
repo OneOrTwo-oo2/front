@@ -169,3 +169,42 @@ select {
 .search-sticky-btn .reset-btn:hover {
   background-color: #d43a3a;
 }
+
+@media (max-width: 600px) {
+  .ingredient-search-layout {
+    flex-direction: column;
+    padding: 0 4px;
+  }
+  .selected-ingredients-fixed {
+    position: static;
+    width: 100%;
+    margin-bottom: 12px;
+    font-size: 1rem;
+  }
+  .ingredient-search-content {
+    padding: 0 2px;
+  }
+  .section h4 {
+    font-size: 1.1rem;
+    margin: 10px 0 6px 0;
+  }
+  .buttons button, .search-btn, .reset-btn {
+    font-size: 0.95rem;
+    padding: 7px 10px;
+    margin: 2px 2px;
+  }
+  .search-sticky-btn {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    background: #fff;
+    padding: 12px 0 8px 0;
+    box-shadow: 0 -2px 12px #0001;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+}
