@@ -21,23 +21,57 @@ function LoginPage() {
   const [emailChecked, setEmailChecked] = useState(false);
   const [emailAvailable, setEmailAvailable] = useState(false);
 
+  // ✅ 구글 로그인 스크립트 로드 및 버튼 렌더
   useEffect(() => {
-    /* global google */
-    google.accounts.id.initialize({
-      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-    });
+    const loadGoogleScript = () => {
+      return new Promise((resolve, reject) => {
+        if (window.google && window.google.accounts) {
+          resolve();
+          return;
+        }
 
-    google.accounts.id.renderButton(
-      document.getElementById("google-login-btn"),
-      { 
-        theme: "outline", 
-        size: "large",
-        text: "continue_with",
-        shape: "rectangular",
-        width: 280
-      }
-    );
+        const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+        if (existingScript) {
+          existingScript.addEventListener('load', resolve);
+          existingScript.addEventListener('error', reject);
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+      });
+    };
+
+    loadGoogleScript()
+      .then(() => {
+        if (!window.google || !window.google.accounts) {
+          throw new Error("Google API not available");
+        }
+
+        window.google.accounts.id.initialize({
+          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+        });
+
+        window.google.accounts.id.renderButton(
+          document.getElementById("google-login-btn"),
+          {
+            theme: "outline",
+            size: "large",
+            text: "continue_with",
+            shape: "rectangular",
+            width: 280,
+          }
+        );
+      })
+      .catch((err) => {
+        console.error("Google Login Script 로딩 실패:", err);
+      });
   }, []);
 
   const handleCredentialResponse = async (response) => {
@@ -76,14 +110,12 @@ function LoginPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
-    // 이메일이 변경되면 중복확인 상태 초기화
+
     if (name === 'email') {
       setEmailChecked(false);
       setEmailAvailable(false);
     }
-    
-    // 에러 메시지 초기화
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -108,22 +140,20 @@ function LoginPage() {
       const res = await apiClient.post("/auth/check-email", {
         email: formData.email
       });
-      
+
       const { available, message } = res.data;
       setEmailAvailable(available);
       setEmailChecked(true);
       alert(message);
     } catch (err) {
       console.error("중복확인 실패:", err);
-      
-      // 네트워크 오류인지 API 오류인지 구분
+
       if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        // 백엔드 서버가 실행되지 않았을 때 임시 처리
         const shouldContinue = window.confirm(
           "서버에 연결할 수 없습니다. 백엔드 서버가 실행되지 않았을 수 있습니다.\n\n" +
           "임시로 중복확인을 건너뛰고 계속하시겠습니까?"
         );
-        
+
         if (shouldContinue) {
           setEmailAvailable(true);
           setEmailChecked(true);
@@ -151,7 +181,6 @@ function LoginPage() {
     }
 
     if (!isLogin) {
-      // 회원가입 시에만 이메일 중복확인 필요
       if (!emailChecked) {
         newErrors.email = "이메일 중복확인을 해주세요.";
       } else if (!emailAvailable) {
@@ -183,33 +212,29 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-    
     setIsLoading(true);
 
     try {
       if (isLogin) {
-        // 로그인
-        const res = await apiClient.post("/auth/login", {
+        await apiClient.post("/auth/login", {
           email: formData.email,
           password: formData.password
         }, { withCredentials: true });
-        
+
         await fetchAuthUser();
         navigate("/main");
       } else {
-        // 회원가입
-        const res = await apiClient.post("/auth/signup", {
+        await apiClient.post("/auth/signup", {
           email: formData.email,
           password: formData.password
         }, { withCredentials: true });
-        
+
         await fetchAuthUser();
         navigate("/preference");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.detail || 
+      const errorMessage = err.response?.data?.detail ||
         (isLogin ? "로그인에 실패했습니다." : "회원가입에 실패했습니다.");
       alert(errorMessage);
     } finally {
