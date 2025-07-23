@@ -61,7 +61,7 @@ function PhotoSearchPage() {
   // 정확도에 따른 색상 결정 함수
   const getIngredientStyle = (confidence) => {
     const confidencePercent = confidence * 100;
-    
+
     if (confidencePercent >= 70) {
       return {
         background: '#4CAF50', // 초록색 (높은 정확도: 70% 이상)
@@ -71,9 +71,9 @@ function PhotoSearchPage() {
         fontSize: '1rem',
         border: '1px solid #45a049'
       };
-    } else if (confidencePercent >= 20) {
+    } else if (confidencePercent >= 40) {
       return {
-        background: '#ff9800', // 주황색 (중간 정확도: 20~70%)
+        background: '#ff9800', // 주황색 (중간 정확도: 40~70%)
         color: 'white',
         borderRadius: 12,
         padding: '4px 12px',
@@ -82,7 +82,7 @@ function PhotoSearchPage() {
       };
     } else {
       return {
-        background: '#f44336', // 빨간색 (낮은 정확도: 20% 미만)
+        background: '#f44336', // 빨간색 (낮은 정확도: 40% 미만)
         color: 'white',
         borderRadius: 12,
         padding: '4px 12px',

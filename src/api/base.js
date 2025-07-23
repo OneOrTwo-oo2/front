@@ -6,4 +6,5 @@ export const getBaseApi = () => {
 export const getAiApi = () => {
     return window._env_?.AI_API || "http://localhost:8001/";
     // return "http://localhost:8001/ai" //로컬용
+
 };

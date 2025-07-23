@@ -32,9 +32,9 @@ function IngredientSearchPage() {
     return location.state?.confidenceThreshold || 0.5;
   }, [location.state?.confidenceThreshold]);
 
-  // 10% 미만 confidence 필터링 (디버깅/실제 재료 모두 적용)
+  // 18% 미만 confidence 필터링 (디버깅/실제 재료 모두 적용)
   const filteredIngredientsFromPhoto = useMemo(() => {
-    return (ingredientsFromPhoto || []).filter(item => (typeof item.confidence === 'number' ? item.confidence >= 0.1 : true));
+    return (ingredientsFromPhoto || []).filter(item => (typeof item.confidence === 'number' ? item.confidence >= 0.18 : true));
   }, [ingredientsFromPhoto]);
 
   const [isRestored, setIsRestored] = useState(false);
@@ -63,10 +63,10 @@ function IngredientSearchPage() {
     if (ingredientsFromPhoto && ingredientsFromPhoto.length > 0) {
       console.log("✅ 사진 검색 결과 로딩:", ingredientsFromPhoto);
       
-      // 새로운 형식: {label, confidence} 객체 배열에서 label만 추출
-      const ingredientLabels = ingredientsFromPhoto.map(item => 
-        typeof item === 'string' ? item : item.label
-      );
+      // 새로운 형식: {label, confidence} 객체 배열에서 label만 추출 (0.18 미만 제외)
+      const ingredientLabels = (ingredientsFromPhoto || [])
+        .filter(item => (typeof item.confidence === 'number' ? item.confidence >= 0.18 : true))
+        .map(item => typeof item === 'string' ? item : item.label);
       
       setIngredients(ingredientLabels);
       setPreference('');
