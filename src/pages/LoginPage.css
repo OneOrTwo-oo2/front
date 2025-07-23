@@ -185,10 +185,15 @@
 
 .checkbox-label {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.4;
+  gap: 12px;
+  padding: 10px 0;
+  width: 100%;
+  min-height: 40px;
+  user-select: none;
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -196,11 +201,11 @@
 }
 
 .checkmark {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #e1e5e9;
-  border-radius: 4px;
-  margin-right: 10px;
+  width: 20px;
+  height: 20px;
+  border: 8px solid #7d7e80cc;
+  border-radius: 6px;
+  margin-right: 20px;
   margin-top: 2px;
   position: relative;
   flex-shrink: 0;
@@ -219,7 +224,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: bold;
 }
 

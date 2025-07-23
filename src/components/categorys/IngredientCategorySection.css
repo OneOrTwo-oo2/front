@@ -29,6 +29,25 @@
   border-color: #4CAF50;
 }
 
+/* 3단계 정확도 색상 스타일 (높은 우선순위) */
+.buttons button[style*="background-color: #4CAF50"] {
+  background-color: #4CAF50 !important;
+  color: white !important;
+  border-color: #45a049 !important;
+}
+
+.buttons button[style*="background-color: #ff9800"] {
+  background-color: #ff9800 !important;
+  color: white !important;
+  border-color: #e68900 !important;
+}
+
+.buttons button[style*="background-color: #f44336"] {
+  background-color: #f44336 !important;
+  color: white !important;
+  border-color: #d32f2f !important;
+}
+
 .load-more-btn {
   background-color: #eee;
   color: #333;
@@ -53,6 +72,37 @@
 
 .selected-ingredients-row button:hover {
   background-color: #e2e8f0;
+}
+
+/* 3단계 정확도 색상 스타일 (높은 우선순위) */
+.selected-ingredients-row button[style*="background-color: #4CAF50"] {
+  background-color: #4CAF50 !important;
+  color: white !important;
+  border-color: #45a049 !important;
+}
+
+.selected-ingredients-row button[style*="background-color: #4CAF50"]:hover {
+  background-color: #45a049 !important;
+}
+
+.selected-ingredients-row button[style*="background-color: #ff9800"] {
+  background-color: #ff9800 !important;
+  color: white !important;
+  border-color: #e68900 !important;
+}
+
+.selected-ingredients-row button[style*="background-color: #ff9800"]:hover {
+  background-color: #f57c00 !important;
+}
+
+.selected-ingredients-row button[style*="background-color: #f44336"] {
+  background-color: #f44336 !important;
+  color: white !important;
+  border-color: #d32f2f !important;
+}
+
+.selected-ingredients-row button[style*="background-color: #f44336"]:hover {
+  background-color: #d32f2f !important;
 }
 
 /* ❌ 아이콘 쪽 */

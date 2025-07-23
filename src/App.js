@@ -1,10 +1,11 @@
-// src/App.jsx //
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './utils/AuthContext';
 import PrivacyPage from './components/PrivacyPage'; //추가
 import HelpPage from './pages/HelpPage'; //추가
+import React from 'react';
 
 // pages
 import MainPage from './pages/MainPage';
@@ -51,6 +52,8 @@ function App() {
     </AuthProvider>
   );
 }
+
+
 
 
 export default App;

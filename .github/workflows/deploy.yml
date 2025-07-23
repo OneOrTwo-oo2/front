@@ -9,7 +9,6 @@ on:
 
 jobs:
   detect-changes:
-    # ✅ 진짜 main 브랜치에서 push된 경우만 실행
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
@@ -17,37 +16,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # ✅ 전체 히스토리 가져와야 diff가 정확히 비교 가능
+          fetch-depth: 2  # ✅ HEAD와 이전 커밋 비교 위해 2개 필요
 
-      - name: Fetch latest origin/main
-        run: git fetch origin main
+      - name: Get previous commit SHA
+        id: prev
+        run: echo "before_sha=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
 
       - name: Check for frontend-relevant changes
         id: check
         run: |
-          echo "🔍 HEAD: $(git rev-parse HEAD)"
-          echo "🔍 origin/main: $(git rev-parse origin/main)"
+          BEFORE=${{ steps.prev.outputs.before_sha }}
+          AFTER=$(git rev-parse HEAD)
 
-          # ✅ 공통 조상부터 HEAD까지의 변경 파일을 감지
-          CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+          echo "🔍 Compare: $BEFORE → $AFTER"
+
+          CHANGED=$(git diff --name-only $BEFORE $AFTER | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
 
           echo "✅ 변경된 파일 목록:"
           echo "$CHANGED"
 
           if [ -n "$CHANGED" ]; then
-            echo "changed=true" >> $GITHUB_ENV
+            echo "changed=true" >> $GITHUB_OUTPUT
           else
-            echo "changed=false" >> $GITHUB_ENV
+            echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Set output
         id: set_output
-        run: echo "changed=${{ env.changed }}" >> $GITHUB_OUTPUT
+        run: echo "changed=${{ steps.check.outputs.changed }}" >> $GITHUB_OUTPUT
 
   deploy-frontend:
     needs: detect-changes
-    # ✅ push 이벤트 && main 브랜치 && 변경된 내용이 있을 때만 실행
-    if: needs.detect-changes.outputs.frontend_changed == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: needs.detect-changes.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,6 +58,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create .env file
+        run: echo "${{ secrets.FRONTEND_ENV_FILE }}" > .env
 
       - name: Login to ECR
         run: |

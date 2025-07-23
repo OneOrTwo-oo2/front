@@ -18,9 +18,9 @@ function PreferenceToggleSection() {
     const fetchAll = async () => {
       try {
         const [ingredientRes, diseaseRes, prefRes] = await Promise.all([
-          fetchWithAutoRefresh("/api/allergies"),
-          fetchWithAutoRefresh("/api/diseases"),
-          fetchWithAutoRefresh("/api/preferences")
+          fetchWithAutoRefresh("/allergies"),
+          fetchWithAutoRefresh("/diseases"),
+          fetchWithAutoRefresh("/preferences")
         ]);
         setIngredients(ingredientRes.data || []);
         setDiseases(diseaseRes.data?.map(d => d.name) || []);
@@ -62,7 +62,7 @@ function PreferenceToggleSection() {
       return;
     }
     try {
-      await fetchWithAutoRefresh("/api/save-preference", {
+      await fetchWithAutoRefresh("/save-preference", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ allergies: selectedIngredients, diseases: selectedDiseases })

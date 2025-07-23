@@ -133,7 +133,7 @@ function RandomRecipePage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmarks", {
+      const res = await fetchWithAutoRefresh("/bookmarks", {
         method: "GET"
       });
       const data = await res.data;
@@ -155,7 +155,7 @@ function RandomRecipePage() {
     }
 
     try {
-      const res = await fetchWithAutoRefresh("/api/bookmark-with-recipe", {
+      const res = await fetchWithAutoRefresh("/bookmark-with-recipe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

@@ -10,28 +10,60 @@ import {
 } from '../components/options.js';
 import IngredientCategorySection from '../components/categorys/IngredientCategorySection';
 
+// 디버깅용 시각화 컴포넌트
+const DebugResultBox = ({ results, confidenceThreshold }) => {
+  if (!results || results.length === 0) return null;
+  return (
+    <div style={{ background: '#f7f7fa', border: '1px solid #bbb', borderRadius: 10, padding: 16, margin: '24px 0', maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
+      <div style={{ fontWeight: 700, marginBottom: 8, color: '#333' }}>[디버깅] 인식 결과 상세</div>
+      {results.map((item, idx) => (
+        <div key={idx} style={{ border: '1px solid #ccc', margin: 4, padding: 8, borderRadius: 8, background: '#fff' }}>
+          <div><b>Label:</b> {item.label} / <b>한글:</b> {item.korean || '매핑없음'}</div>
+          <div><b>Confidence:</b> {(item.confidence * 100).toFixed(1)}%
+            {item.confidence < confidenceThreshold && <span style={{ color: 'red', marginLeft: 8 }}>(임계값 미달)</span>}
+          </div>
+          <div><b>BBox:</b> [{item.bbox?.join(', ')}]</div>
+          <div><b>Category:</b> {item.category || '없음'}</div>
+          <div><b>매핑:</b> {item.korean ? '성공' : '실패(원본값 사용)'}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 function IngredientSearchPage() {
   const [ingredients, setIngredients] = useState([]);
   const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
   const [level, setLevel] = useState('');
+  const [showDebug, setShowDebug] = useState(false); // 디버깅 토글
 
   const location = useLocation();
   const navigate = useNavigate();
   const previewUrl = location.state?.previewUrl || sessionStorage.getItem('uploadedImageUrl');
   // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
-  const labels = useMemo(() => {
-    return location.state?.labels || [];
-  }, [location.state?.labels]);
+  const ingredientsFromPhoto = useMemo(() => {
+    return location.state?.ingredients || [];
+  }, [location.state?.ingredients]);
+  
+  // 정확도 임계값 받기
+  const confidenceThreshold = useMemo(() => {
+    return location.state?.confidenceThreshold || 0.5;
+  }, [location.state?.confidenceThreshold]);
+
+  // 10% 미만 confidence 필터링 (디버깅/실제 재료 모두 적용)
+  const filteredIngredientsFromPhoto = useMemo(() => {
+    return (ingredientsFromPhoto || []).filter(item => (typeof item.confidence === 'number' ? item.confidence >= 0.1 : true));
+  }, [ingredientsFromPhoto]);
 
   const [isRestored, setIsRestored] = useState(false);
-  // cursor 수정 - 이미 처리된 labels 추적
-  const processedLabelsRef = useRef(null);
+  // cursor 수정 - 이미 처리된 ingredients 추적
+  const processedIngredientsRef = useRef(null);
 
   // cursor 수정 - 페이지 키가 변경될 때마다 상태 초기화
   useEffect(() => {
     setIsRestored(false);
-    processedLabelsRef.current = null;
+    processedIngredientsRef.current = null;
   }, [location.key]);
 
   const getOptionValue = (options, label) => {
@@ -41,22 +73,28 @@ function IngredientSearchPage() {
 
   // cursor 수정 - 캐시 저장 및 복원 로직 개선 (무한루프 방지)
   useEffect(() => {
-    // cursor 수정 - 이미 처리된 labels인지 확인
-    if (processedLabelsRef.current === JSON.stringify(labels)) {
+    // cursor 수정 - 이미 처리된 ingredients인지 확인
+    if (processedIngredientsRef.current === JSON.stringify(ingredientsFromPhoto)) {
       return;
     }
 
     // cursor 수정 - 사진 검색 결과가 있으면 우선 처리
-    if (labels && labels.length > 0) {
-      console.log("✅ 사진 검색 결과 로딩:", labels);
-      setIngredients(labels);
+    if (ingredientsFromPhoto && ingredientsFromPhoto.length > 0) {
+      console.log("✅ 사진 검색 결과 로딩:", ingredientsFromPhoto);
+      
+      // 새로운 형식: {label, confidence} 객체 배열에서 label만 추출
+      const ingredientLabels = ingredientsFromPhoto.map(item => 
+        typeof item === 'string' ? item : item.label
+      );
+      
+      setIngredients(ingredientLabels);
       setPreference('');
       setKind('');
       setLevel('');
       // 사진 검색 결과가 있으면 sessionStorage 초기화
       sessionStorage.removeItem("searchInputs");
       setIsRestored(true);
-      processedLabelsRef.current = JSON.stringify(labels);
+      processedIngredientsRef.current = JSON.stringify(ingredientsFromPhoto);
       return;
     }
 
@@ -94,8 +132,8 @@ function IngredientSearchPage() {
 
     // ✅ 복원 완료 플래그 설정
     setIsRestored(true);
-    processedLabelsRef.current = JSON.stringify(labels);
-  }, [labels]); // cursor 수정 - 안정화된 labels 사용
+    processedIngredientsRef.current = JSON.stringify(ingredientsFromPhoto);
+  }, [ingredientsFromPhoto]); // cursor 수정 - 안정화된 ingredientsFromPhoto 사용
 
   // ✅ 복원이 완료된 경우에만 sessionStorage에 저장 (무한 루프 방지)
   useEffect(() => {
@@ -192,7 +230,6 @@ function IngredientSearchPage() {
     // cursor 수정 - 검색 시 fromEditButton 플래그 제거
     sessionStorage.removeItem("fromEditButton");
     // 검색 시 업로드 이미지 URL도 제거
-    sessionStorage.removeItem("uploadedImageUrl");
 
     const query = qs.stringify({
       ingredients: ingredientNamesInKorean.join(','),
@@ -223,7 +260,7 @@ function IngredientSearchPage() {
   // cursor 수정 - 초기화 함수 개선
   const handleReset = () => {
     // 사진 검색 결과가 있으면 유지, 없으면 완전 초기화
-    if (labels && labels.length > 0) {
+    if (ingredientsFromPhoto && ingredientsFromPhoto.length > 0) {
       // 사진 검색 결과가 있으면 선택된 재료만 초기화
       setIngredients([]);
       setPreference('');
@@ -231,8 +268,7 @@ function IngredientSearchPage() {
       setLevel('');
       sessionStorage.removeItem("searchInputs");
       console.log("✅ 선택된 재료만 초기화되었습니다. (사진 검색 결과 유지)");
-      // 초기화 시 업로드 이미지 URL도 제거
-      sessionStorage.removeItem("uploadedImageUrl");
+      // 초기화 시 업로드 이미지 URL도 제거 (삭제)
     } else {
       // 사진 검색 결과가 없으면 완전 초기화
       setIngredients([]);
@@ -243,13 +279,21 @@ function IngredientSearchPage() {
       sessionStorage.removeItem("watsonRecommendations");
       sessionStorage.removeItem("lastQuery");
       console.log("✅ 모든 선택사항이 초기화되었습니다.");
-      // 초기화 시 업로드 이미지 URL도 제거
-      sessionStorage.removeItem("uploadedImageUrl");
+      // 초기화 시 업로드 이미지 URL도 제거 (삭제)
     }
   };
 
   return (
     <div className="ingredient-search-layout">
+      {/* 디버깅 토글 버튼 및 디버깅 창 */}
+      <div style={{ textAlign: 'right', marginBottom: 8 }}>
+        <button onClick={() => setShowDebug(v => !v)} style={{ fontSize: '0.95rem', padding: '4px 10px', borderRadius: 6, border: '1px solid #bbb', background: showDebug ? '#ffe082' : '#eee', color: '#333', cursor: 'pointer' }}>
+          {showDebug ? '디버깅창 닫기' : '디버깅창 열기'}
+        </button>
+      </div>
+      {showDebug && (
+        <DebugResultBox results={filteredIngredientsFromPhoto} confidenceThreshold={confidenceThreshold} />
+      )}
       {/* 좌측 고정 선택 박스 */}
       <div className="selected-ingredients-fixed">
         <p className="text-prefer">😀 선택된 선호도 또는 타입 </p>
@@ -270,6 +314,8 @@ function IngredientSearchPage() {
           selectedIngredients={ingredients}
           setSelectedIngredients={setIngredients}
           toggleIngredient={toggleIngredient}
+          ingredientsWithConfidence={filteredIngredientsFromPhoto}
+          confidenceThreshold={confidenceThreshold}
         />
       </div>
               {/* 선호도 */}
