@@ -133,6 +133,7 @@ function PhotoSearchPage() {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              capture="environment" // 모바일에서 카메라 촬영 가능
               onChange={handleFileChange}
               style={{ display: 'none' }}
             />

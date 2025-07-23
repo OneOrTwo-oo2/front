@@ -30,7 +30,7 @@ function App() {
             <Route path="/preference" element={<PreferenceToggleSection />} />
             <Route path="/condition" element={<ConditionPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/help" element={<HelpPage />} />
+            
 
             {/* ✅ 보호된 라우트: 공통 Layout 포함 */}
             <Route element={<Layout />}>
@@ -43,6 +43,7 @@ function App() {
               <Route path="/theme" element={<ProtectedRoute element={<RandomRecipePage />} />} />
               <Route path="/theme/*" element={<ProtectedRoute element={<RandomRecipePage />} />} />
               <Route path="/recipes/detail" element={<ProtectedRoute element={<RecipeDetailPage />} />} />
+              <Route path="/help" element={<HelpPage />} />
             </Route>
           </Routes>
         </Router>
