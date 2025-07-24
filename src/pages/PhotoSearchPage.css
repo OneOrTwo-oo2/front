@@ -136,3 +136,24 @@
   height: 100%;
   object-fit: contain;
 }
+
+@media (max-width: 600px) {
+  .photo-upload-page {
+    padding: 0 4px;
+  }
+  .styled-drop {
+    padding: 12px 2px;
+    min-width: 0;
+  }
+  .upload-title {
+    font-size: 1.1rem;
+  }
+  .upload-btn {
+    font-size: 1rem;
+    padding: 8px 12px;
+  }
+  img {
+    max-width: 90vw;
+    height: auto;
+  }
+}

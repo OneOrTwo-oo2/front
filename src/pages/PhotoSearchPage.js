@@ -12,14 +12,13 @@ function PhotoSearchPage() {
   const [previewUrl, setPreviewUrl] = useState(() => sessionStorage.getItem('uploadedImageUrl'));
   const [showPreview, setShowPreview] = useState(false); // 미리보기 토글 상태
   const [showResult, setShowResult] = useState(false); // 결과 보여주기 상태
-  const [confidenceThreshold, setConfidenceThreshold] = useState(0.5); // 정확도 임계값
   const [showDebug, setShowDebug] = useState(false); // 디버깅 토글
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   const handleSearchSuccess = (ingredients, url) => {
     setIsLoading(false);
-    navigate('/ingredient-search', { state: { ingredients, previewUrl: url, confidenceThreshold } });
+    navigate('/ingredient-search', { state: { ingredients, previewUrl: url } });
   };
 
   const processFile = useCallback((file) => {
@@ -62,7 +61,7 @@ function PhotoSearchPage() {
   // 정확도에 따른 색상 결정 함수
   const getIngredientStyle = (confidence) => {
     const confidencePercent = confidence * 100;
-    
+
     if (confidencePercent >= 70) {
       return {
         background: '#4CAF50', // 초록색 (높은 정확도: 70% 이상)
@@ -72,9 +71,9 @@ function PhotoSearchPage() {
         fontSize: '1rem',
         border: '1px solid #45a049'
       };
-    } else if (confidencePercent >= 20) {
+    } else if (confidencePercent >= 40) {
       return {
-        background: '#ff9800', // 주황색 (중간 정확도: 20~70%)
+        background: '#ff9800', // 주황색 (중간 정확도: 40~70%)
         color: 'white',
         borderRadius: 12,
         padding: '4px 12px',
@@ -83,7 +82,7 @@ function PhotoSearchPage() {
       };
     } else {
       return {
-        background: '#f44336', // 빨간색 (낮은 정확도: 20% 미만)
+        background: '#f44336', // 빨간색 (낮은 정확도: 40% 미만)
         color: 'white',
         borderRadius: 12,
         padding: '4px 12px',
@@ -134,70 +133,10 @@ function PhotoSearchPage() {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              capture="environment" // 모바일에서 카메라 촬영 가능
               onChange={handleFileChange}
               style={{ display: 'none' }}
             />
-            {/* 정확도 임계값 설정 - 사진 검색 전에 표시 */}
-            <div style={{ 
-              marginTop: 24, 
-              padding: '16px 20px', 
-              backgroundColor: '#f8f9fa', 
-              borderRadius: 12, 
-              border: '1px solid #e9ecef',
-              maxWidth: 400,
-              margin: '24px auto 0'
-            }}>
-              <div style={{ 
-                fontSize: '0.95rem', 
-                fontWeight: 600, 
-                color: '#495057', 
-                marginBottom: 12,
-                textAlign: 'center'
-              }}>
-                🔍 정확도 임계값 설정
-              </div>
-              <div style={{ 
-                fontSize: '0.9rem', 
-                color: '#6c757d', 
-                marginBottom: 16,
-                textAlign: 'center'
-              }}>
-                초록색: 70% 이상, 주황색: 20~70%, 빨간색: 20% 미만
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 12,
-                justifyContent: 'center'
-              }}>
-                <span style={{ fontSize: '0.85rem', color: '#6c757d', minWidth: 40 }}>10%</span>
-                <input
-                  type="range"
-                  min="0.1"
-                  max="0.9"
-                  step="0.1"
-                  value={confidenceThreshold}
-                  onChange={(e) => setConfidenceThreshold(parseFloat(e.target.value))}
-                  style={{ 
-                    flex: 1, 
-                    height: 6, 
-                    borderRadius: 3,
-                    background: '#dee2e6',
-                    outline: 'none',
-                    cursor: 'pointer'
-                  }}
-                />
-                <span style={{ fontSize: '0.85rem', color: '#6c757d', minWidth: 40 }}>90%</span>
-              </div>
-              <div style={{ 
-                fontSize: '0.8rem', 
-                color: '#868e96', 
-                marginTop: 8,
-                textAlign: 'center'
-              }}>
-                낮게 설정하면 더 많은 재료가 감지되지만 정확도가 낮을 수 있습니다
-              </div>
-            </div>
             {/* 미리보기 이미지는 업로드한 사진이 있을 때만 */}
             {hasPrevImage && (
               <div style={{ marginTop: 16, textAlign: 'center' }}>
