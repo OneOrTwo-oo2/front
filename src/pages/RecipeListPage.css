@@ -293,4 +293,36 @@
     gap: 6px;
     padding: 6px 2px;
   }
+  .recipe-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 0 8px;
+  }
+  .recipe-card {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+  .selected-info-container {
+    padding: 10px 4px;
+  }
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .info-label {
+    font-size: 1.1rem;
+    min-width: 0;
+    margin-right: 0;
+    margin-bottom: 2px;
+  }
+  .info-value {
+    font-size: 1rem;
+    word-break: break-all;
+    white-space: pre-line;
+    width: 100%;
+  }
 }

@@ -356,9 +356,9 @@ function RecipeListPage() {
       </div>
 
       {/* 검색 결과 개수 표시 */}
-      <div className="search-results-count">
+      {/* <div className="search-results-count">
         총 {results.length}개의 레시피가 검색되었습니다.
-      </div>
+      </div> */}
        {isLoading && (
           <div className="loading-container">
             <p className="loading-text"> AI 추천 레시피를 검색 중입니다. 잠시만 기다려주세요!</p>
