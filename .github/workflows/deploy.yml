@@ -69,6 +69,6 @@ jobs:
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}
+          IMAGE=${{ secrets.ECR_REGISTRY }}/recipego-frontend:latest
           docker build -t $IMAGE .
           docker push $IMAGE
