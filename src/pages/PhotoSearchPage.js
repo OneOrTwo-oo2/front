@@ -17,6 +17,9 @@ function PhotoSearchPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+  const [debugLog, setDebugLog] = useState([]);
+  const log = (msg) => setDebugLog(logs => [...logs, String(msg)]);
+
   const handleSearchSuccess = (ingredients, url) => {
     setIsLoading(false);
     navigate('/ingredient-search', { state: { ingredients, previewUrl: url } });
@@ -33,7 +36,10 @@ function PhotoSearchPage() {
 
   // 검색 버튼 클릭 시 서버로 전송
   const handleSearchClick = useCallback(() => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      log('handleSearchClick: no file selected');
+      return;
+    }
     const file = selectedFile;
     const url = previewUrl;
     const formData = new FormData();
@@ -41,9 +47,11 @@ function PhotoSearchPage() {
     setIsLoading(true);
     aiClient.post('/ingredients', formData)
       .then((res) => {
+        log('서버 응답: ' + JSON.stringify(res.data));
         handleSearchSuccess(res.data.ingredients, url);
       })
       .catch((error) => {
+        log('검색 실패: ' + error.message);
         console.error('검색 실패:', error);
         setSearchResults([]);
       })
@@ -102,6 +110,14 @@ function PhotoSearchPage() {
 
   return (
     <div className="photo-upload-page">
+      <div>
+      {debugLog.length > 0 && (
+          <div style={{background:'#222', color:'#fff', fontSize:12, padding:8, margin:8, borderRadius:4, maxHeight:200, overflow:'auto'}}>
+            <b>디버그 로그</b>
+            <pre>{debugLog.join('\n')}</pre>
+          </div>
+        )}
+      </div>
       <div className="styled-drop">
         {/* 결과 화면 */}
         {/* 분석 결과가 오면 바로 ingredient-search 페이지로 이동 */}
