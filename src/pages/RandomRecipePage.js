@@ -212,9 +212,21 @@ function RandomRecipePage() {
           <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
             <img src={r.image} alt={r.title} />
             <h3>{r.title}</h3>
-            <button onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
-              {bookmarkedState.has(Number(r.id)) ? "✅ 저장됨" : "북마크"}
-            </button>
+            <div className="bookmark-btn-wrapper" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <button className="bookmark-btn" onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
+                {bookmarkedState.has(Number(r.id)) ? (
+                  <>
+                    <span className="icon" style={{ color: '#2dbd5a' }}>✅</span>
+                    <span style={{ color: '#2dbd5a' }}>저장됨</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="icon">🔖</span>
+                    북마크
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         ))}
       </div>
