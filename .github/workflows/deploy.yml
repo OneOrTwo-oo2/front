@@ -70,7 +70,7 @@ jobs:
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE=${{ secrets.ECR_REGISTRY }}/recipego-front:${{ steps.vars.outputs.sha_short }}
+          IMAGE=${{ secrets.ECR_REGISTRY }}:${{ steps.vars.outputs.sha_short }}
           docker build -t $IMAGE .
           docker push $IMAGE
 
