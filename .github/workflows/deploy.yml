@@ -83,7 +83,7 @@ jobs:
 
       - name: Update Frontend image tag
         run: |
-          sed -i "s|image: .*/recipego-front:.*|image: ${{ secrets.ECR_REGISTRY }}:${{ steps.vars.outputs.sha_short }}|" argocd/k8s/front/frontend-deployment.yaml
+          sed -i "s|image: .*/recipego-frontend:.*|image: ${{ secrets.ECR_REGISTRY }}:${{ steps.vars.outputs.sha_short }}|" argocd/k8s/front/frontend-deployment.yaml
 
       - name: Commit & Push
         run: |
