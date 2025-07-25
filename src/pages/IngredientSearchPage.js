@@ -223,19 +223,6 @@ function IngredientSearchPage() {
     console.log("recipe 전달 data:", query)
     };
 
-//  const searchData = {
-//    ingredients,
-//    kind,
-//    preference,
-//    level,
-//  };
-//
-//  // 👉 sessionStorage 저장
-//  sessionStorage.setItem('recipeSearchState', JSON.stringify(searchData));
-//
-//  // 👉 location.state로도 함께 전달
-//  navigate('/RecipeListPage', { state: searchData });
-
   const isSearchDisabled = ingredients.length === 0;
 
   // cursor 수정 - 초기화 함수 개선
