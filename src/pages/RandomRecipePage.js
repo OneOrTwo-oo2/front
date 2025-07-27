@@ -164,7 +164,8 @@ function RandomRecipePage() {
           title: recipe.title,
           image: recipe.image,
           summary: recipe.summary || "",
-          link: recipe.link
+          link: recipe.link,
+          is_ai_generated: false 
         })
       });
 
