@@ -116,7 +116,11 @@ function RecipeListPage() {
       if (cached) {
         // ✅ Watson 캐시가 있으면 상태만 복원, 로딩은 아예 건너뜀
         const parsed = JSON.parse(cached);
-        setWatsonRecommendations(parsed.recommended_recipes || []);
+        const withIds = (parsed.recommended_recipes || []).map((r, i) => ({
+          ...r,
+          id: Number(r.id) || null  // ← id 없으면 null로 (NaN 방지)
+        }));
+        setWatsonRecommendations(withIds);
         //setDietaryTips(parsed.dietary_tips || "");
         setIsWatsonLoading(false); // 안전하게 로딩 꺼두기
         return;
@@ -168,7 +172,8 @@ function RecipeListPage() {
       const data = await res.data;
       const bookmarkedIds = new Map();
       data.forEach((recipe) => {
-        bookmarkedIds.set(Number(recipe.id), true);
+        const key = recipe.is_ai_generated ? `ai-${recipe.id}` : `normal-${recipe.id}`;
+        bookmarkedIds.set(key, true);
       });
       setBookmarkedState(bookmarkedIds);
     } catch (err) {
@@ -218,20 +223,28 @@ function RecipeListPage() {
     fetchRecipes(ingredients, kindValue);
   };
 
- const handleCardClick = (recipe) => {
-      navigate('/recipes/detail', {
-        state: {
-          title: recipe.title,
-          image: recipe.image,
-          summary: recipe.summary,
-          link: recipe.link,
-          recommendation_reason: recipe.recommendation_reason,
-          dietary_tips: recipe.dietary_tips,
-          //dietary_tips: dietaryTips,
-          isWatson: recipe.isWatson || false,
-        }
-      });
-    };
+  const handleCardClick = (recipe) => {
+    const isWatsonRecipe =
+      recipe.isWatson === true ||
+      recipe.is_ai_generated === true ||
+      (!recipe.summary && !!recipe.recommendation_reason && !!recipe.dietary_tips);
+
+    console.log("🔍 클릭된 레시피:", recipe);
+    console.log("➡️ isWatson 판단 결과:", isWatsonRecipe);
+
+    navigate('/recipes/detail', {
+      state: {
+        title: recipe.title,
+        image: recipe.image,
+        summary: recipe.summary,
+        link: recipe.link,
+        recommendation_reason: recipe.recommendation_reason,
+        dietary_tips: recipe.dietary_tips,
+        isWatson: isWatsonRecipe,
+      }
+    });
+  };
+
 
   const handleToggle = (key) => {
     setOpenDropdown(openDropdown === key ? null : key);
@@ -251,13 +264,20 @@ function RecipeListPage() {
     }
 
     try {
-      // cursor 수정 - Watson 레시피와 일반 레시피 데이터 구조 통합 처리
-      const bookmarkData = {
-        title: recipe.title || recipe["제목"] || recipe.title,
-        image: recipe.image,
-        summary: recipe.summary || recipe.dietary_tips || "",
-        link: recipe.link || recipe.url || ""
-      };
+      // cursor 수정 - Watson 레시피와 일반 레시피 데이터 구조 통합 처리 // 수정함
+        const isWatsonRecipe =
+          recipe.isWatson === true ||
+          (!recipe.summary && !!recipe.recommendation_reason && !!recipe.dietary_tips);
+
+        const bookmarkData = {
+          title: recipe.title || recipe["제목"],
+          image: recipe.image,
+          summary: recipe.summary || '',
+          link: recipe.link || recipe.url || '',
+          is_ai_generated: isWatsonRecipe,
+          recommendation_reason: recipe.recommendation_reason || '',
+          dietary_tips: recipe.dietary_tips || ''
+        };
 
       console.log("✅ 북마크 데이터:", bookmarkData);
 
@@ -271,9 +291,11 @@ function RecipeListPage() {
 
       const data = await res.data;
       const newRecipeId = Number(data.recipe_id);
+      const key = isWatsonRecipe ? `ai-${newRecipeId}` : `normal-${newRecipeId}`;
+
       setBookmarkedState((prev) => {
         const updated = new Map(prev);
-        updated.set(newRecipeId, true);
+        updated.set(key, true);
         return updated;
       });
 
@@ -281,7 +303,18 @@ function RecipeListPage() {
       if (watsonIdx !== null) {
         setWatsonRecommendations(prev => {
           const updated = [...prev];
-          updated[watsonIdx] = { ...updated[watsonIdx], id: newRecipeId };
+          updated[watsonIdx] = {
+            ...updated[watsonIdx],
+            id: newRecipeId  // ✅ Watson 캐시에 진짜 DB id 반영
+          };
+              // ✅ Watson 캐시도 함께 업데이트!
+          const cached = sessionStorage.getItem("watsonRecommendations");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.recommended_recipes[watsonIdx].id = newRecipeId;
+            sessionStorage.setItem("watsonRecommendations", JSON.stringify(parsed));
+          }
+
           return updated;
         });
       }
@@ -371,14 +404,56 @@ function RecipeListPage() {
         <div className="watson-section">
           <h3>🤖 Watson AI 추천 레시피3종</h3>
           <div className="recipe-grid">
-            {watsonRecommendations.map((r, i) => (
-              <div key={`watson-${i}`} className="recipe-card watson-card" onClick={() => handleCardClick({...r, link: r.url, isWatson: true })}>
-                <img src={r.image} alt={r["제목"]} />
-                <h3>{r["제목"]}</h3>
-                {/* <p>{r.dietary_tips}</p> */}
+            {watsonRecommendations.map((r, i) => {
+
+              return (
+                <div key={`watson-${i}`} className="recipe-card watson-card" onClick={() => handleCardClick({...r, link: r.url, isWatson: true })}>
+                  <img src={r.image} alt={r["제목"]} />
+                  <h3>{r["제목"]}</h3>
+
+              <div className="bookmark-btn-wrapper" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+                <button
+                  className="bookmark-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const realId = !isNaN(Number(r.id)) ? Number(r.id) : null;
+                    handleAddToBookmark({ ...r, id: realId || `watson-${i}` }, i);
+                  }}
+                >
+                  {(() => {
+                          const key = `ai-${r.id}`;
+                          return bookmarkedState.has(key) ? (
+                      <>
+                        <span className="icon" style={{ color: '#2dbd5a' }}>✅</span>
+                        <span style={{ color: '#2dbd5a' }}>저장됨</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="icon">🔖</span>
+                        북마크
+                      </>
+                    );
+                  })()}
+                </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+        <h3>검색 레시피</h3>
+        <div className="recipe-grid">
+          {results.map((r, i) => {
+            const key = `normal-${r.id}`;  // ✅ 일반 레시피 북마크 key
+            return (
+              <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
+                <img src={r.image} alt={r.title} />
+                <h3>{r.title}</h3>
+                <p>{r.summary}</p>
                 <div className="bookmark-btn-wrapper" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-                  <button className="bookmark-btn" onClick={(e) => { e.stopPropagation(); handleAddToBookmark({...r, id: r.id || `watson-${i}`}, i); }}>
-                    {bookmarkedState.has(Number(r.id)) ? (
+                  <button className="bookmark-btn" onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
+                    {bookmarkedState.has(key) ? (
                       <>
                         <span className="icon" style={{ color: '#2dbd5a' }}>✅</span>
                         <span style={{ color: '#2dbd5a' }}>저장됨</span>
@@ -392,35 +467,9 @@ function RecipeListPage() {
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      )}
-        <h3>검색 레시피</h3>
-      <div className="recipe-grid">
-        {results.map((r, i) => (
-          <div key={i} className="recipe-card" onClick={() => handleCardClick(r)}>
-            <img src={r.image} alt={r.title} />
-            <h3>{r.title}</h3>
-            <p>{r.summary}</p>
-            <div className="bookmark-btn-wrapper" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-              <button className="bookmark-btn" onClick={(e) => { e.stopPropagation(); handleAddToBookmark(r); }}>
-                {bookmarkedState.has(Number(r.id)) ? (
-                  <>
-                    <span className="icon" style={{ color: '#2dbd5a' }}>✅</span>
-                    <span style={{ color: '#2dbd5a' }}>저장됨</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="icon">🔖</span>
-                    북마크
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

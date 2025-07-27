@@ -20,6 +20,8 @@ function MyinfoPage() {
   const [newFolderName, setNewFolderName] = useState('');
   const [addToFolderModal, setAddToFolderModal] = useState({ open: false, recipeId: null });
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editedTitle, setEditedTitle] = useState('');
 
   const navigate = useNavigate();
 
@@ -43,6 +45,7 @@ function MyinfoPage() {
     try {
       const res = await fetchWithAutoRefresh("/bookmarks", { method: "GET" });
       const data = res.data;
+      console.log("📌 북마크 응답:", data);  // 이거 추가
       setBookmarks(data);
     } catch (err) {
       console.error("북마크 불러오기 실패:", err);
@@ -60,7 +63,16 @@ function MyinfoPage() {
   };
 
   const handleCardClick = (recipe) => {
-    navigate("/recipes/detail", { state: { link: recipe.link } });
+    console.log("✅ 클릭한 recipe:", recipe); // 꼭 확인
+
+    navigate("/recipes/detail", {
+      state: {
+        link: recipe.link,
+        isWatson: recipe.is_ai_generated || !recipe.link,
+        recommendation_reason: recipe.recommendation_reason || recipe.summary,
+        dietary_tips: recipe.dietary_tips || recipe.summary,
+      },
+    });
   };
 
   const handleCreateFolder = async () => {
@@ -117,11 +129,14 @@ function MyinfoPage() {
         alert(error.detail || "이미 추가된 레시피입니다.");
         return;
       }
-
-      const recipeToAdd = bookmarks.find(r => r.id === recipeId);
+// 폴더에 추가 후 folderRecipes에 저장할 때 AI 여부 유지
+      const recipeToAdd = bookmarks.find(r => r.id === addToFolderModal.recipeId);
       setFolderRecipes(prev => {
         const updated = { ...prev };
-        updated[selectedFolder] = [...(updated[selectedFolder] || []), recipeToAdd];
+        updated[folder.name] = [...(updated[folder.name] || []), {
+          ...recipeToAdd,
+          is_ai_generated: recipeToAdd.is_ai_generated  // ✅ 명시적으로 복사
+        }];
         return updated;
       });
     } catch (err) {
@@ -137,12 +152,10 @@ function MyinfoPage() {
       await fetchWithAutoRefresh(`/folders/${folder.id}/recipes/${recipeId}`, {
         method: "DELETE"
       });
-
-      setFolderRecipes(prev => {
-        const updated = { ...prev };
-        updated[selectedFolder] = updated[selectedFolder].filter(r => r.id !== recipeId);
-        return updated;
-      });
+      
+      // ✅ 서버에서 실제로 제거됐는지 다시 조회해서 반영
+      await handleFolderChange(folder.name);  // 🔥 서버에서 다시 불러오기
+      
     } catch (err) {
       console.error("폴더에서 제거 실패:", err);
     }
@@ -155,7 +168,7 @@ function MyinfoPage() {
       await fetchWithAutoRefresh(`/bookmark?recipeId=${recipeId}`, {
         method: "DELETE"
       });
-
+    
       setBookmarks(prev => prev.filter(r => r.id !== recipeId));
 
       setFolderRecipes(prev => {
@@ -248,6 +261,35 @@ function MyinfoPage() {
       alert('모든 북마크가 삭제되었습니다.');
     } catch (err) {
       alert('전체 삭제에 실패했습니다.');
+    }
+  };
+  const handleSaveTitle = async (recipeId) => {
+    try {
+      await fetchWithAutoRefresh(`/bookmark/title?recipeId=${recipeId}&new_title=${encodeURIComponent(editedTitle)}`, {
+        method: 'PUT'
+      });
+
+      setBookmarks((prev) =>
+        prev.map((r) =>
+          r.id === recipeId ? { ...r, title: editedTitle } : r
+        )
+      );
+
+      setFolderRecipes((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((key) => {
+          updated[key] = updated[key].map((r) =>
+            r.id === recipeId ? { ...r, title: editedTitle } : r
+          );
+        });
+        return updated;
+      });
+
+      setEditingId(null);
+      setEditedTitle('');
+    } catch (err) {
+      alert('제목 저장 실패');
+      console.error(err);
     }
   };
 
@@ -393,11 +435,41 @@ function MyinfoPage() {
               <div className="recipe-grid">
                 {currentRecipes.length > 0 ? (
                   currentRecipes.map(recipe => (
-                    <div key={recipe.id} className="recipe-card" onClick={() => handleCardClick(recipe)}>
-                      <img src={recipe.image} alt={recipe.title} className="recipe-img" />
-                      <div className="recipe-info">
-                        <h4>{recipe.title}</h4>
-                        <p>{recipe.summary}</p>
+                  <div
+                    key={recipe.id}
+                    className={`recipe-card ${recipe.is_ai_generated ? 'ai-recipe' : ''}`}
+                    onClick={() => handleCardClick(recipe)}
+                     >
+                    <img src={recipe.image} alt={recipe.title} className="recipe-img" />
+                    <div className="recipe-info">
+                      {recipe.is_ai_generated && <div className="ai-badge">🔶 AI 추천</div>}
+                      {editingId === recipe.id ? (
+                      <input
+                        type="text"
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onBlur={() => handleSaveTitle(recipe.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveTitle(recipe.id);
+                        }}
+                        autoFocus
+                        style={{ fontSize: '14px', padding: '4px', width: '100%' }}
+                      />
+                      ) : (
+                      <h4
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingId(recipe.id);
+                          setEditedTitle(recipe.title);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        ✏️ {recipe.title}
+                      </h4>
+                      )}
+                      {!recipe.is_ai_generated && <p>{recipe.summary}</p>}
+
                         <div className="recipe-actions">
                           {selectedFolder !== '전체' && (
                             <button 
