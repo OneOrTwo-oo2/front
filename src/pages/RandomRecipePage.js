@@ -42,7 +42,7 @@ function RandomRecipePage() {
   { label: "입덧", code: "101013002" },
   { label: "태교음식", code: "101013003" },
   { label: "수유", code: "101013004" },
-  { label: "산후조리", code: "101013002" },
+  { label: "산후조리", code: "101013005" },
   { label: "아이성장발달", code: "101013006" },
   { label: "아이두뇌발달", code: "101013007" },
   { label: "아이장튼튼", code: "101013008" },
