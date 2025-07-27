@@ -639,3 +639,18 @@
 .add-btn {
   font-size: 15px;
 }
+
+.recipe-card.ai-recipe {
+  border: 2px solid #ff9900;
+  background-color: #fff8e6;
+}
+
+.ai-badge {
+  background-color: #ff9900;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  display: inline-block;
+}

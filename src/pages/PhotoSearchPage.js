@@ -13,6 +13,7 @@ function PhotoSearchPage() {
   const [showPreview, setShowPreview] = useState(false); // 미리보기 토글 상태
   const [showResult, setShowResult] = useState(false); // 결과 보여주기 상태
   const [showDebug, setShowDebug] = useState(false); // 디버깅 토글
+  const [selectedFile, setSelectedFile] = useState(null); // 새로 추가: 선택된 파일 저장
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -27,16 +28,21 @@ function PhotoSearchPage() {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     sessionStorage.setItem('uploadedImageUrl', url);
+    setSelectedFile(file); // 파일 저장만 하고 바로 서버 전송 X
+  }, []);
 
+  // 검색 버튼 클릭 시 서버로 전송
+  const handleSearchClick = useCallback(() => {
+    if (!selectedFile) return;
+    
+    const file = selectedFile;
+    const url = previewUrl;
     const formData = new FormData();
     formData.append('file', file);
-
     setIsLoading(true);
-
     aiClient.post('/ingredients', formData)
       .then((res) => {
-        console.log(res.data.ingredients);
-        handleSearchSuccess(res.data.ingredients, url); // url을 명시적으로 넘김
+        handleSearchSuccess(res.data.ingredients, url);
       })
       .catch((error) => {
         console.error('검색 실패:', error);
@@ -45,7 +51,7 @@ function PhotoSearchPage() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [selectedFile, previewUrl]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -144,6 +150,14 @@ function PhotoSearchPage() {
                 <div style={{ fontSize: '0.9rem', color: '#888', textAlign: 'center', marginTop: 4 }}>
                   전에 선택한 사진
                 </div>
+              </div>
+            )}
+            {/* 검색 버튼: 파일이 선택된 경우에만 활성화 */}
+            {selectedFile && (
+              <div style={{ marginTop: 20, textAlign: 'center' }}>
+                <button className="upload-btn" style={{ fontSize: '1.1rem', padding: '12px 32px' }} onClick={handleSearchClick}>
+                  사진으로 검색
+                </button>
               </div>
             )}
           </>
