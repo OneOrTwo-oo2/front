@@ -26,7 +26,7 @@ function SelectedIngredientsRow({ ingredients, onToggle, ingredientsWithConfiden
         };
       } else {
         return {
-          backgroundColor: '#f44336', // 빨간색 (낮은 정확도: 20% 미만)
+          backgroundColor: '#f44336', // 빨간색 (낮은 정확도: 30% 미만)
           color: 'white',
           border: '1px solid #d32f2f'
         };
