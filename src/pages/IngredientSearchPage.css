@@ -208,3 +208,176 @@ select {
     gap: 8px;
   }
 }
+
+.ingredient-search-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 32px 40px 32px 40px;
+  background: #fafbfc;
+}
+.selected-ingredients-fixed {
+  position: sticky;
+  top: 100px;
+  width: 240px;
+  background-color: white;
+  border-radius: 18px;
+  padding: 20px 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.10);
+  max-height: 70vh;
+  overflow-y: auto;
+  margin-bottom: 30px;
+}
+.text-prefer {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.selected-ingredients-row .buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 0;
+  justify-content: flex-start;
+  border: 2px solid #e0e0e0;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  min-height: 40px;
+}
+.ingredient-search-content {
+  flex: 1;
+  min-width: 0;
+}
+.section {
+  margin-bottom: 32px;
+}
+.section h4 {
+  font-size: 1.15rem;
+  margin: 18px 0 10px 0;
+  font-weight: 600;
+}
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px 12px;
+}
+.buttons button {
+  font-size: 1.05rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  box-shadow: 0 2px 6px #0001;
+  transition: background 0.2s, border 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.buttons button.active {
+  background: #007bff;
+  color: #fff;
+  border: 1.5px solid #007bff;
+}
+.search-sticky-btn {
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: 24px;
+}
+.search-sticky-btn .search-btn {
+  padding: 16px 28px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.13);
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 6px;
+}
+.search-sticky-btn .search-btn:hover {
+  background-color: #0056b3;
+}
+.search-sticky-btn .search-btn:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+}
+.search-sticky-btn .reset-btn {
+  background-color: #ff6b6b;
+  color: white;
+}
+.search-sticky-btn .reset-btn:hover {
+  background-color: #d43a3a;
+}
+@media (max-width: 900px) {
+  .ingredient-search-layout {
+    flex-direction: column;
+    padding: 0 4px;
+    gap: 0;
+  }
+  .selected-ingredients-fixed {
+    position: static;
+    width: 100%;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px 4px;
+  }
+  .ingredient-search-content {
+    padding: 0 2px;
+  }
+  .section h4 {
+    font-size: 1.05rem;
+    margin: 10px 0 6px 0;
+  }
+  .buttons {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7px 6px;
+  }
+  .buttons button, .search-btn, .reset-btn {
+    font-size: 0.98rem;
+    padding: 8px 6px;
+    margin: 2px 2px;
+    border-radius: 7px;
+  }
+  .search-sticky-btn {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    background: #fff;
+    padding: 10px 0 8px 0;
+    box-shadow: 0 -2px 12px #0001;
+    z-index: 100;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-left: 0;
+  }
+  .search-sticky-btn .search-btn, .search-sticky-btn .reset-btn {
+    font-size: 1.05rem;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 480px) {
+  .buttons {
+    grid-template-columns: 1fr;
+  }
+  .search-sticky-btn {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0 6px 0;
+  }
+}

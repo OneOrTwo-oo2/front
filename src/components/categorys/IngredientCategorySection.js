@@ -16,6 +16,28 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
     setDisplayCountMap(initialMap);
   }, []);
 
+  // 선택된 재료들을 confidence 형식으로 변환
+  const getMergedIngredientsWithConfidence = () => {
+    const existingConfidence = ingredientsWithConfidence || [];
+    
+    // 현재 선택된 재료들만 confidence 정보를 유지
+    const selectedWithConfidence = selectedIngredients.map(ingredient => {
+      // 이미 confidence가 있는 재료는 그대로 사용
+      const existing = existingConfidence.find(item => item.label === ingredient);
+      if (existing) {
+        return existing;
+      }
+      // 사용자가 직접 선택한 재료는 높은 confidence(0.9)로 설정
+      return {
+        label: ingredient,
+        confidence: 1.0
+      };
+    });
+    
+    // 선택되지 않은 재료들은 confidence 정보에서 제외
+    return selectedWithConfidence;
+  };
+
   // cursor 수정 - toggleIngredient prop이 있으면 사용, 없으면 기존 로직 사용
   const handleToggle = (item) => {
     if (toggleIngredient) {
@@ -36,9 +58,9 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
 
   // 정확도에 따른 색상 결정 함수
   const getIngredientStyle = (item) => {
-    if (!ingredientsWithConfidence) return {};
+    const mergedConfidence = getMergedIngredientsWithConfidence();
+    const ingredientInfo = mergedConfidence.find(ing => ing.label === item);
     
-    const ingredientInfo = ingredientsWithConfidence.find(ing => ing.label === item);
     if (ingredientInfo) {
       const confidencePercent = ingredientInfo.confidence * 100;
       
@@ -68,14 +90,12 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
   return (
     <>
     <div className="selected-ingredients-wrapper">
-         <div className="selected-ingredients-box">
       <SelectedIngredientsRow 
         ingredients={selectedIngredients} 
         onToggle={handleToggle} 
-        ingredientsWithConfidence={ingredientsWithConfidence}
+        ingredientsWithConfidence={getMergedIngredientsWithConfidence()}
         confidenceThreshold={confidenceThreshold}
       />
-    </div>
     </div>
       {Object.entries(ingredientCategoryMap).map(([category, label]) => {
         const items = ingredientList[label] || [];
@@ -105,9 +125,13 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
                     className={selectedIngredients.includes(item) ? "active" : ""}
                     onClick={() => handleToggle(item)}
                     style={buttonStyle}
-                    title={ingredientsWithConfidence?.find(ing => ing.label === item) ? 
-                      `정확도: ${(ingredientsWithConfidence.find(ing => ing.label === item).confidence * 100).toFixed(1)}%` : 
-                      undefined}
+                    title={(() => {
+                      const mergedConfidence = getMergedIngredientsWithConfidence();
+                      const ingredientInfo = mergedConfidence.find(ing => ing.label === item);
+                      return ingredientInfo ? 
+                        `정확도: ${(ingredientInfo.confidence * 100).toFixed(1)}%` : 
+                        undefined;
+                    })()}
                   >
                     {info.emoji ? (
                       // cursor 수정 - 이미지 경로 수정 및 안정성 향상
