@@ -33,14 +33,26 @@ function IngredientSearchPage() {
   // bounding box 이미지 URL을 올바른 백엔드 서버 URL로 구성
   const fullBboxImageUrl = useMemo(() => {
     if (!bboxImageUrl) return null;
+    
     // 상대 경로인 경우 백엔드 서버 URL과 결합
     if (bboxImageUrl.startsWith('/')) {
-      // static 파일은 /ai 경로 없이 직접 접근
-      const baseUrl = getAiApi().replace('/ai', ''); // http://localhost:8001
+      // 서버 환경과 로컬 환경 모두 고려
+      const aiApi = getAiApi();
+      let baseUrl;
+      
+      if (aiApi.startsWith('http')) {
+        // 로컬 환경: http://localhost:8001/ai -> http://localhost:8001
+        baseUrl = aiApi.replace('/ai', '');
+      } else {
+        // 서버 환경: /ai -> 현재 도메인 사용
+        baseUrl = window.location.origin;
+      }
+      
       const fullUrl = `${baseUrl}${bboxImageUrl}`;
       console.log('🔍 Bounding box 이미지 URL:', fullUrl);
       return fullUrl;
     }
+    
     console.log('🔍 Bounding box 이미지 URL:', bboxImageUrl);
     return bboxImageUrl;
   }, [bboxImageUrl]);
