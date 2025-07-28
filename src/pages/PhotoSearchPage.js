@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './PhotoSearchPage.css';
 import LoadingAnimation from '../components/loading_api';
 import aiClient from '../api/aiClient.js';
+import cameraIcon from '../assets/icons/camera_icon.svg';
 
 // 디버깅용 시각화 컴포넌트 및 토글 버튼, 관련 코드 전체 삭제
 
@@ -122,7 +123,9 @@ function PhotoSearchPage() {
         {/* 분석 결과가 오면 바로 ingredient-search 페이지로 이동 */}
         {!isLoading && (
           <>
-            <div className="upload-icon">📷</div>
+            <div className="upload-icon">
+              <img src={cameraIcon} alt="카메라 아이콘" style={{ width: '2em', height: '2em', verticalAlign: 'middle' }} />
+            </div>
             <h2 className="upload-title">사진을 올려주세요.</h2>
             <button
               className="upload-btn"
