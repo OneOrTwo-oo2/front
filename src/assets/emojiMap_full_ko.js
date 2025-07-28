@@ -916,12 +916,12 @@ const emojiMap = {
   },
   "Ramen_noodles": {
     "emoji": "/emojis/ramen_noodles.png",
-    "name_ko": "라멘면",
+    "name_ko": "라멘사리",
     "name_en": "Ramen noodles"
   },
   "Udon_noodles": {
     "emoji": "/emojis/udon_noodles.png",
-    "name_ko": "우동면",
+    "name_ko": "우동사리",
     "name_en": "Udon noodles"
   },
   "chicken_wing": {
@@ -966,7 +966,7 @@ const emojiMap = {
   },
   "Naengmyeon_noodles": {
     "emoji": "/emojis/naengmyeon_noodles.png",
-    "name_ko": "냉면면",
+    "name_ko": "냉면사리",
     "name_en": "Naengmyeon noodles"
   },
   "pork_front_leg": {
