@@ -37,8 +37,7 @@ function SelectedIngredientsRow({ ingredients, onToggle, ingredientsWithConfiden
 
   return (
     <div className="section selected-ingredients-row">
-      <div className="buttons horizontal-scroll">
-        {ingredients.map((item) => {
+      {ingredients.map((item) => {
           const info = emojiMap[item] || {
             emoji: null,
             name_ko: item.replace(/_/g, " "),
@@ -55,8 +54,7 @@ function SelectedIngredientsRow({ ingredients, onToggle, ingredientsWithConfiden
               style={buttonStyle}
               title={ingredientsWithConfidence?.find(ing => ing.label === item) ? 
                 `정확도: ${(ingredientsWithConfidence.find(ing => ing.label === item).confidence * 100).toFixed(1)}%` : 
-                undefined}
-            >
+                undefined}>
               {info.emoji ? (
                 // cursor 수정 - 이미지 경로 수정 및 안정성 향상
                 <img
@@ -82,7 +80,6 @@ function SelectedIngredientsRow({ ingredients, onToggle, ingredientsWithConfiden
             </button>
           );
         })}
-      </div>
     </div>
   );
 }
