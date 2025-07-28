@@ -88,7 +88,7 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
           color: 'white',
           border: '1px solid #45a049'
         };
-      } else if (confidencePercent >= 20) {
+      } else if (confidencePercent >= 30) {
         return {
           backgroundColor: '#ff9800', // 주황색 (중간 정확도: 20~70%)
           color: 'white',
@@ -127,49 +127,66 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
             ...items.filter((i) => !selectedIngredients.includes(i)),
           ];
           return (
-            <div className="ingredient-section-card" key={category} onClick={() => openModal(category)} style={{cursor:'pointer'}}>
-              <h4>{label}</h4>
-              <div className="ingredient-buttons buttons">
-                {displayedItems.slice(0, 4).map((item) => {
-                  const info = emojiMap[item] || {
-                    emoji: null,
-                    name_ko: item.replace(/_/g, " "),
-                  };
-                  const buttonStyle = getIngredientStyle(item);
-                  return (
-                    <button
-                      key={item}
-                      className={selectedIngredients.includes(item) ? "active" : ""}
-                      onClick={e => { e.stopPropagation(); handleToggle(item); }}
-                      style={buttonStyle}
-                      title={(() => {
-                        const mergedConfidence = getMergedIngredientsWithConfidence();
-                        const ingredientInfo = mergedConfidence.find(ing => ing.label === item);
-                        return ingredientInfo ? 
-                          `정확도: ${(ingredientInfo.confidence * 100).toFixed(1)}%` : 
-                          undefined;
-                      })()}
-                    >
-                      {info.emoji ? (
-                        <img
-                          src={info.emoji}
-                          alt={info.name_ko}
-                          style={{ width: 25, height: 25, marginRight: 8 }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            if (e.target.nextSibling) {
-                              e.target.nextSibling.style.display = 'inline';
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span style={{ marginRight: 8 }}>🧂</span>
-                      )}
-                      {info.emoji && <span style={{ marginRight: 8, display: 'none' }}>🧂</span>}
-                      {info.name_ko}
-                    </button>
-                  );
-                })}
+            <div className="ingredient-section-card" key={category} style={{cursor:'pointer', background:'#e0e0e0', boxShadow:'0 2px 12px rgba(0,0,0,0.08)', borderRadius:'18px', margin:'0 8px', minWidth:'220px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start'}}>
+              <div className="category-header" style={{width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px'}}>
+                <h3 style={{margin:'0', fontSize:'1.1rem', fontWeight:'600', color:'#333'}}>{label}</h3>
+                <button 
+                  className="toggle-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal(category);
+                  }}
+                  style={{
+                    width:'32px',
+                    height:'32px',
+                    borderRadius:'50%',
+                    border:'none',
+                    background:'linear-gradient(135deg, #007bff, #28a745)',
+                    color:'white',
+                    fontSize:'18px',
+                    fontWeight:'bold',
+                    cursor:'pointer',
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    boxShadow:'0 2px 8px rgba(0,123,255,0.3)',
+                    transition:'all 0.2s ease'
+                  }}
+                >
+                  +
+                </button>
+              </div>
+              <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
+                {displayedItems.slice(0, 4).map((item) => (
+                  <button
+                    key={item}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleIngredient(item);
+                    }}
+                    className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
+                    style={{
+                      padding:'8px 12px',
+                      border:'1px solid #ddd',
+                      borderRadius:'8px',
+                      background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
+                      color:selectedIngredients.includes(item) ? '#fff' : '#333',
+                      cursor:'pointer',
+                      fontSize:'0.9rem',
+                      display:'flex',
+                      alignItems:'center',
+                      gap:'6px',
+                      transition:'all 0.2s ease'
+                    }}
+                  >
+                    <img 
+                      src={emojiMap[item]?.emoji || '/default-emoji.png'} 
+                      alt={emojiMap[item]?.name_ko || item}
+                      style={{width:'20px', height:'20px'}}
+                    />
+                    <span style={{fontSize:'0.85rem'}}>{emojiMap[item]?.name_ko || item}</span>
+                  </button>
+                ))}
               </div>
             </div>
           );

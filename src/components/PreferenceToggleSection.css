@@ -112,36 +112,44 @@
 }
 
 .ingredient-btn {
-  padding: 12px 20px;
-  background-color: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  color: #495057;
+  padding: 12px 20px !important;
+  background-color: #f8f9fa !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 25px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  color: #495057 !important;
+  white-space: normal !important;
+  text-align: center !important;
+  display: inline-block !important;
+  min-width: auto !important;
+  width: auto !important;
+  height: auto !important;
+  line-height: normal !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .ingredient-btn:hover {
-  background-color: #e9ecef;
-  border-color: #adb5bd;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #e9ecef !important;
+  border-color: #adb5bd !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .ingredient-btn.selected {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  border-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #007bff, #0056b3) !important;
+  color: white !important;
+  border-color: #007bff !important;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3) !important;
+  transform: translateY(-2px) !important;
 }
 
 .ingredient-btn.selected:hover {
-  background: linear-gradient(135deg, #0056b3, #004085);
-  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+  background: linear-gradient(135deg, #0056b3, #004085) !important;
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4) !important;
 }
 
 /* 로딩 스피너 */

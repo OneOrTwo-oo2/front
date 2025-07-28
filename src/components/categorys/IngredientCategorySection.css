@@ -175,32 +175,141 @@
 
 /* 카테고리 카드형 가로 배치용 분리 클래스 */
 .ingredient-sections-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  align-items: flex-start;
-  margin-bottom: 32px;
-  width: 100%;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .ingredient-section-card {
-  min-width: 240px;
-  flex: 1 1 240px;
-  background: #f9fafb;
-  border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 0 0 18px 0;
-  margin-bottom: 0;
+  background: #e0e0e0;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 16px 12px;
+  min-width: 180px;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  transition: box-shadow 0.2s, transform 0.18s;
+  align-items: center;
+  transition: box-shadow 0.2s, background 0.2s;
 }
 
 .ingredient-section-card:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 24px rgba(80,150,255,0.13);
+  background: #d3d3d3;
+}
+
+.category-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.category-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.toggle-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #007bff, #28a745);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.ingredient-item {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.ingredient-item:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.ingredient-item.selected {
+  background: #4CAF50;
+  color: #fff;
+  border-color: #4CAF50;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 1200px) {
+  .ingredient-sections-wrapper {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ingredient-sections-wrapper {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ingredient-sections-wrapper {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    justify-items: center;
+    padding: 0 16px;
+  }
+  
+  .ingredient-section-card {
+    padding: 16px 12px;
+    min-width: auto;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  
+  .category-header h3 {
+    font-size: 1rem;
+  }
+  
+  .toggle-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+  
+  .ingredient-item {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
 }
 
 .ingredient-section-card h4 {
@@ -357,60 +466,4 @@
 
 .ingredient-modal-list button:hover {
   background: #f5f7fa;
-}
-
-@media (max-width: 600px) {
-  .ingredient-sections-wrapper {
-    flex-direction: column;
-    gap: 14px;
-    padding: 0 2vw;
-    align-items: center;
-  }
-  .ingredient-section-card {
-    min-width: 0;
-    width: 100%;
-    border-radius: 14px;
-    padding: 0 0 10px 0;
-    margin: 0 auto;
-  }
-  .ingredient-section-card h4 {
-    font-size: 1em;
-    padding: 14px 10px 10px 14px;
-    border-radius: 14px 14px 0 0;
-  }
-  .ingredient-section-card .ingredient-buttons {
-    padding: 10px 8px 0 8px;
-    gap: 8px;
-  }
-  .ingredient-section-card .ingredient-buttons button {
-    font-size: 0.98em;
-    height: 38px;
-    border-radius: 10px;
-    padding: 0 6px;
-  }
-  .ingredient-modal {
-    min-width: 0;
-    width: 98vw;
-    max-width: 98vw;
-    max-height: 92vh;
-    border-radius: 12px;
-    padding: 0 0 8px 0;
-    margin: 0 auto;
-  }
-  .ingredient-modal-header {
-    font-size: 1em;
-    padding: 12px 10px 8px 14px;
-  }
-  .ingredient-modal-list {
-    padding: 12px 10px 0 10px;
-    gap: 8px;
-    min-width: 0;
-  }
-  .ingredient-modal-list button {
-    min-width: 80px;
-    height: 36px;
-    font-size: 0.97em;
-    border-radius: 8px;
-    padding: 0 4px;
-  }
 }

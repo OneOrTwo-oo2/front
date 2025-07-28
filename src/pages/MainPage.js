@@ -76,9 +76,9 @@ function MainPage() {
               <img src={imgSrc} alt={`메인${i+1}`} style={{ width: '120%', height: 'auto', borderRadius: '12px', objectFit: 'contain', maxHeight: 250, userSelect: 'none', pointerEvents: 'none' }} />
             </div>
             <p style={{ fontWeight: 500, fontSize: '1.1rem', marginTop: 24, userSelect: 'none' }}>
-              {i === 0 && '재료 선택해서 레시피 보기'}
-              {i === 1 && '사진으로 검색해서 레시피보기'}
-              {i === 2 && '레시피 둘러보기'}
+              {i === 0 && '재료 선택'}
+              {i === 1 && '사진 검색'}
+              {i === 2 && '테마 선택'}
             </p>
           </div>
         ))}

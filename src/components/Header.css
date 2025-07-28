@@ -100,11 +100,16 @@
     height: 32px;
   }
   .header-center {
-    gap: 8px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow: hidden;
   }
   .header-center a {
-    font-size: 11px;
-    padding: 2px 4px;
+    font-size: 9px;
+    padding: 2px 2px;
+    white-space: nowrap;
+    min-width: 0;
+    flex-shrink: 1;
   }
   .header-right {
     gap: 4px;
