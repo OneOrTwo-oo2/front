@@ -20,6 +20,7 @@ function LoginPage() {
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailChecked, setEmailChecked] = useState(false);
   const [emailAvailable, setEmailAvailable] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // ✅ 구글 로그인 스크립트 로드 및 버튼 렌더
   useEffect(() => {
@@ -255,6 +256,15 @@ function LoginPage() {
     setEmailAvailable(false);
   };
 
+  const openPrivacyModal = (e) => {
+    e.preventDefault();
+    setShowPrivacyModal(true);
+  };
+
+  const closePrivacyModal = () => {
+    setShowPrivacyModal(false);
+  };
+
   return (
     <div className="login-page">
       <div className="login-container">
@@ -342,7 +352,7 @@ function LoginPage() {
                   />
                   <span className="checkmark"></span>
                   <span className="checkbox-text">
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer">개인정보 수집 및 이용</a>에 동의합니다.
+                    <a href="#" onClick={openPrivacyModal}>개인정보 수집 및 이용</a>에 동의합니다.
                   </span>
                 </label>
                 {errors.agreeToTerms && <span className="error-message">{errors.agreeToTerms}</span>}
@@ -376,6 +386,44 @@ function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* 개인정보 수집 및 이용 모달 */}
+      {showPrivacyModal && (
+        <div className="modal-overlay" onClick={closePrivacyModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>개인정보 수집 및 이용 동의</h3>
+            </div>
+            <div className="modal-body">
+              <div className="privacy-content">
+                <h4>수집 이용 목적</h4>
+                <p>맞춤형 레시피 추천 및 건강관리 서비스 제공</p>
+                
+                <h4>수집 항목</h4>
+                <p>이메일 주소, 비밀번호, 질병 정보, 알러지 정보 등 건강 관련 민감정보</p>
+                
+                <h4>보유 및 이용기간</h4>
+                <p>회원 탈퇴 또는 동의 철회 시까지</p>
+                
+                <h4>동의 거부 권리 및 불이익</h4>
+                <p>동의를 거부할 수 있으나, 맞춤형 추천 등 일부 서비스 이용이 제한될 수 있습니다.</p>
+                
+                <h4>동의</h4>
+                <p>본인은 위의 개인정보 수집 및 이용에 동의합니다.</p>
+                
+                <p className="privacy-note">
+                  (예시: 네이버, 카카오 등 주요 서비스의 개인정보 수집 및 이용 동의서 참고)
+                </p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-close-btn" onClick={closePrivacyModal}>
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

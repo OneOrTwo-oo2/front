@@ -14,12 +14,19 @@ function PhotoSearchPage() {
   const [showResult, setShowResult] = useState(false); // 결과 보여주기 상태
   const [showDebug, setShowDebug] = useState(false); // 디버깅 토글
   const [selectedFile, setSelectedFile] = useState(null); // 선택된 파일 저장
+  const [showImageModal, setShowImageModal] = useState(false); // 이미지 모달 토글 상태
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSearchSuccess = (ingredients, url) => {
+  const handleSearchSuccess = (ingredients, url, bboxImageUrl) => {
     setIsLoading(false);
-    navigate('/ingredient-search', { state: { ingredients, previewUrl: url } });
+    navigate('/ingredient-search', { 
+      state: { 
+        ingredients, 
+        previewUrl: url,
+        bboxImageUrl: bboxImageUrl 
+      } 
+    });
   };
 
   const processFile = useCallback((file) => {
@@ -39,7 +46,7 @@ function PhotoSearchPage() {
     setIsLoading(true);
     aiClient.post('/ingredients', formData)
       .then((res) => {
-        handleSearchSuccess(res.data.ingredients, url);
+        handleSearchSuccess(res.data.ingredients, url, res.data.bbox_image_url);
       })
       .catch((error) => {
         console.error('검색 실패:', error);
@@ -59,6 +66,11 @@ function PhotoSearchPage() {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     processFile(file);
+  };
+
+  // 이미지 클릭 시 모달 토글
+  const toggleImageModal = () => {
+    setShowImageModal(!showImageModal);
   };
 
   // 정확도에 따른 색상 결정 함수
@@ -144,9 +156,25 @@ function PhotoSearchPage() {
             {/* 미리보기 이미지는 업로드한 사진이 있을 때만 */}
             {hasPrevImage && (
               <div style={{ marginTop: 16, textAlign: 'center' }}>
-                <img src={URL.createObjectURL(selectedFile)} alt="업로드 이미지" style={{ maxWidth: 120, borderRadius: 8, boxShadow: '0 2px 8px #0001', background: '#fff', display: 'block', margin: '0 auto' }} />
+                <img 
+                  src={URL.createObjectURL(selectedFile)} 
+                  alt="업로드 이미지" 
+                  style={{ 
+                    maxWidth: 120, 
+                    borderRadius: 8, 
+                    boxShadow: '0 2px 8px #0001', 
+                    background: '#fff', 
+                    display: 'block', 
+                    margin: '0 auto',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  onClick={toggleImageModal}
+                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                />
                 <div style={{ fontSize: '0.9rem', color: '#888', textAlign: 'center', marginTop: 4 }}>
-                  선택한 사진
+                  선택한 사진 (클릭하여 확대)
                 </div>
               </div>
             )}
@@ -161,6 +189,62 @@ function PhotoSearchPage() {
           </>
         )}
       </div>
+
+      {/* 이미지 모달 */}
+      {showImageModal && selectedFile && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            cursor: 'pointer'
+          }}
+          onClick={toggleImageModal}
+        >
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={URL.createObjectURL(selectedFile)} 
+              alt="업로드 이미지 확대" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                borderRadius: 12,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                cursor: 'default'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              onClick={toggleImageModal}
+              style={{
+                position: 'absolute',
+                top: -40,
+                right: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#333'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -68,7 +68,7 @@ function PreferenceToggleSection() {
         body: JSON.stringify({ allergies: selectedIngredients, diseases: selectedDiseases })
       });
       alert("정보가 저장되었습니다!");
-      navigate('/myinfo');
+      navigate('/main');
     } catch (err) {
       console.error("저장 실패:", err);
       alert("저장에 실패했습니다. 다시 시도해주세요.");
@@ -76,7 +76,7 @@ function PreferenceToggleSection() {
   };
 
   const handleSkip = () => {
-    navigate('/myinfo');
+    navigate('/main');
   };
 
   // 둘 중 하나라도 입력됐는지

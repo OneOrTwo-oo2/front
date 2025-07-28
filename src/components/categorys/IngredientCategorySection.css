@@ -175,18 +175,36 @@
 
 /* 카테고리 카드형 가로 배치용 분리 클래스 */
 .ingredient-sections-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 32px;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.category-row {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  margin-top: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 35px;
+  justify-items: center;
+}
+
+/* 세 번째 줄 (기타 카테고리) 왼쪽 정렬 */
+.category-row:last-child {
+  justify-items: flex-start;
+  padding-left: 27px;
 }
 
 .ingredient-section-card {
   background: #e0e0e0;
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  padding: 16px 12px;
-  min-width: 180px;
+  padding: 20px 14px;
+  min-width: 0;
+  width: 100%;
+  max-width: 260px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -199,18 +217,22 @@
 }
 
 .category-header {
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   margin-bottom: 8px;
 }
 
 .category-header h3 {
-  margin: 0;
   font-size: 1rem;
   font-weight: 600;
   color: #333;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
 }
 
 .toggle-btn {
@@ -238,22 +260,17 @@
 .ingredient-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  gap: 4px;
   width: 100%;
 }
 
-.ingredient-item {
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
-  cursor: pointer;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
+.ingredient-item, .ingredient-btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 70px;
+  max-width: 110px;
+  display: inline-block;
 }
 
 .ingredient-item:hover {
@@ -269,31 +286,39 @@
 
 /* 모바일 반응형 */
 @media (max-width: 1200px) {
-  .ingredient-sections-wrapper {
+  .category-row {
     grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
   }
 }
 
 @media (max-width: 900px) {
-  .ingredient-sections-wrapper {
+  .category-row {
     grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 }
 
 @media (max-width: 600px) {
   .ingredient-sections-wrapper {
+    gap: 16px;
+    padding: 0 16px;
+    align-items: center;
+  }
+  
+  .category-row {
     grid-template-columns: 1fr;
     gap: 12px;
     justify-items: center;
-    padding: 0 16px;
+    align-items: center;
+    width: 100%;
   }
   
   .ingredient-section-card {
-    padding: 16px 12px;
-    min-width: auto;
-    width: 100%;
     max-width: 320px;
     margin: 0 auto;
+    padding: 16px 12px;
+    align-self: center;
   }
   
   .category-header h3 {
@@ -306,9 +331,10 @@
     font-size: 16px;
   }
   
-  .ingredient-item {
-    font-size: 0.85rem;
-    padding: 8px 10px;
+  .ingredient-item, .ingredient-btn {
+    min-width: 60px;
+    max-width: 100px;
+    font-size: 0.9rem;
   }
 }
 
