@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from '../assets/emojiMap_full_ko.js';
+import prefIcon from '../assets/icons/pref_icon.svg';
+import searchIcon from '../assets/icons/search_icon.svg';
 import {
   preferOptions,
   kindOptions,
@@ -256,7 +258,10 @@ function IngredientSearchPage() {
       {/* 디버깅 토글 버튼 및 디버깅 창 */}
       {/* 좌측 고정 선택 박스 */}
       <div className="selected-ingredients-fixed">
-        <p className="text-prefer">😀 선택된 선호도 또는 타입 </p>
+        <p className="text-prefer">
+          <img src={prefIcon} alt="선호도 아이콘" style={{ width: '1.3em', height: '1.3em', marginRight: '0.1em', verticalAlign: 'middle' }} />
+          선택된 선호도 또는 타입 
+        </p>
         <div className="selected-ingredients-row buttons">
           {getSelectedMeta().map(({ type, value }) => (
             <button key={type + value} onClick={() => handleToggle(type, value)}>
@@ -327,7 +332,8 @@ function IngredientSearchPage() {
           onClick={handleSearch}
           disabled={isSearchDisabled}
         >
-         🔍검색
+         <img src={searchIcon} alt="검색 아이콘" style={{ width: '1.2em', height: '1.2em', marginRight: '0.3em', verticalAlign: 'middle' }} />
+         검색
         </button>
         <button
           className="search-btn reset-btn"
