@@ -5,6 +5,7 @@ import './IngredientSearchPage.css';
 import emojiMap from '../assets/emojiMap_full_ko.js';
 import prefIcon from '../assets/icons/pref_icon.svg';
 import searchIcon from '../assets/icons/search_icon.svg';
+import { getAiApi } from '../api/base';
 import {
   preferOptions,
   kindOptions,
@@ -21,10 +22,29 @@ function IngredientSearchPage() {
   const [level, setLevel] = useState('');
   const [activeTab, setActiveTab] = useState('preference'); // 탭 상태 추가
   // 디버깅 토글 삭제
+  const [showImageModal, setShowImageModal] = useState(false); // 이미지 모달 토글 상태
 
   const location = useLocation();
   const navigate = useNavigate();
   const previewUrl = location.state?.previewUrl || sessionStorage.getItem('uploadedImageUrl');
+  const bboxImageUrl = location.state?.bboxImageUrl; // bounding box 이미지 URL
+  const [showBboxModal, setShowBboxModal] = useState(false); // bounding box 모달 토글 상태
+  
+  // bounding box 이미지 URL을 올바른 백엔드 서버 URL로 구성
+  const fullBboxImageUrl = useMemo(() => {
+    if (!bboxImageUrl) return null;
+    // 상대 경로인 경우 백엔드 서버 URL과 결합
+    if (bboxImageUrl.startsWith('/')) {
+      // static 파일은 /ai 경로 없이 직접 접근
+      const baseUrl = getAiApi().replace('/ai', ''); // http://localhost:8001
+      const fullUrl = `${baseUrl}${bboxImageUrl}`;
+      console.log('🔍 Bounding box 이미지 URL:', fullUrl);
+      return fullUrl;
+    }
+    console.log('🔍 Bounding box 이미지 URL:', bboxImageUrl);
+    return bboxImageUrl;
+  }, [bboxImageUrl]);
+  
   // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
   const ingredientsFromPhoto = useMemo(() => {
     return location.state?.ingredients || [];
@@ -53,6 +73,11 @@ function IngredientSearchPage() {
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
   return match ? match.value : label;
+  };
+
+  // bounding box 모달 토글
+  const toggleBboxModal = () => {
+    setShowBboxModal(!showBboxModal);
   };
 
   // cursor 수정 - 캐시 저장 및 복원 로직 개선 (무한루프 방지)
@@ -256,6 +281,11 @@ function IngredientSearchPage() {
     }
   };
 
+  // 이미지 클릭 시 모달 토글
+  const toggleImageModal = () => {
+    setShowImageModal(!showImageModal);
+  };
+
   return (
     <div className="ingredient-search-layout">
       {/* 디버깅 토글 버튼 및 디버깅 창 */}
@@ -263,7 +293,7 @@ function IngredientSearchPage() {
       <div className="selected-ingredients-fixed">
         <p className="text-prefer">
           <img src={prefIcon} alt="선호도 아이콘" style={{ width: '1.3em', height: '1.3em', marginRight: '0.1em', verticalAlign: 'middle' }} />
-          선택된 선호도 또는 타입 
+          선호도 & 타입 선택
         </p>
         <div className="selected-ingredients-row buttons">
           {getSelectedMeta().map(({ type, value }) => (
@@ -366,8 +396,150 @@ function IngredientSearchPage() {
       {/* 미리보기 이미지는 현재 위치에 유지 */}
       {previewUrl && (
         <div style={{ marginTop: 18, textAlign: 'center' }}>
-          <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto' }} />
-          <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진</div>
+          <img 
+            src={previewUrl} 
+            alt="업로드 이미지" 
+            style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto', cursor: 'pointer', transition: 'transform 0.2s ease' }}
+            onClick={toggleImageModal}
+            onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+          />
+          <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진 (클릭하여 확대)</div>
+          
+          {/* bounding box 이미지 토글 버튼 */}
+          {fullBboxImageUrl && (
+            <div style={{ marginTop: 12, textAlign: 'center' }}>
+              <button
+                onClick={toggleBboxModal}
+                style={{
+                  background: 'linear-gradient(135deg, #ff9800, #f57c00)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '8px 16px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(255, 152, 0, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+                onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+              >
+                🔍 탐지결과 보기
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      {/* 이미지 모달 */}
+      {showImageModal && previewUrl && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            cursor: 'pointer'
+          }}
+          onClick={toggleImageModal}
+        >
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={previewUrl} 
+              alt="업로드 이미지 확대" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                borderRadius: 12,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                cursor: 'default'
+              }}
+              onClick={e => e.stopPropagation()}
+            />
+            <button
+              onClick={toggleImageModal}
+              style={{
+                position: 'absolute',
+                top: -40,
+                right: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#333'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* bounding box 이미지 모달 */}
+      {showBboxModal && fullBboxImageUrl && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            cursor: 'pointer'
+          }}
+          onClick={toggleBboxModal}
+        >
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={fullBboxImageUrl} 
+              alt="탐지 결과 이미지" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                borderRadius: 12,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                cursor: 'default'
+              }}
+              onClick={e => e.stopPropagation()}
+            />
+            <button
+              onClick={toggleBboxModal}
+              style={{
+                position: 'absolute',
+                top: -40,
+                right: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#333'
+              }}
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
       

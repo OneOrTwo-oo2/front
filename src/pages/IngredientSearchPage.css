@@ -595,7 +595,7 @@ select {
 .fixed-bottom-buttons {
   position: fixed;
   bottom: 20px;
-  left: 9.5%;
+  left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   display: flex;
@@ -651,8 +651,10 @@ select {
 @media (max-width: 768px) {
   .fixed-bottom-buttons {
     bottom: 15px;
-    left: 15px;
+    left: 50%;
+    transform: translateX(-50%);
     gap: 8px;
+    padding: 0 10px;
   }
   
   .fixed-bottom-buttons .search-btn,
@@ -667,8 +669,10 @@ select {
 @media (max-width: 480px) {
   .fixed-bottom-buttons {
     bottom: 10px;
-    left: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     gap: 6px;
+    padding: 0 8px;
   }
   
   .fixed-bottom-buttons .search-btn,
@@ -683,8 +687,10 @@ select {
 @media (max-width: 360px) {
   .fixed-bottom-buttons {
     bottom: 8px;
-    left: 8px;
+    left: 50%;
+    transform: translateX(-50%);
     gap: 4px;
+    padding: 0 6px;
   }
   
   .fixed-bottom-buttons .search-btn,
