@@ -38,6 +38,8 @@ function IngredientSearchPage() {
     }
     
     console.log('🔍 원본 bboxImageUrl:', bboxImageUrl);
+    console.log('🔍 bboxImageUrl 타입:', typeof bboxImageUrl);
+    console.log('🔍 bboxImageUrl startsWith("/"):', bboxImageUrl.startsWith('/'));
     
     // 상대 경로인 경우 백엔드 서버 URL과 결합
     if (bboxImageUrl.startsWith('/')) {
@@ -46,6 +48,8 @@ function IngredientSearchPage() {
       let baseUrl;
       
       console.log('🔍 getAiApi():', aiApi);
+      console.log('🔍 window.location.origin:', window.location.origin);
+      console.log('🔍 window.location.href:', window.location.href);
       
       if (aiApi.startsWith('http')) {
         // 로컬 환경: http://localhost:8001/ai -> http://localhost:8001
@@ -59,6 +63,7 @@ function IngredientSearchPage() {
       
       const fullUrl = `${baseUrl}${bboxImageUrl}`;
       console.log('🔍 최종 Bounding box 이미지 URL:', fullUrl);
+      console.log('🔍 URL 구성: baseUrl + bboxImageUrl =', baseUrl, '+', bboxImageUrl);
       return fullUrl;
     }
     
@@ -542,6 +547,11 @@ function IngredientSearchPage() {
               onError={(e) => {
                 console.error('❌ Bounding box 이미지 로드 실패:', fullBboxImageUrl);
                 console.error('❌ 에러 이벤트:', e);
+                console.error('❌ 에러 타입:', e.type);
+                console.error('❌ 타겟:', e.target);
+                console.error('❌ 타겟 src:', e.target.src);
+                console.error('❌ 타겟 naturalWidth:', e.target.naturalWidth);
+                console.error('❌ 타겟 naturalHeight:', e.target.naturalHeight);
               }}
             />
             <button
