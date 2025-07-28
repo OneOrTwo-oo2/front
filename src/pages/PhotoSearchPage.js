@@ -9,11 +9,10 @@ import aiClient from '../api/aiClient.js';
 function PhotoSearchPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(() => sessionStorage.getItem('uploadedImageUrl'));
   const [showPreview, setShowPreview] = useState(false); // 미리보기 토글 상태
   const [showResult, setShowResult] = useState(false); // 결과 보여주기 상태
   const [showDebug, setShowDebug] = useState(false); // 디버깅 토글
-  const [selectedFile, setSelectedFile] = useState(null); // 새로 추가: 선택된 파일 저장
+  const [selectedFile, setSelectedFile] = useState(null); // 선택된 파일 저장
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -25,10 +24,7 @@ function PhotoSearchPage() {
   const processFile = useCallback((file) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    sessionStorage.setItem('uploadedImageUrl', url);
-    setSelectedFile(file); // 파일 저장만 하고 바로 서버 전송 X
+    setSelectedFile(file); // 파일만 저장
   }, []);
 
   // 검색 버튼 클릭 시 서버로 전송
@@ -36,7 +32,7 @@ function PhotoSearchPage() {
     if (!selectedFile) return;
     
     const file = selectedFile;
-    const url = previewUrl;
+    const url = URL.createObjectURL(file); // 필요할 때 URL 생성
     const formData = new FormData();
     formData.append('file', file);
     setIsLoading(true);
@@ -51,7 +47,7 @@ function PhotoSearchPage() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [selectedFile, previewUrl]);
+  }, [selectedFile]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -99,7 +95,7 @@ function PhotoSearchPage() {
   };
 
   // 업로드한 사진이 없는 경우
-  const hasPrevImage = !!previewUrl;
+  const hasPrevImage = !!selectedFile;
 
   return (
     <div className="photo-upload-page">
@@ -108,9 +104,9 @@ function PhotoSearchPage() {
         {/* 분석 결과가 오면 바로 ingredient-search 페이지로 이동 */}
         {isLoading && (
           <>
-            {previewUrl && (
+            {selectedFile && (
               <div style={{ marginBottom: 16 }}>
-                <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 120, borderRadius: 8, boxShadow: '0 2px 8px #0001', background: '#fff', display: 'block', margin: '0 auto' }} />
+                <img src={URL.createObjectURL(selectedFile)} alt="업로드 이미지" style={{ maxWidth: 120, borderRadius: 8, boxShadow: '0 2px 8px #0001', background: '#fff', display: 'block', margin: '0 auto' }} />
                 <div style={{ fontSize: '0.9rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진</div>
               </div>
             )}
@@ -127,8 +123,7 @@ function PhotoSearchPage() {
         {!isLoading && (
           <>
             <div className="upload-icon">📷</div>
-            <h2 className="upload-title">사진을 끌어다 놓으세요</h2>
-            <h2 className="upload-title">또는</h2>
+            <h2 className="upload-title">사진을 올려주세요.</h2>
             <button
               className="upload-btn"
               onClick={() => fileInputRef.current?.click()}
@@ -146,9 +141,9 @@ function PhotoSearchPage() {
             {/* 미리보기 이미지는 업로드한 사진이 있을 때만 */}
             {hasPrevImage && (
               <div style={{ marginTop: 16, textAlign: 'center' }}>
-                <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 120, borderRadius: 8, boxShadow: '0 2px 8px #0001', background: '#fff', display: 'block', margin: '0 auto' }} />
+                <img src={URL.createObjectURL(selectedFile)} alt="업로드 이미지" style={{ maxWidth: 120, borderRadius: 8, boxShadow: '0 2px 8px #0001', background: '#fff', display: 'block', margin: '0 auto' }} />
                 <div style={{ fontSize: '0.9rem', color: '#888', textAlign: 'center', marginTop: 4 }}>
-                  전에 선택한 사진
+                  선택한 사진
                 </div>
               </div>
             )}
