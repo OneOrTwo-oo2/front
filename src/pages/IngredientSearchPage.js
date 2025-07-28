@@ -19,6 +19,7 @@ function IngredientSearchPage() {
   const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
   const [level, setLevel] = useState('');
+  const [activeTab, setActiveTab] = useState('preference'); // 탭 상태 추가
   // 디버깅 토글 삭제
 
   const location = useLocation();
@@ -143,6 +144,8 @@ function IngredientSearchPage() {
     if (type === 'kind') setKind(prev => prev === value ? '' : value);
     if (type === 'level') setLevel(prev => prev === value ? '' : value);
   };
+
+
 
   // cursor 수정 - 중복 선택 방지 강화
   const toggleIngredient = (item) => {
@@ -270,6 +273,82 @@ function IngredientSearchPage() {
             </button>
           ))}
         </div>
+        
+        {/* 탭 네비게이션 */}
+        <div className="tab-navigation">
+          <button 
+            className={`tab-button ${activeTab === 'preference' ? 'active' : ''}`}
+            onClick={() => setActiveTab('preference')}
+          >
+            선호도
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'kind' ? 'active' : ''}`}
+            onClick={() => setActiveTab('kind')}
+          >
+            종류별
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'level' ? 'active' : ''}`}
+            onClick={() => setActiveTab('level')}
+          >
+            난이도별
+          </button>
+        </div>
+        
+        {/* 탭 콘텐츠 */}
+        <div className="tab-content">
+          {activeTab === 'preference' && (
+            <div className="section">
+              <h4>선호도 선택</h4>
+              <div className="buttons">
+                {preferOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={preference === opt.label ? 'active' : ''}
+                    onClick={() => handleCategorySelect('preference', opt.label)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'kind' && (
+            <div className="section">
+              <h4>종류별</h4>
+              <div className="buttons">
+                {kindOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={kind === opt.label ? 'active' : ''}
+                    onClick={() => handleCategorySelect('kind', opt.label)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'level' && (
+            <div className="section">
+              <h4>난이도별</h4>
+              <div className="buttons">
+                {levelOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={level === opt.label ? 'active' : ''}
+                    onClick={() => handleCategorySelect('level', opt.label)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
      <div className="ingredient-search-content">
       {/* 재료 */}
@@ -283,50 +362,17 @@ function IngredientSearchPage() {
           confidenceThreshold={confidenceThreshold}
         />
       </div>
-              {/* 선호도 */}
-      <h4>선호도 선택</h4>
-      <div className="buttons">
-        {preferOptions.map((opt) => (
-          <button
-            key={opt.value}
-            className={preference === opt.label ? 'active' : ''}
-            onClick={() => handleCategorySelect('preference', opt.label)}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-      {/* 종류 / 난이도 */}
-      <div className="section">
-        <h4>종류별</h4>
-        <div className="buttons">
-          {kindOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={kind === opt.label ? 'active' : ''}
-              onClick={() => handleCategorySelect('kind', opt.label)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        <h4>난이도별</h4>
-        <div className="buttons">
-          {levelOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={level === opt.label ? 'active' : ''}
-              onClick={() => handleCategorySelect('level', opt.label)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
-<div className="search-sticky-btn">
-        {/* 검색/초기화 버튼과 함께 미리보기 이미지 */}
+      {/* 미리보기 이미지는 현재 위치에 유지 */}
+      {previewUrl && (
+        <div style={{ marginTop: 18, textAlign: 'center' }}>
+          <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto' }} />
+          <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진</div>
+        </div>
+      )}
+      
+      {/* 검색/초기화 버튼을 아래쪽 고정 위치로 이동 */}
+      <div className="fixed-bottom-buttons">
         <button
           className="search-btn"
           onClick={handleSearch}
@@ -341,13 +387,6 @@ function IngredientSearchPage() {
         >
          초기화
         </button>
-        {/* 버튼 아래에 미리보기 이미지 */}
-        {previewUrl && (
-          <div style={{ marginTop: 18, textAlign: 'center' }}>
-            <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto' }} />
-            <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진</div>
-          </div>
-        )}
       </div>
     </div>
   );
