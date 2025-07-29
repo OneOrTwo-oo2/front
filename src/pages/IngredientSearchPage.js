@@ -9,6 +9,7 @@ import {
   levelOptions
 } from '../components/options.js';
 import IngredientCategorySection from '../components/categorys/IngredientCategorySection';
+import userIcon from '../assets/img5.png';
 
 // 디버깅용 시각화 컴포넌트 및 showDebug 관련 코드 전체 삭제
 
@@ -256,7 +257,11 @@ function IngredientSearchPage() {
       {/* 디버깅 토글 버튼 및 디버깅 창 */}
       {/* 좌측 고정 선택 박스 */}
       <div className="selected-ingredients-fixed">
-        <p className="text-prefer">😀 선택된 선호도 또는 타입 </p>
+        {/* <p className="text-prefer">😀 선택된 선호도 또는 타입 </p> */}
+                  <p className="text-prefer">
+            <img src={userIcon} alt="사용자" style={{ width: '0px', height: '40px', verticalAlign: 'middle', marginRight: '5px' }} />
+            선택된 선호도 또는 타입 
+          </p>
         <div className="selected-ingredients-row buttons">
           {getSelectedMeta().map(({ type, value }) => (
             <button key={type + value} onClick={() => handleToggle(type, value)}>

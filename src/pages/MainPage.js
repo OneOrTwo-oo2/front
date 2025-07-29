@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import '../App.css';
 import img11 from '../assets/img11.png';
 import img4 from '../assets/img2.png';
-import img2 from '../assets/img4.png';
+import img2 from '../assets/imgkkk.png';
 
 
 function MainPage() {
