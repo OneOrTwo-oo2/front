@@ -27,49 +27,24 @@ function IngredientSearchPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const previewUrl = location.state?.previewUrl || sessionStorage.getItem('uploadedImageUrl');
-  const bboxImageUrl = location.state?.bboxImageUrl; // bounding box 이미지 URL
+  const bboxImageBase64 = location.state?.bboxImageBase64; // bounding box 이미지 base64
   const [showBboxModal, setShowBboxModal] = useState(false); // bounding box 모달 토글 상태
   
-  // bounding box 이미지 URL을 올바른 백엔드 서버 URL로 구성
-  const fullBboxImageUrl = useMemo(() => {
-    if (!bboxImageUrl) {
-      console.log('🔍 Bounding box 이미지 URL이 없습니다.');
+  // bounding box 이미지 base64를 data URL로 구성
+  const bboxImageDataUrl = useMemo(() => {
+    if (!bboxImageBase64) {
+      console.log('🔍 Bounding box 이미지 base64가 없습니다.');
       return null;
     }
     
-    console.log('🔍 원본 bboxImageUrl:', bboxImageUrl);
-    console.log('🔍 bboxImageUrl 타입:', typeof bboxImageUrl);
-    console.log('🔍 bboxImageUrl startsWith("/"):', bboxImageUrl.startsWith('/'));
+    console.log('🔍 원본 bboxImageBase64 길이:', bboxImageBase64.length);
+    console.log('🔍 bboxImageBase64 타입:', typeof bboxImageBase64);
     
-    // 상대 경로인 경우 백엔드 서버 URL과 결합
-    if (bboxImageUrl.startsWith('/')) {
-      // 서버 환경과 로컬 환경 모두 고려
-      const aiApi = getAiApi();
-      let baseUrl;
-      
-      console.log('🔍 getAiApi():', aiApi);
-      console.log('🔍 window.location.origin:', window.location.origin);
-      console.log('🔍 window.location.href:', window.location.href);
-      
-      if (aiApi.startsWith('http')) {
-        // 로컬 환경: http://localhost:8001/ai -> http://localhost:8001
-        baseUrl = aiApi.replace('/ai', '');
-        console.log('🔍 로컬 환경 baseUrl:', baseUrl);
-      } else {
-        // 서버 환경: /ai -> 현재 도메인 사용
-        baseUrl = window.location.origin;
-        console.log('🔍 서버 환경 baseUrl:', baseUrl);
-      }
-      
-      const fullUrl = `${baseUrl}${bboxImageUrl}`;
-      console.log('🔍 최종 Bounding box 이미지 URL:', fullUrl);
-      console.log('🔍 URL 구성: baseUrl + bboxImageUrl =', baseUrl, '+', bboxImageUrl);
-      return fullUrl;
-    }
-    
-    console.log('🔍 절대 URL 사용:', bboxImageUrl);
-    return bboxImageUrl;
-  }, [bboxImageUrl]);
+    // base64를 data URL로 변환
+    const dataUrl = `data:image/jpeg;base64,${bboxImageBase64}`;
+    console.log('🔍 최종 Bounding box 이미지 data URL 생성 완료');
+    return dataUrl;
+  }, [bboxImageBase64]);
   
   // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
   const ingredientsFromPhoto = useMemo(() => {
@@ -433,7 +408,7 @@ function IngredientSearchPage() {
           <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진 (클릭하여 확대)</div>
           
           {/* bounding box 이미지 토글 버튼 */}
-          {fullBboxImageUrl && (
+          {bboxImageDataUrl && (
             <div style={{ marginTop: 12, textAlign: 'center' }}>
               <button
                 onClick={toggleBboxModal}
@@ -514,7 +489,7 @@ function IngredientSearchPage() {
       )}
 
       {/* bounding box 이미지 모달 */}
-      {showBboxModal && fullBboxImageUrl && (
+      {showBboxModal && bboxImageDataUrl && (
         <div 
           style={{
             position: 'fixed',
@@ -533,7 +508,7 @@ function IngredientSearchPage() {
         >
           <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
             <img 
-              src={fullBboxImageUrl} 
+              src={bboxImageDataUrl} 
               alt="탐지 결과 이미지" 
               style={{ 
                 maxWidth: '100%', 
@@ -543,15 +518,13 @@ function IngredientSearchPage() {
                 cursor: 'default'
               }}
               onClick={e => e.stopPropagation()}
-              onLoad={() => console.log('✅ Bounding box 이미지 로드 성공:', fullBboxImageUrl)}
+              onLoad={() => console.log('✅ Bounding box 이미지 로드 성공 (base64)')}
               onError={(e) => {
-                console.error('❌ Bounding box 이미지 로드 실패:', fullBboxImageUrl);
+                console.error('❌ Bounding box 이미지 로드 실패 (base64)');
                 console.error('❌ 에러 이벤트:', e);
                 console.error('❌ 에러 타입:', e.type);
                 console.error('❌ 타겟:', e.target);
-                console.error('❌ 타겟 src:', e.target.src);
-                console.error('❌ 타겟 naturalWidth:', e.target.naturalWidth);
-                console.error('❌ 타겟 naturalHeight:', e.target.naturalHeight);
+                console.error('❌ 타겟 src 길이:', e.target.src.length);
               }}
             />
             <button
