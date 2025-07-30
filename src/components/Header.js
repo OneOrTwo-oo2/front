@@ -26,8 +26,9 @@ function Header() {
         <img src={logo} alt="RecipeGo" className="logo-img" />
       </div>
       <nav className="header-center">
-        <Link to="/ingredient-search">재료로 검색</Link>
-        <Link to="/photo-search">사진으로 검색</Link>
+        <Link to="/ingredient-search">재료 검색</Link>
+        <Link to="/photo-search">사진 검색</Link>
+        <Link to="/theme">테마 선택</Link>
         <Link to="/help">도움말</Link>
       </nav>
       <div className="header-right">

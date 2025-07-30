@@ -27,7 +27,7 @@ jobs:
         run: |
           BEFORE=${{ steps.prev.outputs.before_sha }}
           AFTER=$(git rev-parse HEAD)
-          CHANGED=$(git diff --name-only $BEFORE $AFTER | grep -E '^(src/|public/|package\.json|dockerfile)' || true)
+          CHANGED=$(git diff --name-only $BEFORE $AFTER | grep -E '^(src/|public/|nginx/|package\.json|dockerfile)' || true)
 
           echo "✅ 변경된 파일 목록:"
           echo "$CHANGED"

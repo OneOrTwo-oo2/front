@@ -6,14 +6,21 @@ import SelectedIngredientsRow from "./SelectedIngredientsRow";
 import './IngredientCategorySection.css';
 
 function IngredientCategorySection({ selectedIngredients, setSelectedIngredients, toggleIngredient, ingredientsWithConfidence, confidenceThreshold = 0.5 }) {
+  const [modalCategory, setModalCategory] = useState(null);
   const [displayCountMap, setDisplayCountMap] = useState({});
+  const [openCategories, setOpenCategories] = useState({});
 
   useEffect(() => {
     const initialMap = Object.keys(ingredientCategoryMap).reduce((acc, key) => {
-      acc[key] = 10;
+      acc[key] = 3; // 기본 3개만 미리보기
       return acc;
     }, {});
     setDisplayCountMap(initialMap);
+    // 모든 카테고리 접힌 상태로 시작
+    setOpenCategories(Object.keys(ingredientCategoryMap).reduce((acc, key) => {
+      acc[key] = false;
+      return acc;
+    }, {}));
   }, []);
 
   // 선택된 재료들을 confidence 형식으로 변환
@@ -49,10 +56,21 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
     }
   };
 
-  const loadMoreIngredients = (category) => {
+  const handleAccordionToggle = (category) => {
+    setOpenCategories((prev) => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
+  };
+
+  const loadMoreIngredients = (category, totalCount) => {
     setDisplayCountMap((prev) => ({
       ...prev,
-      [category]: (prev[category] || 10) + 10,
+      [category]: totalCount,
+    }));
+    setOpenCategories((prev) => ({
+      ...prev,
+      [category]: true,
     }));
   };
 
@@ -70,7 +88,7 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
           color: 'white',
           border: '1px solid #45a049'
         };
-      } else if (confidencePercent >= 20) {
+      } else if (confidencePercent >= 30) {
         return {
           backgroundColor: '#ff9800', // 주황색 (중간 정확도: 20~70%)
           color: 'white',
@@ -87,86 +105,324 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
     return {};
   };
 
+  // 모달 오픈/닫기
+  const openModal = (category) => setModalCategory(category);
+  const closeModal = () => setModalCategory(null);
+
+  // 긴 텍스트 처리 함수 (4글자 이상이면 ... 추가)
+  const truncateText = (text, maxLength = 4) => {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
+    }
+    return text;
+  };
+
+  // 카테고리를 3개 그룹으로 나누기 (기타를 맨 마지막으로 이동)
+  const categories = Object.keys(ingredientCategoryMap);
+  // 기타를 맨 마지막으로 이동: 탄수화물, 단백질, 소스류, 유제품, 야채류, 과일류, 가공품, 음료, 기타
+  const reorderedCategories = [
+    'carbohydrate', 'protein', 'sauce', 'dairy', 
+    'vegetable', 'fruit', 'processed', 'beverage', 'etc'
+  ];
+  
+  const firstRow = reorderedCategories.slice(0, 4); // 첫 번째 줄: 4개 (탄수화물, 단백질, 소스류, 유제품)
+  const secondRow = reorderedCategories.slice(4, 8); // 두 번째 줄: 4개 (야채류, 과일류, 가공품, 음료)
+  const thirdRow = reorderedCategories.slice(8); // 세 번째 줄: 1개 (기타)
+
   return (
     <>
-    <div className="selected-ingredients-wrapper">
-      <SelectedIngredientsRow 
-        ingredients={selectedIngredients} 
-        onToggle={handleToggle} 
-        ingredientsWithConfidence={getMergedIngredientsWithConfidence()}
-        confidenceThreshold={confidenceThreshold}
-      />
-    </div>
-      {Object.entries(ingredientCategoryMap).map(([category, label]) => {
-        const items = ingredientList[label] || [];
-        const displayCount = displayCountMap[category] || 0;
+      <div className="selected-ingredients-wrapper">
+        <SelectedIngredientsRow 
+          ingredients={selectedIngredients} 
+          onToggle={handleToggle} 
+          ingredientsWithConfidence={getMergedIngredientsWithConfidence()}
+          confidenceThreshold={confidenceThreshold}
+        />
+      </div>
+      <div className="ingredient-sections-wrapper">
+        {/* 첫 번째 줄: 4개 */}
+        <div className="category-row">
+          {firstRow.map((category) => {
+            const items = ingredientList[ingredientCategoryMap[category]] || [];
+            const selectedItems = items.filter(item => selectedIngredients.includes(item));
+            const unselectedItems = items.filter(item => !selectedIngredients.includes(item));
+            const displayedItems = [...selectedItems, ...unselectedItems];
 
-        const displayedItems = [
-          ...selectedIngredients.filter((i) => items.includes(i)),
-          ...items.filter((i) => !selectedIngredients.includes(i)),
-        ];
-
-        return (
-          <div className="section" key={category}>
-            <h4>{label}</h4>
-            <div className="buttons">
-              {displayedItems.slice(0, displayCount).map((item) => {
-                const info = emojiMap[item] || {
-                  emoji: null,
-                  name_ko: item.replace(/_/g, " "),
-                };
-
-                const buttonStyle = getIngredientStyle(item);
-                const isLowConfidence = buttonStyle.backgroundColor === '#ff9800' || buttonStyle.backgroundColor === '#f44336';
-
-                return (
-                  <button
-                    key={item}
-                    className={selectedIngredients.includes(item) ? "active" : ""}
-                    onClick={() => handleToggle(item)}
-                    style={buttonStyle}
-                    title={(() => {
-                      const mergedConfidence = getMergedIngredientsWithConfidence();
-                      const ingredientInfo = mergedConfidence.find(ing => ing.label === item);
-                      return ingredientInfo ? 
-                        `정확도: ${(ingredientInfo.confidence * 100).toFixed(1)}%` : 
-                        undefined;
-                    })()}
+            return (
+              <div key={category} className="ingredient-section-card">
+                <div className="category-header">
+                  <h3>{ingredientCategoryMap[category]}</h3>
+                  <button 
+                    className="toggle-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal(category);
+                    }}
+                    style={{
+                      width:'32px',
+                      height:'32px',
+                      borderRadius:'50%',
+                      border:'none',
+                      background:'linear-gradient(135deg, #007bff, #28a745)',
+                      color:'white',
+                      fontSize:'18px',
+                      fontWeight:'bold',
+                      cursor:'pointer',
+                      display:'flex',
+                      alignItems:'center',
+                      justifyContent:'center',
+                      boxShadow:'0 2px 8px rgba(0,123,255,0.3)',
+                      transition:'all 0.2s ease'
+                    }}
                   >
-                    {info.emoji ? (
-                      // cursor 수정 - 이미지 경로 수정 및 안정성 향상
-                      <img
-                        src={info.emoji}
-                        alt={info.name_ko}
-                        style={{ width: 25, height: 25, marginRight: 8 }}
-                        onError={(e) => {
-                          console.error(`Image failed to load: ${info.emoji}`);
-                          e.target.style.display = 'none';
-                          if (e.target.nextSibling) {
-                            e.target.nextSibling.style.display = 'inline';
-                          }
-                        }}
-                        onLoad={() => {
-                          console.log(`Image loaded successfully: ${info.emoji}`);
-                        }}
-                      />
-                    ) : (
-                      <span style={{ marginRight: 8 }}>🧂</span>
-                    )}
-                    {info.emoji && <span style={{ marginRight: 8, display: 'none' }}>🧂</span>}
-                    {info.name_ko}
+                    +
                   </button>
-                );
-              })}
-              {displayCount < items.length && (
-                <button className="load-more-btn" onClick={() => loadMoreIngredients(category)}>
-                  + 더 보기
-                </button>
-              )}
+                </div>
+                <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
+                  {displayedItems.slice(0, 4).map((item) => (
+                    <button
+                      key={item}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleIngredient(item);
+                      }}
+                      className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
+                      style={{
+                        padding:'8px 12px',
+                        border:'1px solid #ddd',
+                        borderRadius:'8px',
+                        background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
+                        color:selectedIngredients.includes(item) ? '#fff' : '#333',
+                        cursor:'pointer',
+                        fontSize:'0.9rem',
+                        display:'flex',
+                        alignItems:'center',
+                        gap:'6px',
+                        transition:'all 0.2s ease'
+                      }}
+                    >
+                      <img 
+                        src={emojiMap[item]?.emoji || '/default-emoji.png'} 
+                        alt={emojiMap[item]?.name_ko || item}
+                        style={{width:'20px', height:'20px'}}
+                      />
+                      <span style={{fontSize:'0.85rem'}} title={emojiMap[item]?.name_ko || item}>
+                        {truncateText(emojiMap[item]?.name_ko || item)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 두 번째 줄: 4개 */}
+        <div className="category-row">
+          {secondRow.map((category) => {
+            const items = ingredientList[ingredientCategoryMap[category]] || [];
+            const selectedItems = items.filter(item => selectedIngredients.includes(item));
+            const unselectedItems = items.filter(item => !selectedIngredients.includes(item));
+            const displayedItems = [...selectedItems, ...unselectedItems];
+
+            return (
+              <div key={category} className="ingredient-section-card">
+                <div className="category-header">
+                  <h3>{ingredientCategoryMap[category]}</h3>
+                  <button 
+                    className="toggle-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal(category);
+                    }}
+                    style={{
+                      width:'32px',
+                      height:'32px',
+                      borderRadius:'50%',
+                      border:'none',
+                      background:'linear-gradient(135deg, #007bff, #28a745)',
+                      color:'white',
+                      fontSize:'18px',
+                      fontWeight:'bold',
+                      cursor:'pointer',
+                      display:'flex',
+                      alignItems:'center',
+                      justifyContent:'center',
+                      boxShadow:'0 2px 8px rgba(0,123,255,0.3)',
+                      transition:'all 0.2s ease'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
+                  {displayedItems.slice(0, 4).map((item) => (
+                    <button
+                      key={item}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleIngredient(item);
+                      }}
+                      className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
+                      style={{
+                        padding:'8px 12px',
+                        border:'1px solid #ddd',
+                        borderRadius:'8px',
+                        background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
+                        color:selectedIngredients.includes(item) ? '#fff' : '#333',
+                        cursor:'pointer',
+                        fontSize:'0.9rem',
+                        display:'flex',
+                        alignItems:'center',
+                        gap:'6px',
+                        transition:'all 0.2s ease'
+                      }}
+                    >
+                      <img 
+                        src={emojiMap[item]?.emoji || '/default-emoji.png'} 
+                        alt={emojiMap[item]?.name_ko || item}
+                        style={{width:'20px', height:'20px'}}
+                      />
+                      <span style={{fontSize:'0.85rem'}} title={emojiMap[item]?.name_ko || item}>
+                        {truncateText(emojiMap[item]?.name_ko || item)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 세 번째 줄: 1개 (왼쪽 정렬) */}
+        <div className="category-row" style={{justifyItems: 'flex-start'}}>
+          {thirdRow.map((category) => {
+            const items = ingredientList[ingredientCategoryMap[category]] || [];
+            const selectedItems = items.filter(item => selectedIngredients.includes(item));
+            const unselectedItems = items.filter(item => !selectedIngredients.includes(item));
+            const displayedItems = [...selectedItems, ...unselectedItems];
+
+            return (
+              <div key={category} className="ingredient-section-card">
+                <div className="category-header">
+                  <h3>{ingredientCategoryMap[category]}</h3>
+                  <button 
+                    className="toggle-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal(category);
+                    }}
+                    style={{
+                      width:'32px',
+                      height:'32px',
+                      borderRadius:'50%',
+                      border:'none',
+                      background:'linear-gradient(135deg, #007bff, #28a745)',
+                      color:'white',
+                      fontSize:'18px',
+                      fontWeight:'bold',
+                      cursor:'pointer',
+                      display:'flex',
+                      alignItems:'center',
+                      justifyContent:'center',
+                      boxShadow:'0 2px 8px rgba(0,123,255,0.3)',
+                      transition:'all 0.2s ease'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
+                  {displayedItems.slice(0, 4).map((item) => (
+                    <button
+                      key={item}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleIngredient(item);
+                      }}
+                      className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
+                      style={{
+                        padding:'8px 12px',
+                        border:'1px solid #ddd',
+                        borderRadius:'8px',
+                        background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
+                        color:selectedIngredients.includes(item) ? '#fff' : '#333',
+                        cursor:'pointer',
+                        fontSize:'0.9rem',
+                        display:'flex',
+                        alignItems:'center',
+                        gap:'6px',
+                        transition:'all 0.2s ease'
+                      }}
+                    >
+                      <img 
+                        src={emojiMap[item]?.emoji || '/default-emoji.png'} 
+                        alt={emojiMap[item]?.name_ko || item}
+                        style={{width:'20px', height:'20px'}}
+                      />
+                      <span style={{fontSize:'0.85rem'}} title={emojiMap[item]?.name_ko || item}>
+                        {truncateText(emojiMap[item]?.name_ko || item)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {/* 모달 */}
+      {modalCategory && (
+        <div className="ingredient-modal-overlay" onClick={closeModal}>
+          <div className="ingredient-modal" onClick={e => e.stopPropagation()}>
+            <div className="ingredient-modal-header">
+              <span>{ingredientCategoryMap[modalCategory]}</span>
+              <button className="ingredient-modal-close" onClick={closeModal}>×</button>
+            </div>
+            <div className="ingredient-modal-list">
+              {(() => {
+                const allItems = ingredientList[ingredientCategoryMap[modalCategory]] || [];
+                const selected = allItems.filter(item => selectedIngredients.includes(item));
+                const unselected = allItems.filter(item => !selectedIngredients.includes(item));
+                const sortedItems = [...selected, ...unselected];
+                return sortedItems.map(item => {
+                  const info = emojiMap[item] || {
+                    emoji: null,
+                    name_ko: item.replace(/_/g, " "),
+                  };
+                  const buttonStyle = getIngredientStyle(item);
+                  return (
+                    <button
+                      key={item}
+                      className={selectedIngredients.includes(item) ? "active" : ""}
+                      onClick={() => handleToggle(item)}
+                      style={buttonStyle}
+                    >
+                      {info.emoji ? (
+                        <img
+                          src={info.emoji}
+                          alt={info.name_ko}
+                          style={{ width: 25, height: 25, marginRight: 8 }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            if (e.target.nextSibling) {
+                              e.target.nextSibling.style.display = 'inline';
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span style={{ marginRight: 8 }}>🧂</span>
+                      )}
+                      {info.emoji && <span style={{ marginRight: 8, display: 'none' }}>🧂</span>}
+                      {info.name_ko}
+                    </button>
+                  );
+                });
+              })()}
             </div>
           </div>
-        );
-      })}
+        </div>
+      )}
     </>
   );
 }

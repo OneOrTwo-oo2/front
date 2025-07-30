@@ -3,13 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import qs from 'qs';
 import './IngredientSearchPage.css';
 import emojiMap from '../assets/emojiMap_full_ko.js';
+import prefIcon from '../assets/icons/pref_icon.svg';
+import searchIcon from '../assets/icons/search_icon.svg';
+import { getAiApi } from '../api/base';
 import {
   preferOptions,
   kindOptions,
   levelOptions
 } from '../components/options.js';
 import IngredientCategorySection from '../components/categorys/IngredientCategorySection';
-import userIcon from '../assets/img5.png';
 
 // 디버깅용 시각화 컴포넌트 및 showDebug 관련 코드 전체 삭제
 
@@ -18,11 +20,57 @@ function IngredientSearchPage() {
   const [preference, setPreference] = useState('');
   const [kind, setKind] = useState('');
   const [level, setLevel] = useState('');
+  const [activeTab, setActiveTab] = useState('preference'); // 탭 상태 추가
   // 디버깅 토글 삭제
+  const [showImageModal, setShowImageModal] = useState(false); // 이미지 모달 토글 상태
 
   const location = useLocation();
   const navigate = useNavigate();
   const previewUrl = location.state?.previewUrl || sessionStorage.getItem('uploadedImageUrl');
+  const bboxImageUrl = location.state?.bboxImageUrl; // bounding box 이미지 URL
+  const [showBboxModal, setShowBboxModal] = useState(false); // bounding box 모달 토글 상태
+  
+  // bounding box 이미지 URL을 올바른 백엔드 서버 URL로 구성
+  const fullBboxImageUrl = useMemo(() => {
+    if (!bboxImageUrl) {
+      console.log('🔍 Bounding box 이미지 URL이 없습니다.');
+      return null;
+    }
+    
+    console.log('🔍 원본 bboxImageUrl:', bboxImageUrl);
+    console.log('🔍 bboxImageUrl 타입:', typeof bboxImageUrl);
+    console.log('🔍 bboxImageUrl startsWith("/"):', bboxImageUrl.startsWith('/'));
+    
+    // 상대 경로인 경우 백엔드 서버 URL과 결합
+    if (bboxImageUrl.startsWith('/')) {
+      // 서버 환경과 로컬 환경 모두 고려
+      const aiApi = getAiApi();
+      let baseUrl;
+      
+      console.log('🔍 getAiApi():', aiApi);
+      console.log('🔍 window.location.origin:', window.location.origin);
+      console.log('🔍 window.location.href:', window.location.href);
+      
+      if (aiApi.startsWith('http')) {
+        // 로컬 환경: http://localhost:8001/ai -> http://localhost:8001
+        baseUrl = aiApi.replace('/ai', '');
+        console.log('🔍 로컬 환경 baseUrl:', baseUrl);
+      } else {
+        // 서버 환경: /ai -> 현재 도메인 사용
+        baseUrl = window.location.origin;
+        console.log('🔍 서버 환경 baseUrl:', baseUrl);
+      }
+      
+      const fullUrl = `${baseUrl}${bboxImageUrl}`;
+      console.log('🔍 최종 Bounding box 이미지 URL:', fullUrl);
+      console.log('🔍 URL 구성: baseUrl + bboxImageUrl =', baseUrl, '+', bboxImageUrl);
+      return fullUrl;
+    }
+    
+    console.log('🔍 절대 URL 사용:', bboxImageUrl);
+    return bboxImageUrl;
+  }, [bboxImageUrl]);
+  
   // cursor 수정 - 사진 검색에서 전달받은 재료 처리 (useMemo로 안정화)
   const ingredientsFromPhoto = useMemo(() => {
     return location.state?.ingredients || [];
@@ -51,6 +99,11 @@ function IngredientSearchPage() {
   const getOptionValue = (options, label) => {
   const match = options.find(opt => opt.label === label);
   return match ? match.value : label;
+  };
+
+  // bounding box 모달 토글
+  const toggleBboxModal = () => {
+    setShowBboxModal(!showBboxModal);
   };
 
   // cursor 수정 - 캐시 저장 및 복원 로직 개선 (무한루프 방지)
@@ -142,6 +195,8 @@ function IngredientSearchPage() {
     if (type === 'kind') setKind(prev => prev === value ? '' : value);
     if (type === 'level') setLevel(prev => prev === value ? '' : value);
   };
+
+
 
   // cursor 수정 - 중복 선택 방지 강화
   const toggleIngredient = (item) => {
@@ -252,16 +307,20 @@ function IngredientSearchPage() {
     }
   };
 
+  // 이미지 클릭 시 모달 토글
+  const toggleImageModal = () => {
+    setShowImageModal(!showImageModal);
+  };
+
   return (
     <div className="ingredient-search-layout">
       {/* 디버깅 토글 버튼 및 디버깅 창 */}
       {/* 좌측 고정 선택 박스 */}
       <div className="selected-ingredients-fixed">
-        {/* <p className="text-prefer">😀 선택된 선호도 또는 타입 </p> */}
-                  <p className="text-prefer">
-            <img src={userIcon} alt="사용자" style={{ width: '0px', height: '40px', verticalAlign: 'middle', marginRight: '5px' }} />
-            선택된 선호도 또는 타입 
-          </p>
+        <p className="text-prefer">
+          <img src={prefIcon} alt="선호도 아이콘" style={{ width: '1.3em', height: '1.3em', marginRight: '0.1em', verticalAlign: 'middle' }} />
+          선호도 & 타입 선택
+        </p>
         <div className="selected-ingredients-row buttons">
           {getSelectedMeta().map(({ type, value }) => (
             <button key={type + value} onClick={() => handleToggle(type, value)}>
@@ -269,6 +328,82 @@ function IngredientSearchPage() {
                <span>✖</span>
             </button>
           ))}
+        </div>
+        
+        {/* 탭 네비게이션 */}
+        <div className="tab-navigation">
+          <button 
+            className={`tab-button ${activeTab === 'preference' ? 'active' : ''}`}
+            onClick={() => setActiveTab('preference')}
+          >
+            선호도
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'kind' ? 'active' : ''}`}
+            onClick={() => setActiveTab('kind')}
+          >
+            종류별
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'level' ? 'active' : ''}`}
+            onClick={() => setActiveTab('level')}
+          >
+            난이도별
+          </button>
+        </div>
+        
+        {/* 탭 콘텐츠 */}
+        <div className="tab-content">
+          {activeTab === 'preference' && (
+            <div className="section">
+              <h4>선호도 선택</h4>
+              <div className="buttons">
+                {preferOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={preference === opt.label ? 'active' : ''}
+                    onClick={() => handleCategorySelect('preference', opt.label)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'kind' && (
+            <div className="section">
+              <h4>종류별</h4>
+              <div className="buttons">
+                {kindOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={kind === opt.label ? 'active' : ''}
+                    onClick={() => handleCategorySelect('kind', opt.label)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'level' && (
+            <div className="section">
+              <h4>난이도별</h4>
+              <div className="buttons">
+                {levelOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={level === opt.label ? 'active' : ''}
+                    onClick={() => handleCategorySelect('level', opt.label)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
      <div className="ingredient-search-content">
@@ -283,56 +418,176 @@ function IngredientSearchPage() {
           confidenceThreshold={confidenceThreshold}
         />
       </div>
-              {/* 선호도 */}
-      <h4>선호도 선택</h4>
-      <div className="buttons">
-        {preferOptions.map((opt) => (
-          <button
-            key={opt.value}
-            className={preference === opt.label ? 'active' : ''}
-            onClick={() => handleCategorySelect('preference', opt.label)}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-      {/* 종류 / 난이도 */}
-      <div className="section">
-        <h4>종류별</h4>
-        <div className="buttons">
-          {kindOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={kind === opt.label ? 'active' : ''}
-              onClick={() => handleCategorySelect('kind', opt.label)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        <h4>난이도별</h4>
-        <div className="buttons">
-          {levelOptions.map((opt) => (
-            <button
-              key={opt.value}
-              className={level === opt.label ? 'active' : ''}
-              onClick={() => handleCategorySelect('level', opt.label)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
-<div className="search-sticky-btn">
-        {/* 검색/초기화 버튼과 함께 미리보기 이미지 */}
+      {/* 미리보기 이미지는 현재 위치에 유지 */}
+      {previewUrl && (
+        <div style={{ marginTop: 18, textAlign: 'center' }}>
+          <img 
+            src={previewUrl} 
+            alt="업로드 이미지" 
+            style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto', cursor: 'pointer', transition: 'transform 0.2s ease' }}
+            onClick={toggleImageModal}
+            onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+          />
+          <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진 (클릭하여 확대)</div>
+          
+          {/* bounding box 이미지 토글 버튼 */}
+          {fullBboxImageUrl && (
+            <div style={{ marginTop: 12, textAlign: 'center' }}>
+              <button
+                onClick={toggleBboxModal}
+                style={{
+                  background: 'linear-gradient(135deg, #ff9800, #f57c00)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '8px 16px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(255, 152, 0, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.target.style.transform = 'scale(1.05)'}
+                onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+              >
+                🔍 탐지결과 보기
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      {/* 이미지 모달 */}
+      {showImageModal && previewUrl && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            cursor: 'pointer'
+          }}
+          onClick={toggleImageModal}
+        >
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={previewUrl} 
+              alt="업로드 이미지 확대" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                borderRadius: 12,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                cursor: 'default'
+              }}
+              onClick={e => e.stopPropagation()}
+            />
+            <button
+              onClick={toggleImageModal}
+              style={{
+                position: 'absolute',
+                top: -40,
+                right: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#333'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* bounding box 이미지 모달 */}
+      {showBboxModal && fullBboxImageUrl && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            cursor: 'pointer'
+          }}
+          onClick={toggleBboxModal}
+        >
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={fullBboxImageUrl} 
+              alt="탐지 결과 이미지" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                borderRadius: 12,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                cursor: 'default'
+              }}
+              onClick={e => e.stopPropagation()}
+              onLoad={() => console.log('✅ Bounding box 이미지 로드 성공:', fullBboxImageUrl)}
+              onError={(e) => {
+                console.error('❌ Bounding box 이미지 로드 실패:', fullBboxImageUrl);
+                console.error('❌ 에러 이벤트:', e);
+                console.error('❌ 에러 타입:', e.type);
+                console.error('❌ 타겟:', e.target);
+                console.error('❌ 타겟 src:', e.target.src);
+                console.error('❌ 타겟 naturalWidth:', e.target.naturalWidth);
+                console.error('❌ 타겟 naturalHeight:', e.target.naturalHeight);
+              }}
+            />
+            <button
+              onClick={toggleBboxModal}
+              style={{
+                position: 'absolute',
+                top: -40,
+                right: 0,
+                background: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#333'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* 검색/초기화 버튼을 아래쪽 고정 위치로 이동 */}
+      <div className="fixed-bottom-buttons">
         <button
           className="search-btn"
           onClick={handleSearch}
           disabled={isSearchDisabled}
         >
-         🔍검색
+         <img src={searchIcon} alt="검색 아이콘" style={{ width: '1.2em', height: '1.2em', marginRight: '0.3em', verticalAlign: 'middle' }} />
+         검색
         </button>
         <button
           className="search-btn reset-btn"
@@ -340,13 +595,6 @@ function IngredientSearchPage() {
         >
          초기화
         </button>
-        {/* 버튼 아래에 미리보기 이미지 */}
-        {previewUrl && (
-          <div style={{ marginTop: 18, textAlign: 'center' }}>
-            <img src={previewUrl} alt="업로드 이미지" style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, boxShadow: '0 2px 8px #0002', background: '#fff', display: 'block', margin: '0 auto' }} />
-            <div style={{ fontSize: '0.93rem', color: '#888', textAlign: 'center', marginTop: 4 }}>업로드한 사진</div>
-          </div>
-        )}
       </div>
     </div>
   );
