@@ -18,13 +18,13 @@ function PhotoSearchPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSearchSuccess = (ingredients, url, bboxImageUrl) => {
+  const handleSearchSuccess = (ingredients, url, bboxImageBase64) => {
     setIsLoading(false);
     navigate('/ingredient-search', { 
       state: { 
         ingredients, 
         previewUrl: url,
-        bboxImageUrl: bboxImageUrl 
+        bboxImageBase64: bboxImageBase64 
       } 
     });
   };
@@ -46,7 +46,7 @@ function PhotoSearchPage() {
     setIsLoading(true);
     aiClient.post('/ingredients', formData)
       .then((res) => {
-        handleSearchSuccess(res.data.ingredients, url, res.data.bbox_image_url);
+        handleSearchSuccess(res.data.ingredients, url, res.data.bbox_image_base64);
       })
       .catch((error) => {
         console.error('검색 실패:', error);
