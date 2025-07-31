@@ -13,52 +13,83 @@ function MainPage() {
   const navigate = useNavigate();
   const cardMinHeight = 280;
 
+  // const handleMouseMove = (e, index) => {
+  //   const card = imgRefs[index].current;
+  //   const rect = card.getBoundingClientRect();
+  //   const x = e.clientX - rect.left;
+  //   const y = e.clientY - rect.top;
+  //   const centerX = rect.width / 2;
+  //   const centerY = rect.height / 2;
+  //   const rotateX = -(y - centerY) / 6;
+  //   const rotateY = (x - centerX) / 6;
+  //   const scale = clickedIndex === index ? 1.6 : 1.1;
+  //   const opacity = clickedIndex === index ? 0.7 : 1;
+  //   const lightX = (x / rect.width) * 100;
+  //   const lightY = (y / rect.height) * 100;
+  //   const highlight = `radial-gradient(circle at ${lightX}% ${lightY}%, rgba(255,255,255,0.35), transparent 60%)`;
+  //   card.style.transform = `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  //   card.style.opacity = opacity;
+  //   card.style.backgroundImage = highlight;
+  // };
+
   const handleMouseMove = (e, index) => {
     const card = imgRefs[index].current;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = -(y - centerY) / 6;
-    const rotateY = (x - centerX) / 6;
-    const scale = clickedIndex === index ? 1.6 : 1.1;
-    const opacity = clickedIndex === index ? 0.7 : 1;
-    const lightX = (x / rect.width) * 100;
-    const lightY = (y / rect.height) * 100;
-    const highlight = `radial-gradient(circle at ${lightX}% ${lightY}%, rgba(255,255,255,0.35), transparent 60%)`;
-    card.style.transform = `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    card.style.opacity = opacity;
-    card.style.backgroundImage = highlight;
+    const scale = clickedIndex === index ? 1.1 : 1.05;
+    card.style.transform = `scale(${scale})`;
+    card.style.opacity = 1; // 투명도 효과 제거하거나 유지
   };
+  
+
+  // const resetTransform = (index) => {
+  //   const card = imgRefs[index].current;
+  //   if (clickedIndex !== index) {
+  //     card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  //     card.style.opacity = 1;
+  //     card.style.backgroundImage = 'none';
+  //   }
+  // };
 
   const resetTransform = (index) => {
     const card = imgRefs[index].current;
     if (clickedIndex !== index) {
-      card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      card.style.transform = 'scale(1)';
       card.style.opacity = 1;
-      card.style.backgroundImage = 'none';
     }
   };
+  
+
+  // const handleClick = (index) => {
+  //   const card = imgRefs[index].current;
+  //   const isAlreadyClicked = clickedIndex === index;
+  //   setClickedIndex(isAlreadyClicked ? null : index);
+
+  //   if (isAlreadyClicked) {
+  //     card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  //     card.style.opacity = 1;
+  //     card.style.backgroundImage = 'none';
+  //   } else {
+  //     card.style.transform = 'scale(1.6) rotateX(0deg) rotateY(0deg)';
+  //     card.style.opacity = 0.7;
+  //   }
+
+  //   if (index === 0) navigate('/ingredient-search');
+  //   else if (index === 1) navigate('/photo-search');
+  //   else if (index === 2) navigate('/theme');
+  // };
 
   const handleClick = (index) => {
-    const card = imgRefs[index].current;
     const isAlreadyClicked = clickedIndex === index;
     setClickedIndex(isAlreadyClicked ? null : index);
-
-    if (isAlreadyClicked) {
-      card.style.transform = 'rotateX(0deg) rotateY(0deg)';
-      card.style.opacity = 1;
-      card.style.backgroundImage = 'none';
-    } else {
-      card.style.transform = 'scale(1.6) rotateX(0deg) rotateY(0deg)';
-      card.style.opacity = 0.7;
-    }
-
+  
+    const card = imgRefs[index].current;
+    card.style.transform = isAlreadyClicked ? 'scale(1)' : 'scale(1.1)';
+    card.style.opacity = 1;
+  
     if (index === 0) navigate('/ingredient-search');
     else if (index === 1) navigate('/photo-search');
     else if (index === 2) navigate('/theme');
   };
+  
 
   return (
     <div className="app">
