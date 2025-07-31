@@ -402,7 +402,7 @@ function RecipeListPage() {
 
       {watsonRecommendations.length > 0 && (
         <div className="watson-section">
-          <h3>🤖 Watson AI 추천 레시피3종</h3>
+          <h3>🤖 AI 개인 맞춤 추천 레시피 3종</h3>
           <div className="recipe-grid">
             {watsonRecommendations.map((r, i) => {
 

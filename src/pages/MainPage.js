@@ -2,9 +2,9 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../App.css';
-import img11 from '../assets/img11.png';
-import img4 from '../assets/img2.png';
-import img2 from '../assets/img4.png';
+import img11 from '../assets/img_i4.png';
+import img4 from '../assets/img_r4.png';
+import img2 from '../assets/img_k4.png';
 
 
 function MainPage() {
