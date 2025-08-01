@@ -65,7 +65,7 @@
 .ingredient-buttons button:hover {
   box-shadow: 0 4px 16px rgba(0,0,0,0.13);
   transform: scale(1.045);
-  background: #f5f7fa;
+  background: #e0e0e0;
 }
 
 .ingredient-buttons button.active {
@@ -219,7 +219,7 @@
 
 .ingredient-section-card:hover {
   box-shadow: 0 6px 24px rgba(80,150,255,0.13);
-  background: #f1f3f4;
+  background: #b0b0b0;
   transform: translateY(-2px);
 }
 
@@ -291,7 +291,7 @@
 }
 
 .ingredient-item:hover {
-  background: #e9ecef;
+  background: #b8b8b8;
   border-color: #adb5bd;
   transform: scale(1.02);
 }
