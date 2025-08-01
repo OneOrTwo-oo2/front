@@ -364,6 +364,7 @@ select {
   background: #fafbfc;
   width: 100%;
   box-sizing: border-box;
+  padding-bottom: 100px; /* 고정 하단 버튼을 위한 여백 */
 }
 .selected-ingredients-fixed {
   position: sticky;
