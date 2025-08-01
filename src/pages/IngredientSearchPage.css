@@ -316,7 +316,7 @@ select {
 @media (max-width: 600px) {
   .ingredient-search-layout {
     flex-direction: column;
-    padding: 0 4px;
+    padding: 0;
   }
   .selected-ingredients-fixed {
     position: static;
@@ -325,7 +325,10 @@ select {
     font-size: 1rem;
   }
   .ingredient-search-content {
-    padding: 0 2px;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
   .section h4 {
     font-size: 1.1rem;
@@ -359,6 +362,8 @@ select {
   gap: 32px;
   padding: 32px 40px 32px 40px;
   background: #fafbfc;
+  width: 100%;
+  box-sizing: border-box;
 }
 .selected-ingredients-fixed {
   position: sticky;
@@ -391,6 +396,8 @@ select {
 .ingredient-search-content {
   flex: 1;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 .section {
   margin-bottom: 32px;
@@ -463,8 +470,9 @@ select {
 @media (max-width: 900px) {
   .ingredient-search-layout {
     flex-direction: column;
-    padding: 0 4px;
+    padding: 0;
     gap: 0;
+    padding-bottom: 80px; /* 고정 버튼을 위한 하단 여백 */
   }
   .selected-ingredients-fixed {
     position: static;
@@ -507,7 +515,11 @@ select {
   }
   
   .ingredient-search-content {
-    padding: 0 2px;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding-bottom: 15px; /* 추가 하단 여백 */
   }
   .section h4 {
     font-size: 1.05rem;
@@ -546,6 +558,14 @@ select {
   }
 }
 @media (max-width: 480px) {
+  .ingredient-search-layout {
+    padding-bottom: 100px; /* 더 작은 화면에서 여백 줄임 */
+  }
+  
+  .ingredient-search-content {
+    padding-bottom: 25px; /* 추가 하단 여백 줄임 */
+  }
+  
   .buttons {
     grid-template-columns: 1fr;
   }

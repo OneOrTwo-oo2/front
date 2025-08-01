@@ -117,17 +117,15 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
     return text;
   };
 
-  // 카테고리를 3개 그룹으로 나누기 (기타를 맨 마지막으로 이동)
+  // 모든 카테고리를 한 줄에 배치
   const categories = Object.keys(ingredientCategoryMap);
-  // 기타를 맨 마지막으로 이동: 탄수화물, 단백질, 소스류, 유제품, 야채류, 과일류, 가공품, 음료, 기타
+  // 모든 카테고리를 한 줄에 배치: 탄수화물, 단백질, 소스류, 유제품, 야채류, 과일류, 가공품, 음료, 기타
   const reorderedCategories = [
     'carbohydrate', 'protein', 'sauce', 'dairy', 
     'vegetable', 'fruit', 'processed', 'beverage', 'etc'
   ];
   
-  const firstRow = reorderedCategories.slice(0, 4); // 첫 번째 줄: 4개 (탄수화물, 단백질, 소스류, 유제품)
-  const secondRow = reorderedCategories.slice(4, 8); // 두 번째 줄: 4개 (야채류, 과일류, 가공품, 음료)
-  const thirdRow = reorderedCategories.slice(8); // 세 번째 줄: 1개 (기타)
+  const allCategories = reorderedCategories; // 모든 카테고리를 한 줄에
 
   return (
     <>
@@ -140,9 +138,9 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
         />
       </div>
       <div className="ingredient-sections-wrapper">
-        {/* 첫 번째 줄: 4개 */}
+        {/* 모든 카테고리를 한 줄에 배치 */}
         <div className="category-row">
-          {firstRow.map((category) => {
+          {allCategories.map((category) => {
             const items = ingredientList[ingredientCategoryMap[category]] || [];
             const selectedItems = items.filter(item => selectedIngredients.includes(item));
             const unselectedItems = items.filter(item => !selectedIngredients.includes(item));
@@ -178,7 +176,7 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
                     +
                   </button>
                 </div>
-                <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
+                <div className="ingredient-grid">
                   {displayedItems.slice(0, 4).map((item) => (
                     <button
                       key={item}
@@ -188,180 +186,29 @@ function IngredientCategorySection({ selectedIngredients, setSelectedIngredients
                       }}
                       className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
                       style={{
-                        padding:'8px 12px',
+                        padding:'6px 8px',
                         border:'1px solid #ddd',
                         borderRadius:'8px',
                         background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
                         color:selectedIngredients.includes(item) ? '#fff' : '#333',
                         cursor:'pointer',
-                        fontSize:'0.9rem',
+                        fontSize:'0.8rem',
                         display:'flex',
                         alignItems:'center',
-                        gap:'6px',
-                        transition:'all 0.2s ease'
+                        justifyContent:'center',
+                        gap:'4px',
+                        transition:'all 0.2s ease',
+                        width:'100%',
+                        minHeight:'40px'
                       }}
                     >
                       <img 
                         src={emojiMap[item]?.emoji || '/default-emoji.png'} 
                         alt={emojiMap[item]?.name_ko || item}
-                        style={{width:'20px', height:'20px'}}
+                        style={{width:'18px', height:'18px', flexShrink:0}}
                       />
-                      <span style={{fontSize:'0.85rem'}} title={emojiMap[item]?.name_ko || item}>
-                        {truncateText(emojiMap[item]?.name_ko || item)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 두 번째 줄: 4개 */}
-        <div className="category-row">
-          {secondRow.map((category) => {
-            const items = ingredientList[ingredientCategoryMap[category]] || [];
-            const selectedItems = items.filter(item => selectedIngredients.includes(item));
-            const unselectedItems = items.filter(item => !selectedIngredients.includes(item));
-            const displayedItems = [...selectedItems, ...unselectedItems];
-
-            return (
-              <div key={category} className="ingredient-section-card">
-                <div className="category-header">
-                  <h3>{ingredientCategoryMap[category]}</h3>
-                  <button 
-                    className="toggle-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(category);
-                    }}
-                    style={{
-                      width:'32px',
-                      height:'32px',
-                      borderRadius:'50%',
-                      border:'none',
-                      background:'linear-gradient(135deg, #007bff, #28a745)',
-                      color:'white',
-                      fontSize:'18px',
-                      fontWeight:'bold',
-                      cursor:'pointer',
-                      display:'flex',
-                      alignItems:'center',
-                      justifyContent:'center',
-                      boxShadow:'0 2px 8px rgba(0,123,255,0.3)',
-                      transition:'all 0.2s ease'
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
-                  {displayedItems.slice(0, 4).map((item) => (
-                    <button
-                      key={item}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleIngredient(item);
-                      }}
-                      className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
-                      style={{
-                        padding:'8px 12px',
-                        border:'1px solid #ddd',
-                        borderRadius:'8px',
-                        background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
-                        color:selectedIngredients.includes(item) ? '#fff' : '#333',
-                        cursor:'pointer',
-                        fontSize:'0.9rem',
-                        display:'flex',
-                        alignItems:'center',
-                        gap:'6px',
-                        transition:'all 0.2s ease'
-                      }}
-                    >
-                      <img 
-                        src={emojiMap[item]?.emoji || '/default-emoji.png'} 
-                        alt={emojiMap[item]?.name_ko || item}
-                        style={{width:'20px', height:'20px'}}
-                      />
-                      <span style={{fontSize:'0.85rem'}} title={emojiMap[item]?.name_ko || item}>
-                        {truncateText(emojiMap[item]?.name_ko || item)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 세 번째 줄: 1개 (왼쪽 정렬) */}
-        <div className="category-row" style={{justifyItems: 'flex-start'}}>
-          {thirdRow.map((category) => {
-            const items = ingredientList[ingredientCategoryMap[category]] || [];
-            const selectedItems = items.filter(item => selectedIngredients.includes(item));
-            const unselectedItems = items.filter(item => !selectedIngredients.includes(item));
-            const displayedItems = [...selectedItems, ...unselectedItems];
-
-            return (
-              <div key={category} className="ingredient-section-card">
-                <div className="category-header">
-                  <h3>{ingredientCategoryMap[category]}</h3>
-                  <button 
-                    className="toggle-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(category);
-                    }}
-                    style={{
-                      width:'32px',
-                      height:'32px',
-                      borderRadius:'50%',
-                      border:'none',
-                      background:'linear-gradient(135deg, #007bff, #28a745)',
-                      color:'white',
-                      fontSize:'18px',
-                      fontWeight:'bold',
-                      cursor:'pointer',
-                      display:'flex',
-                      alignItems:'center',
-                      justifyContent:'center',
-                      boxShadow:'0 2px 8px rgba(0,123,255,0.3)',
-                      transition:'all 0.2s ease'
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="ingredient-grid" style={{display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:'8px', width:'100%'}}>
-                  {displayedItems.slice(0, 4).map((item) => (
-                    <button
-                      key={item}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleIngredient(item);
-                      }}
-                      className={`ingredient-item ${selectedIngredients.includes(item) ? 'selected' : ''}`}
-                      style={{
-                        padding:'8px 12px',
-                        border:'1px solid #ddd',
-                        borderRadius:'8px',
-                        background:selectedIngredients.includes(item) ? '#4CAF50' : '#fff',
-                        color:selectedIngredients.includes(item) ? '#fff' : '#333',
-                        cursor:'pointer',
-                        fontSize:'0.9rem',
-                        display:'flex',
-                        alignItems:'center',
-                        gap:'6px',
-                        transition:'all 0.2s ease'
-                      }}
-                    >
-                      <img 
-                        src={emojiMap[item]?.emoji || '/default-emoji.png'} 
-                        alt={emojiMap[item]?.name_ko || item}
-                        style={{width:'20px', height:'20px'}}
-                      />
-                      <span style={{fontSize:'0.85rem'}} title={emojiMap[item]?.name_ko || item}>
-                        {truncateText(emojiMap[item]?.name_ko || item)}
+                      <span style={{fontSize:'0.75rem', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}} title={emojiMap[item]?.name_ko || item}>
+                        {truncateText(emojiMap[item]?.name_ko || item, 3)}
                       </span>
                     </button>
                   ))}
