@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import './HelpPage.css'; // 선택사항
+import methodIcon from '../assets/icons/method_icon.svg';
 
 function HelpPage() {
   const [content, setContent] = useState('');
@@ -19,7 +20,9 @@ function HelpPage() {
 
   return (
     <div className="help-page">
-      <h1>📘 도움말</h1>
+      <h1>
+      <img src={methodIcon} alt="method" style={{ width: '70px', height: '70px', verticalAlign: 'middle', marginRight: '20px' }} />
+      </h1>
       <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
     </div>
   );

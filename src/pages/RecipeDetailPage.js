@@ -3,6 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient'; // ✅ axios 인스턴스
 import './RecipeDetailPage.css';
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
+import bookmarkIcon from '../assets/icons/bookmark_icon.svg';
+import recommendIcon from '../assets/icons/recommend_icon.svg';
+import tipIcon from '../assets/icons/tip_icon.svg';
+import sumIcon from '../assets/icons/sum_icon.svg';
+import ingIcon from '../assets/icons/ing_icon.svg';
+import searchIcon from '../assets/icons/yellow_search_icon.svg';
 
 function RecipeDetailPage() {
   const location = useLocation();
@@ -125,28 +131,45 @@ function RecipeDetailPage() {
           {isBookmarked ? (
             <><span className="icon" style={{ color: '#2dbd5a' }}>✅</span><span style={{ color: '#2dbd5a' }}>저장됨</span></>
           ) : (
-            <><span className="icon">🔖</span>북마크</>
+            <>
+            <span className="icon">
+            <img src={bookmarkIcon} alt="bookmark" style={{ width: '25px', height: '25px', verticalAlign: 'middle', marginRight: '5px' }} />
+            </span>
+            북마크
+            </>
           )}
         </button>
       </div>
-
+      
       {isWatson && recommendationReason && (
         <div className="ai-recommendation">
-          <h3>🤖 추천 이유</h3>
+          {/* <h3>🤖 추천 이유</h3> */}
+          <h3>
+          <img src={recommendIcon} alt="recommend" style={{ width: '40px', height: '40px', verticalAlign: 'middle', marginRight: '5px' }} />
+          추천 이유
+          </h3>
           <p>{recommendationReason}</p>
         </div>
       )}
 
       {isWatson && dietaryTips && (
         <div className="ai-tips">
-          <h3>💡 식이요법 팁</h3>
+          {/* <h3>💡 식이요법 팁</h3> */}
+          <h3>
+        <img src={tipIcon} alt="tip" style={{ width: '40px', height: '40px', verticalAlign: 'middle', marginRight: '5px' }} />
+        식이요법 팁
+        </h3>
           <p>{dietaryTips}</p>
         </div>
       )}
-
+      <br></br>
       {summary && (
         <>
-          <h2>📋 요약</h2>
+          <h2>
+          <img src={sumIcon} alt="sum" style={{ width: '30px', height: '30px', verticalAlign: 'middle', marginRight: '5px' }} />
+            요약
+            <br />
+          </h2>
           <div className="summary-box">
             {summary.text && <p className="summary-text">{summary.text}</p>}
             <div className="meta-info">
@@ -167,7 +190,10 @@ function RecipeDetailPage() {
 
       {ingredients.length > 0 && (
         <>
-          <h2>🧂 재료</h2>
+          <h2>
+          <img src={ingIcon} alt="ing" style={{ width: '30px', height: '30px', verticalAlign: 'middle', marginRight: '5px' }} />
+            재료
+          </h2>
           <div className="ingredient-section">
             <div className="ingredient-column">
               <h4>🧺 주재료</h4>
@@ -185,7 +211,10 @@ function RecipeDetailPage() {
         </>
       )}
 
-      <h2>🔍 조리순서</h2>
+      <h2>
+      <img src={searchIcon} alt="search" style={{ width: '40px', height: '40px', verticalAlign: 'middle', marginRight: '5px' }} />
+      조리순서
+      </h2>
       <div className="steps">
         {steps.map((s, i) => (
           <div key={i} className="step-card">

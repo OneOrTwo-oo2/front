@@ -9,6 +9,10 @@ import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import LoadingAnimation from '../components/loading_api';
 import apiClient from '../api/apiClient';
 import aiClient from '../api/aiClient';
+import AiIcon from '../assets/icons/ai_icon4.svg';
+import recipeIcon from '../assets/icons/recipe_icon.svg';
+import yellow_searchIcon from '../assets/icons/yellow_search_icon.svg';
+import bookmarkIcon from '../assets/icons/bookmark_icon.svg';
 
 function RecipeListPage() {
   const [ingredients, setIngredients] = useState('');
@@ -330,8 +334,12 @@ function RecipeListPage() {
     <div className="recipe-list-page">
       {/* cursor 수정 - 검색 박스 제거하고 정보 표시 박스로 변경 */}
       <div className="search-info-box">
-        <h2>🔍 레시피 검색</h2>
-        
+        {/* <h2>🔍 레시피 검색</h2> */}
+        <h2>
+        <img src={recipeIcon} alt="recipe" style={{ width: '60px', height: '60px', verticalAlign: 'middle', marginRight: '5px' }} />
+          레시피 검색
+        </h2>
+
         {/* 선택된 정보 표시 박스 */}
         <div className="selected-info-container">
           <div className="info-row">
@@ -398,11 +406,14 @@ function RecipeListPage() {
             <LoadingAnimation />
           </div>
        )}
-      {!isLoading && results.length > 0 && (<p className="result-count">🔎 총 {results.length}개의 레시피가 검색되었습니다.</p>)}
+       {/* {!isLoading && results.length > 0 && (<p className="result-count"> 총 {results.length}개의 레시피가 검색되었습니다.</p>)} */}
 
       {watsonRecommendations.length > 0 && (
         <div className="watson-section">
-          <h3>🤖 AI 개인 맞춤 추천 레시피 3종</h3>
+          <h3>
+          <img src={AiIcon} alt="ai" style={{ width: '60px', height: '60px', verticalAlign: 'middle', marginRight: '5px' }} />
+          AI 개인 맞춤 추천 레시피 3종
+          </h3>
           <div className="recipe-grid">
             {watsonRecommendations.map((r, i) => {
 
@@ -429,7 +440,9 @@ function RecipeListPage() {
                       </>
                     ) : (
                       <>
-                        <span className="icon">🔖</span>
+                        <span className="icon">
+                        <img src={bookmarkIcon} alt="bookmark" style={{ width: '25px', height: '25px', verticalAlign: 'middle', marginRight: '5px' }} />
+                        </span>
                         북마크
                       </>
                     );
@@ -442,7 +455,14 @@ function RecipeListPage() {
           </div>
         </div>
       )}
-        <h3>검색 레시피</h3>
+
+        <h3>
+        <img src={yellow_searchIcon} alt="search" style={{ width: '40px', height: '40px', verticalAlign: 'middle', marginRight: '5px' }} />
+        일반 검색 레시피
+        </h3>
+        <p className="result-count">
+          총 {results.length}개의 레시피가 검색되었습니다.
+        </p>
         <div className="recipe-grid">
           {results.map((r, i) => {
             const key = `normal-${r.id}`;  // ✅ 일반 레시피 북마크 key
@@ -460,7 +480,9 @@ function RecipeListPage() {
                       </>
                     ) : (
                       <>
-                        <span className="icon">🔖</span>
+                        <span className="icon">
+                        <img src={bookmarkIcon} alt="bookmark" style={{ width: '25px', height: '25px', verticalAlign: 'middle', marginRight: '5px' }} />
+                        </span>
                         북마크
                       </>
                     )}

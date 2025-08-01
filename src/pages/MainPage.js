@@ -106,7 +106,15 @@ function MainPage() {
             >
               <img src={imgSrc} alt={`메인${i+1}`} style={{ width: '120%', height: 'auto', borderRadius: '12px', objectFit: 'contain', maxHeight: 250, userSelect: 'none', pointerEvents: 'none' }} />
             </div>
-            <p style={{ fontWeight: 500, fontSize: '1.1rem', marginTop: 24, userSelect: 'none' }}>
+            <p style={{ 
+              fontWeight: 700, 
+              fontSize: '1.5rem', 
+              marginTop: 24, 
+              userSelect: 'none',
+              color: '#2c3e50',
+              textShadow: '0 1px 2px rgba(0,0,0,0.0)',
+              letterSpacing: '0.5px'
+            }}>
               {i === 0 && '재료 선택'}
               {i === 1 && '사진 검색'}
               {i === 2 && '테마 선택'}

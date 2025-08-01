@@ -293,7 +293,7 @@ function IngredientSearchPage() {
       {/* 좌측 고정 선택 박스 */}
       <div className="selected-ingredients-fixed">
         <p className="text-prefer">
-          <img src={prefIcon} alt="선호도 아이콘" style={{ width: '1.3em', height: '1.3em', marginRight: '0.1em', verticalAlign: 'middle' }} />
+          <img src={prefIcon} alt="선호도 아이콘" style={{ width: '1.5em', height: '1.5em', marginRight: '0.1em', verticalAlign: 'middle' }} />
           선호도 & 타입 선택
         </p>
         <div className="selected-ingredients-row buttons">

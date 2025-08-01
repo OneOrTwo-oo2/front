@@ -4,6 +4,9 @@ import './RecipeListPage.css'; // 동일한 스타일 재사용
 import apiClient from '../api/apiClient'; // ✅ axios 인스턴스
 import { fetchWithAutoRefresh } from '../utils/fetchWithAuth';
 import { useNavigate , useLocation } from 'react-router-dom';
+import themaIcon from '../assets/icons/thema_icon.svg';
+import bookmarkIcon from '../assets/icons/bookmark_icon.svg';
+
 
 function RandomRecipePage() {
   const [theme, setTheme] = useState('');
@@ -185,7 +188,10 @@ function RandomRecipePage() {
   };
   return (
     <div className="recipe-list-page">
-      <h2>💡테마별 추천</h2>
+      <h2>
+      <img src={themaIcon} alt="thema" style={{ width: '60px', height: '60px', verticalAlign: 'middle', marginRight: '5px' }} />
+        테마별
+      </h2>
 
     <div className="theme-buttons">
       {themes.map((theme) => (
@@ -222,7 +228,9 @@ function RandomRecipePage() {
                   </>
                 ) : (
                   <>
-                    <span className="icon">🔖</span>
+                    <span className="icon">
+                    <img src={bookmarkIcon} alt="bookmark" style={{ width: '25px', height: '25px', verticalAlign: 'middle', marginRight: '5px' }} />
+                    </span>
                     북마크
                   </>
                 )}

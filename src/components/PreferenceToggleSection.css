@@ -31,7 +31,7 @@
 /* 선택된 알러지 섹션 */
 .selected-allergies-section {
   margin-bottom: 40px;
-  text-align: left;
+  text-align: center;
 }
 
 .selected-allergies-section h3 {
@@ -45,11 +45,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  justify-content: center;
+  align-items: center;
 }
 
 .selected-allergy-badge {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 16px;
   background: linear-gradient(135deg, #dc3545, #c82333);
@@ -94,7 +97,7 @@
 /* 알러지 선택 섹션 */
 .allergies-section {
   margin-bottom: 40px;
-  text-align: left;
+  text-align: center;
 }
 
 .allergies-section h3 {
