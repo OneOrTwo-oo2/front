@@ -30,7 +30,7 @@
   margin: 1rem 0;
 }
 
-/* ✅ AI 추천, 식이요법 카드 */
+/* ✅ AI 추천, 식이요법 카드 */ 
 .ai-recommendation,
 .ai-tips {
   background-color: #f9f9f9;
@@ -39,6 +39,7 @@
   margin-bottom: 20px;
   border-radius: 6px;
 }
+
 
 /* ✅ 재료 */
 .ingredients {
