@@ -69,3 +69,21 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 # front
+
+1. front
+
+기술 스택: HTML, CSS, JavaScript, React
+
+설명: 사용자 인터페이스를 구현한 프런트엔드 웹 애플리케이션입니다. React 기반으로 동적인 UI를 구성하고 있습니다.
+
+2. backend
+
+기술 스택: Python
+
+설명: 프런트엔드와 연동되는 API 서버 혹은 백엔드 로직이 구현된 프로젝트입니다. 데이터 처리 및 서버 통신을 담당합니다.
+
+3. ImageModel
+
+기술 스택: Python
+
+설명: 이미지 분석 또는 모델링 관련 기능을 수행하는 프로젝트입니다. 예를 들어, 이미지 분류, 객체 검출 등의 머신러닝/딥러닝 모델이 포함되어 있을 수 있습니다.
