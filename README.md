@@ -118,28 +118,28 @@
 <br/>
 
 <img width="937" height="301" alt="image" src="https://github.com/user-attachments/assets/4ca0941c-ec1b-4b80-93fe-2284322759c8" />
-
+<br/>
 YOLO 특성상 1-Stage Detecting 방식이기 때문에 일부 객체를 누락하는 한계가 존재.
-
+<br/>
 <img width="868" height="220" alt="image" src="https://github.com/user-attachments/assets/b4ac56b4-54f3-4a79-a049-0e2461ba849b" />
-
+<br/>
 YOLO Model 8개를 병렬 처리 하여 박스 탐지 결과를 NMS 를 통해 하나로 통합.
 
 <br/>
 
 <img width="1015" height="193" alt="image" src="https://github.com/user-attachments/assets/efe7f5ad-9af2-4ff6-ad50-7d95a6051acd" />
-
+<br/>
 CLIP 모델은 주어진 라벨과 다를경우 라벨 인식 실패 하거나 탐지되면 안되는 객체들도 탐지 되는 사실 확인
-
+<br/>
 <img width="927" height="396" alt="image" src="https://github.com/user-attachments/assets/15c37dd9-e4c9-4ca6-bed2-ca6d82e05922" />
-
+<br/>
 White_List 도입으로 라벨 통일화 작업 및 Block_List 로 오탐 객체 필터링 
 
 <br/>
 
 <img width="1078" height="486" alt="image" src="https://github.com/user-attachments/assets/f74eefbb-48fc-4375-a978-14ff37f81046" />
 
-
+<br/>
 - 결과적으로 테스트 이미지 기준 60% ~ 65% 의 탐지율을 85% ~ 90% 까지 상승하였고 오탐률 또한 감소 하였습니다. 또한 탐지 이후 결과창을 통해 정확도를 기반으로 수정가능 
 
 <br/>
@@ -157,14 +157,37 @@ White_List 도입으로 라벨 통일화 작업 및 Block_List 로 오탐 객체
 <br/>
 
 <img width="1007" height="400" alt="image" src="https://github.com/user-attachments/assets/0bb8d61a-385c-441d-a163-4f13192d44e8" />
-
+<br/>
 - 동일한 재료여도 선호도에 따른 정상적인 AI 추천 원활하게 진행
-
+<br/>
 <img width="1031" height="559" alt="image" src="https://github.com/user-attachments/assets/f73ccef7-3c47-4d2a-beca-92de25983533" />
 
 
 ---
 
+<br/>
+
+# 인프라 구성
+<br/>
+<img width="1143" height="641" alt="image" src="https://github.com/user-attachments/assets/1634b476-a9f5-4e62-9dca-7c6950d3df56" />
+<br/>
+- 쿠버네티스 클러스터 구성
+
+<img width="1159" height="647" alt="image" src="https://github.com/user-attachments/assets/e55c377f-3bab-4e45-a750-d61b251425f2" />
+
+- 쿠버네티스 보안성을 위해 Ingress-NGINX 컨트롤러 설치하여 외부에서 직접적으로 POD에 접근하는 것은 차단되며, 모든 클라이언트의 요청은 Ingress 컨트롤러를 거쳐 처리되게 만들었습니다.
+<br/>
+<img width="1159" height="647" alt="image" src="https://github.com/user-attachments/assets/bec79987-5b98-4f70-b5a8-3bf513497001" />
+
+- Github Actions 을 통해 App Repo에 있는 파일이 바뀌면 이미지를 빌드해서 이미지 저장소로 보내고, Argo Repo 에 있는 메니페스트 파일의 이미지 태그를 수정하고 업데이트 합니다.
+그러면 Argocd는 Argo Repo에 있는 매니페스트 파일의 변화를 감지하고 변경이 되면 이미지를 풀해서 기존 POD를 갱신하게 됩니다.
+<br/>
+<img width="1095" height="656" alt="image" src="https://github.com/user-attachments/assets/a5e4f263-13b4-4eb6-a236-15bfceb7f015" />
+<br/>
+- 최종 인프라 구성
+<br/>
+---
+<br/>
 # 프로젝트 성과
 
 <br>
