@@ -107,6 +107,60 @@
   
 <br/>
 
+---
+
+# 트러블 슈팅 과정
+
+<br/>
+
+## 이미지 모델
+
+<br/>
+
+<img width="937" height="301" alt="image" src="https://github.com/user-attachments/assets/4ca0941c-ec1b-4b80-93fe-2284322759c8" />
+
+YOLO 특성상 1-Stage Detecting 방식이기 때문에 일부 객체를 누락하는 한계가 존재.
+
+<img width="868" height="220" alt="image" src="https://github.com/user-attachments/assets/b4ac56b4-54f3-4a79-a049-0e2461ba849b" />
+
+YOLO Model 8개를 병렬 처리 하여 박스 탐지 결과를 NMS 를 통해 하나로 통합.
+
+<br/>
+
+<img width="1015" height="193" alt="image" src="https://github.com/user-attachments/assets/efe7f5ad-9af2-4ff6-ad50-7d95a6051acd" />
+
+CLIP 모델은 주어진 라벨과 다를경우 라벨 인식 실패 하거나 탐지되면 안되는 객체들도 탐지 되는 사실 확인
+
+<img width="927" height="396" alt="image" src="https://github.com/user-attachments/assets/15c37dd9-e4c9-4ca6-bed2-ca6d82e05922" />
+
+White_List 도입으로 라벨 통일화 작업 및 Block_List 로 오탐 객체 필터링 
+
+<br/>
+
+<img width="1078" height="486" alt="image" src="https://github.com/user-attachments/assets/f74eefbb-48fc-4375-a978-14ff37f81046" />
+
+
+- 결과적으로 테스트 이미지 기준 60% ~ 65% 의 탐지율을 85% ~ 90% 까지 상승하였고 오탐률 또한 감소 하였습니다. 또한 탐지 이후 결과창을 통해 정확도를 기반으로 수정가능 
+
+<br/>
+
+## LLM 모델
+
+> FAISS 기반 의미 유사도 검색은 재료 기반의 정확한 검색에 한계
+(예: ‘백미’, ‘양고기’ 입력 시 → ‘소고기 요리’ 추천됨: ‘고기’로 일반화되어 매칭)
+
+<br/>
+
+> 레시피 FAISS 저장 방식 ----> JSON 저장 방식으로 변환
+단어 기반 검색(BM25)을 사용하여 더 정확하게 레시피를 가져 올 수 있게 변경
+
+<br/>
+
+<img width="1007" height="400" alt="image" src="https://github.com/user-attachments/assets/0bb8d61a-385c-441d-a163-4f13192d44e8" />
+
+- 동일한 재료여도 선호도에 따른 정상적인 AI 추천 원활하게 진행
+
+<img width="1031" height="559" alt="image" src="https://github.com/user-attachments/assets/f73ccef7-3c47-4d2a-beca-92de25983533" />
 
 
 ---
