@@ -87,3 +87,5 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 기술 스택: Python
 
 설명: 이미지 분석 또는 모델링 관련 기능을 수행하는 프로젝트입니다. 예를 들어, 이미지 분류, 객체 검출 등의 머신러닝/딥러닝 모델이 포함되어 있을 수 있습니다.
+
+![로고](./src/assets/recipego_logo.png)
