@@ -41,15 +41,15 @@
   
 <br/>
 
-## ImageModel
+## AI Model
 
 - 기술 스택: YOLOv8/YOLO11(You Only Look Once), WATSONX-AI(llama-4-maverick-17b-128e-instruct-fp8), CLIP(ViT-L-14/openai), ko-sbert-nli (한국어 SBERT 임베딩 모델)
 
-- 설명 : 이미지 탐지를 통해 분석하는 모델입니다. 2단계 파이프라인으로 구성되어 있으며 YOLO 와 CLIP 을 사용하였습니다.
+- 설명 : 이미지 탐지를 통해 분석하는 모델입니다. 2단계 파이프라인으로 구성되어 있으며 YOLO 와 CLIP 을 사용하였습니다. 레시피 추천에는 Watsonx-ai 를 활용하였습니다.
   
 <br/>
 
-## ArgoCD
+## CI/CD & Deployment
 
 - 기술 스택: Github action, ArgoCD, Kubernetes
 
@@ -57,9 +57,16 @@
 
 <br/>
 
+## Infra
+
+- 기술 스택: FAISS, BM25, MariaDB, AWS EC2. S3. RDS(Relational Database Service), Router53
+
+- 설명 : 전체적으로 AWS 를 통해 구성하였으며 Recipe Go 서비스의 데이터베이스는 mariaDB, 질환별 식단 데이터를 FAISS 기반 벡터DB로 구성하였고 레시피 데이터는 검색 알고리즘인 BM25 방식을 사용하였습니다.
+
 ---
 
 <br/>
+
 ## Main Page
 
 ![로고](./src/assets/main.png)
@@ -67,7 +74,8 @@
 메인화면은 세가지의 메인기능으로 구성되어 있습니다.
 
 <br/>
-## 재료 선택
+
+## 재료선택
 
 - 먼저 재료 선택 페이지 에서는 각 카테고리별로 재료를 선택할 수 있습니다.
 <br/>
@@ -81,9 +89,23 @@
 <br/>
 <img width="285" height="444" alt="image" src="https://github.com/user-attachments/assets/2034d70b-5be2-4b87-bc75-4bcad20a641c" />
 
+<br/>
 
+## 사진검색
 
+<img width="533" height="309" alt="image" src="https://github.com/user-attachments/assets/fcf54745-443d-4a53-a588-1f51ebf2c782" />
 
+- 사진 검색 페이지에서는 사진촬영이나 보유하고 있는 사진을 통해 검색이 가능하며 추후에 선택된 재료를 수정하여 사용할 수 있습니다.
+  
+<br/>
+
+## 테마검색
+
+<img width="1763" height="260" alt="image" src="https://github.com/user-attachments/assets/93375e01-825e-46d2-8d63-ed2eca703bab" />
+
+- 테마 검색 페이지에서는 재료선택 없이도 테마 선택을 통해 레시피 검색이 가능합니다.
+  
+<br/>
 
 
 
